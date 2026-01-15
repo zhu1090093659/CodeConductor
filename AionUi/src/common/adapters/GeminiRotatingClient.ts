@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { AuthType } from '@office-ai/aioncli-core';
+import { AuthType } from '../types/auth';
 import type { RotatingApiClientOptions } from '../RotatingApiClient';
 import { RotatingApiClient } from '../RotatingApiClient';
 import { OpenAI2GeminiConverter, type OpenAIChatCompletionParams, type OpenAIChatCompletionResponse } from './OpenAI2GeminiConverter';

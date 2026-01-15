@@ -4,14 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execSync } from 'child_process';
 import type { AcpBackend } from '../../../types/acpTypes';
 import type { IMcpServer } from '../../../common/storage';
 import { ClaudeMcpAgent } from './agents/ClaudeMcpAgent';
 import { QwenMcpAgent } from './agents/QwenMcpAgent';
 import { IflowMcpAgent } from './agents/IflowMcpAgent';
-import { GeminiMcpAgent } from './agents/GeminiMcpAgent';
-import { AionuiMcpAgent } from './agents/AionuiMcpAgent';
 import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
 
@@ -20,8 +17,7 @@ import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncR
  * 新架构：只定义协议，具体实现由各个Agent类完成
  *
  * Agent 类型说明：
- * - AcpBackend ('claude', 'qwen', 'iflow', 'gemini', 'codex'等): 支持的 ACP 后端
- * - 'aionui': @office-ai/aioncli-core (AionUi 本地管理的 Gemini 实现)
+ * - AcpBackend ('claude', 'qwen', 'iflow', 'codex'等): 支持的 ACP 后端
  */
 export class McpService {
   private agents: Map<McpSource, IMcpProtocol>;
@@ -31,8 +27,6 @@ export class McpService {
       ['claude', new ClaudeMcpAgent()],
       ['qwen', new QwenMcpAgent()],
       ['iflow', new IflowMcpAgent()],
-      ['gemini', new GeminiMcpAgent()],
-      ['aionui', new AionuiMcpAgent()], // AionUi 本地 @office-ai/aioncli-core
       ['codex', new CodexMcpAgent()],
     ]);
   }
@@ -47,8 +41,7 @@ export class McpService {
   /**
    * 从检测到的ACP agents中获取MCP配置（并发版本）
    *
-   * 注意：此方法还会额外检测原生 Gemini CLI 的 MCP 配置，
-   * 即使它在 ACP 配置中是禁用的（因为 fork 的 Gemini 用于 ACP）
+   * 注意：只检测 ACP agents 提供的 MCP 配置
    */
   async getAgentMcpConfigs(
     agents: Array<{
@@ -57,40 +50,8 @@ export class McpService {
       cliPath?: string;
     }>
   ): Promise<DetectedMcpServer[]> {
-    // 创建完整的检测列表，包含 ACP agents 和额外的 MCP-only agents
-    const allAgentsToCheck = [...agents];
-
-    // 检查是否需要添加原生 Gemini CLI（如果它不在 ACP agents 中）
-    const hasNativeGemini = agents.some((a) => a.backend === 'gemini' && a.cliPath === 'gemini');
-    if (!hasNativeGemini) {
-      // 检查系统中是否安装了原生 Gemini CLI
+    const promises = agents.map(async (agent) => {
       try {
-        const isWindows = process.platform === 'win32';
-        const whichCommand = isWindows ? 'where' : 'which';
-        execSync(`${whichCommand} gemini`, { encoding: 'utf-8', stdio: 'pipe', timeout: 1000 });
-
-        // 如果找到了原生 Gemini CLI，添加到检测列表
-        allAgentsToCheck.push({
-          backend: 'gemini' as AcpBackend,
-          name: 'Google Gemini CLI',
-          cliPath: 'gemini',
-        });
-        console.log('[McpService] Added native Gemini CLI for MCP detection');
-      } catch {
-        // 原生 Gemini CLI 未安装，跳过
-      }
-    }
-
-    // 并发执行所有agent的MCP检测
-    const promises = allAgentsToCheck.map(async (agent) => {
-      try {
-        // 跳过 fork 的 Gemini（backend='gemini' 且 cliPath=undefined）
-        // fork 的 Gemini 的 MCP 配置应该由 AionuiMcpAgent 管理
-        if (agent.backend === 'gemini' && !agent.cliPath) {
-          console.log(`[McpService] Skipping fork Gemini (ACP only, MCP managed by AionuiMcpAgent)`);
-          return null;
-        }
-
         const agentInstance = this.getAgent(agent.backend);
         if (!agentInstance) {
           console.warn(`[McpService] No agent instance for backend: ${agent.backend}`);

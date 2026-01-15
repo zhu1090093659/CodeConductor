@@ -7,7 +7,6 @@
 import { acpDetector } from '@/agent/acp/AcpDetector';
 import { initAcpConversationBridge } from './acpConversationBridge';
 import { initApplicationBridge } from './applicationBridge';
-import { initAuthBridge } from './authBridge';
 import { initCodexConversationBridge } from './codexConversationBridge';
 import { initConversationBridge } from './conversationBridge';
 import { initDocumentBridge } from './documentBridge';
@@ -15,8 +14,6 @@ import { initDatabaseBridge } from './databaseBridge';
 import { initDialogBridge } from './dialogBridge';
 import { initFileWatchBridge } from './fileWatchBridge';
 import { initFsBridge } from './fsBridge';
-import { initGeminiConversationBridge } from './geminiConversationBridge';
-import { initGeminiBridge } from './geminiBridge';
 import { initMcpBridge } from './mcpBridge';
 import { initModelBridge } from './modelBridge';
 import { initPreviewHistoryBridge } from './previewHistoryBridge';
@@ -37,12 +34,8 @@ export function initAllBridges(): void {
   initFileWatchBridge();
   initConversationBridge();
   initApplicationBridge();
-  initGeminiConversationBridge();
-  // 额外的 Gemini 辅助桥（订阅检测等）需要在对话桥初始化后可用 / extra helpers after core bridges
-  initGeminiBridge();
   initAcpConversationBridge();
   initCodexConversationBridge();
-  initAuthBridge();
   initModelBridge();
   initProviderBridge();
   initSkillsBridge();
@@ -67,6 +60,6 @@ export async function initializeAcpDetector(): Promise<void> {
 }
 
 // 导出初始化函数供单独使用
-export { initAcpConversationBridge, initApplicationBridge, initAuthBridge, initCodexConversationBridge, initConversationBridge, initDatabaseBridge, initDialogBridge, initDocumentBridge, initFsBridge, initGeminiBridge, initGeminiConversationBridge, initGitBridge, initMcpBridge, initModelBridge, initPreviewHistoryBridge, initProviderBridge, initSkillsBridge, initShellBridge, initTerminalBridge, initWindowControlsBridge };
+export { initAcpConversationBridge, initApplicationBridge, initCodexConversationBridge, initConversationBridge, initDatabaseBridge, initDialogBridge, initDocumentBridge, initFsBridge, initGitBridge, initMcpBridge, initModelBridge, initPreviewHistoryBridge, initProviderBridge, initSkillsBridge, initShellBridge, initTerminalBridge, initWindowControlsBridge };
 // 导出窗口控制相关工具函数
 export { registerWindowMaximizeListeners } from './windowControlsBridge';

@@ -16,7 +16,6 @@ type SkillInfo = { name: string; description: string; location: string };
 const AGENTS: Array<{ key: AcpBackend; label: string }> = [
   { key: 'claude', label: 'Claude Code' },
   { key: 'codex', label: 'Codex' },
-  { key: 'gemini', label: 'Gemini' },
 ];
 
 const SkillSettings: React.FC = () => {

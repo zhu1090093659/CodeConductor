@@ -70,9 +70,9 @@ export interface IConversationRow {
   id: string;
   user_id: string;
   name: string;
-  type: 'gemini' | 'acp' | 'codex';
+  type: 'acp' | 'codex';
   extra: string; // JSON string of extra data
-  model?: string; // JSON string of TProviderWithModel (gemini type has this)
+  model?: string; // JSON string of TProviderWithModel (legacy field)
   status?: 'pending' | 'running' | 'finished';
   created_at: number;
   updated_at: number;
@@ -137,16 +137,6 @@ export function rowToConversation(row: IConversationRow): TChatConversation {
     status: row.status,
   };
 
-  // Gemini type has model field
-  if (row.type === 'gemini' && row.model) {
-    return {
-      ...base,
-      type: 'gemini' as const,
-      extra: JSON.parse(row.extra),
-      model: JSON.parse(row.model),
-    } as TChatConversation;
-  }
-
   // ACP type
   if (row.type === 'acp') {
     return {
@@ -157,11 +147,15 @@ export function rowToConversation(row: IConversationRow): TChatConversation {
   }
 
   // Codex type
-  return {
-    ...base,
-    type: 'codex' as const,
-    extra: JSON.parse(row.extra),
-  } as TChatConversation;
+  if (row.type === 'codex') {
+    return {
+      ...base,
+      type: 'codex' as const,
+      extra: JSON.parse(row.extra),
+    } as TChatConversation;
+  }
+
+  throw new Error(`Unsupported conversation type: ${row.type}`);
 }
 
 /**

@@ -13,11 +13,9 @@ import { useProjects } from '@/renderer/hooks/useProjects';
 import { useConversationTabs } from '@/renderer/pages/conversation/context/ConversationTabsContext';
 import { ensureProjectForWorkspace } from '@/renderer/utils/projectService';
 import { updateWorkspaceTime } from '@/renderer/utils/workspaceHistory';
-import AuggieLogo from '@/renderer/assets/logos/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/claude.svg';
 import CodexLogo from '@/renderer/assets/logos/codex.svg';
 import coworkSvg from '@/renderer/assets/cowork.svg';
-import GeminiLogo from '@/renderer/assets/logos/gemini.svg';
 import GooseLogo from '@/renderer/assets/logos/goose.svg';
 import IflowLogo from '@/renderer/assets/logos/iflow.svg';
 import KimiLogo from '@/renderer/assets/logos/kimi.svg';
@@ -28,7 +26,6 @@ import { useLayoutContext } from '@/renderer/context/LayoutContext';
 import { useInputFocusRing } from '@/renderer/hooks/useInputFocusRing';
 import { useCompositionInput } from '@/renderer/hooks/useCompositionInput';
 import { useDragUpload } from '@/renderer/hooks/useDragUpload';
-import { useGeminiGoogleAuthModels } from '@/renderer/hooks/useGeminiGoogleAuthModels';
 import { usePasteService } from '@/renderer/hooks/usePasteService';
 import { allSupportedExts, type FileMetadata, getCleanFileNames } from '@/renderer/services/FileService';
 import { buildDisplayMessage } from '@/renderer/utils/messageFiles';
@@ -92,49 +89,27 @@ const hasAvailableModels = (provider: IProvider): boolean => {
 };
 
 const useModelList = () => {
-  const { geminiModeOptions, isGoogleAuth } = useGeminiGoogleAuthModels();
   const { data: modelConfig } = useSWR('model.config.welcome', () => {
     return ipcBridge.mode.getModelConfig.invoke().then((data) => {
       return (data || []).filter((platform) => !!platform.model.length);
     });
   });
 
-  const geminiModelValues = useMemo(() => geminiModeOptions.map((option) => option.value), [geminiModeOptions]);
-
   const modelList = useMemo(() => {
-    let allProviders: IProvider[] = [];
-
-    if (isGoogleAuth) {
-      const geminiProvider: IProvider = {
-        id: uuid(),
-        name: 'Gemini Google Auth',
-        platform: 'gemini-with-google-auth',
-        baseUrl: '',
-        apiKey: '',
-        model: geminiModelValues,
-        capabilities: [{ type: 'text' }, { type: 'vision' }, { type: 'function_calling' }],
-      };
-      allProviders = [geminiProvider, ...(modelConfig || [])];
-    } else {
-      allProviders = modelConfig || [];
-    }
-
-    // 过滤出有可用主力模型的提供商
+    const allProviders = modelConfig || [];
     return allProviders.filter(hasAvailableModels);
-  }, [geminiModelValues, isGoogleAuth, modelConfig]);
+  }, [modelConfig]);
 
-  return { modelList, isGoogleAuth, geminiModeOptions };
+  return { modelList };
 };
 
 // Agent Logo 映射 (custom uses Robot icon from @icon-park/react)
 const AGENT_LOGO_MAP: Partial<Record<AcpBackend, string>> = {
   claude: ClaudeLogo,
-  gemini: GeminiLogo,
   qwen: QwenLogo,
   codex: CodexLogo,
   iflow: IflowLogo,
   goose: GooseLogo,
-  auggie: AuggieLogo,
   kimi: KimiLogo,
   opencode: OpenCodeLogo,
 };
@@ -208,29 +183,13 @@ const Guid: React.FC = () => {
       });
     }
   }, [location.state]);
-  const { modelList, isGoogleAuth, geminiModeOptions } = useModelList();
-  const geminiModeLookup = useMemo(() => {
-    const lookup = new Map<string, (typeof geminiModeOptions)[number]>();
-    geminiModeOptions.forEach((option) => lookup.set(option.value, option));
-    return lookup;
-  }, [geminiModeOptions]);
-  const formatGeminiModelLabel = useCallback(
-    (provider: { platform?: string } | undefined, modelName?: string) => {
-      if (!modelName) return '';
-      const isGoogleProvider = provider?.platform?.toLowerCase().includes('gemini-with-google-auth');
-      if (isGoogleProvider) {
-        return geminiModeLookup.get(modelName)?.label || modelName;
-      }
-      return modelName;
-    },
-    [geminiModeLookup]
-  );
+  const { modelList } = useModelList();
   // 记录当前选中的 provider+model，方便列表刷新时判断是否仍可用
   const selectedModelKeyRef = useRef<string | null>(null);
   // 支持在初始化页展示 Codex（MCP）选项，先做 UI 占位
   // 对于自定义代理，使用 "custom:uuid" 格式来区分多个自定义代理
   // For custom agents, we store "custom:uuid" format to distinguish between multiple custom agents
-  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('gemini');
+  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('claude');
 
   // 封装 setSelectedAgentKey 以同时保存到 storage
   // Wrap setSelectedAgentKey to also save to storage
@@ -250,7 +209,7 @@ const Guid: React.FC = () => {
       isPreset?: boolean;
       context?: string;
       avatar?: string;
-      presetAgentType?: 'gemini' | 'claude' | 'codex';
+      presetAgentType?: 'claude' | 'codex';
     }>
   >();
   const [customAgents, setCustomAgents] = useState<AcpBackendConfig[]>([]);
@@ -313,7 +272,7 @@ const Guid: React.FC = () => {
   const setCurrentModel = async (modelInfo: TProviderWithModel) => {
     // 记录最新的选中 key，避免列表刷新后被错误重置
     selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
-    await ConfigStorage.set('gemini.defaultModel', modelInfo.useModel).catch((error) => {
+    await ConfigStorage.set('model.defaultModel', modelInfo.useModel).catch((error) => {
       console.error('Failed to save default model:', error);
     });
     _setCurrentModel(modelInfo);
@@ -460,11 +419,7 @@ const Guid: React.FC = () => {
   // 获取可用的 ACP agents - 基于全局标记位
   const { data: availableAgentsData } = useSWR('acp.agents.available', async () => {
     const result = await ipcBridge.acpConversation.getAvailableAgents.invoke();
-    if (result.success) {
-      // 过滤掉检测到的gemini命令，只保留内置Gemini
-      return result.data.filter((agent) => !(agent.backend === 'gemini' && agent.cliPath));
-    }
-    return [];
+    return result.success ? result.data : [];
   });
 
   // 更新本地状态
@@ -638,10 +593,10 @@ const Guid: React.FC = () => {
 
   const resolvePresetAgentType = useCallback(
     (agentInfo: { backend: AcpBackend; customAgentId?: string } | undefined) => {
-      if (!agentInfo) return 'gemini';
-      if (agentInfo.backend !== 'custom') return 'gemini';
+      if (!agentInfo) return 'claude';
+      if (agentInfo.backend !== 'custom') return 'claude';
       const customAgent = customAgents.find((agent) => agent.id === agentInfo.customAgentId);
-      return customAgent?.presetAgentType || 'gemini';
+      return customAgent?.presetAgentType || 'claude';
     },
     [customAgents]
   );
@@ -690,7 +645,7 @@ const Guid: React.FC = () => {
 
   const handleSend = async () => {
     // 用户明确选择的目录 -> customWorkspace = true, 使用用户选择的目录
-    // 未选择时 -> customWorkspace = false, 传空让后端创建临时目录 (gemini-temp-xxx)
+    // 未选择时 -> customWorkspace = false, 传空让后端创建临时目录 (agent-temp-xxx)
     let isCustomWorkspace = !!dir;
     let finalWorkspace = dir || ''; // 不指定时传空，让后端创建临时目录
     let project: ProjectInfo | null = null;
@@ -715,73 +670,9 @@ const Guid: React.FC = () => {
     // 获取启用的 skills 列表 / Get enabled skills list
     const enabledSkills = resolveEnabledSkills(agentInfo);
 
-    // 默认情况使用 Gemini，或 Preset 配置为 Gemini
-    if (!selectedAgent || selectedAgent === 'gemini' || (isPreset && presetAgentType === 'gemini')) {
-      if (!currentModel) return;
-      try {
-        const conversation = await ipcBridge.conversation.create.invoke({
-          type: 'gemini',
-          name: input,
-          model: currentModel,
-          extra: {
-            defaultFiles: files,
-            workspace: finalWorkspace,
-            customWorkspace: isCustomWorkspace,
-            projectId,
-            webSearchEngine: isGoogleAuth ? 'google' : 'default',
-            // 传递 rules（skills 通过 SkillManager 加载）
-            // Pass rules (skills loaded via SkillManager)
-            presetRules: isPreset ? presetRules : undefined,
-            // 启用的 skills 列表 / Enabled skills list
-            enabledSkills: enabledSkills,
-            // 预设助手 ID，用于在会话面板显示助手名称和头像
-            // Preset assistant ID for displaying name and avatar in conversation panel
-            presetAssistantId: isPreset ? agentInfo?.customAgentId : undefined,
-          },
-        });
+    if (!currentModel) return;
 
-        if (!conversation || !conversation.id) {
-          throw new Error('Failed to create conversation - conversation object is null or missing id');
-        }
-
-        // 更新 workspace 时间戳，确保分组会话能正确排序（仅自定义工作空间）
-        if (isCustomWorkspace) {
-          closeAllTabs();
-          updateWorkspaceTime(finalWorkspace);
-          // 将新会话添加到 tabs
-          openTab(conversation);
-        }
-
-        // 立即触发刷新，让左侧栏开始加载新会话（在导航前）
-        emitter.emit('chat.history.refresh');
-
-        // 然后导航到会话页面
-        await navigate(`/conversation/${conversation.id}`);
-
-        // 然后发送消息（文件通过 files 参数传递，不在消息中添加 @ 前缀）
-        // Send message (files passed via files param, no @ prefix in message)
-        const workspacePath = conversation.extra?.workspace || '';
-        const displayMessage = buildDisplayMessage(input, files, workspacePath);
-
-        void ipcBridge.geminiConversation.sendMessage
-          .invoke({
-            input: displayMessage,
-            conversation_id: conversation.id,
-            msg_id: uuid(),
-            files,
-          })
-          .catch((error) => {
-            console.error('Failed to send message:', error);
-            throw error;
-          });
-      } catch (error: unknown) {
-        console.error('Failed to create or send Gemini message:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        alert(`Failed to create Gemini conversation: ${errorMessage}`);
-        throw error; // Re-throw to prevent input clearing
-      }
-      return;
-    } else if (selectedAgent === 'codex' || (isPreset && presetAgentType === 'codex')) {
+    if (selectedAgent === 'codex' || (isPreset && presetAgentType === 'codex')) {
       // Codex conversation type (including preset with codex agent type)
       const codexAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
 
@@ -837,86 +728,86 @@ const Guid: React.FC = () => {
         throw error;
       }
       return;
-    } else {
-      // ACP conversation type (including preset with claude agent type)
-      const acpAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
+    }
 
-      // For preset with claude agent type, we use 'claude' as backend
-      const acpBackend = isPreset && presetAgentType === 'claude' ? 'claude' : selectedAgent;
+    // ACP conversation type (including preset with claude agent type)
+    const acpAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
 
-      if (!acpAgentInfo && !isPreset) {
-        alert(`${selectedAgent} CLI not found or not configured. Please ensure it's installed and accessible.`);
+    // For preset with claude agent type, we use 'claude' as backend
+    const acpBackend = isPreset && presetAgentType === 'claude' ? 'claude' : selectedAgent;
+
+    if (!acpAgentInfo && !isPreset) {
+      alert(`${selectedAgent} CLI not found or not configured. Please ensure it's installed and accessible.`);
+      return;
+    }
+
+    try {
+      const conversation = await ipcBridge.conversation.create.invoke({
+        type: 'acp',
+        name: input,
+        model: currentModel!, // ACP needs a model too
+        extra: {
+          defaultFiles: files,
+          workspace: finalWorkspace,
+          customWorkspace: isCustomWorkspace,
+          projectId,
+          backend: acpBackend,
+          cliPath: acpAgentInfo?.cliPath,
+          agentName: acpAgentInfo?.name, // 存储自定义代理的配置名称 / Store configured name for custom agents
+          customAgentId: acpAgentInfo?.customAgentId, // 自定义代理的 UUID / UUID for custom agents
+          // Pass preset context (rules only)
+          presetContext: isPreset ? presetRules : undefined,
+          // 启用的 skills 列表（通过 SkillManager 加载）/ Enabled skills list (loaded via SkillManager)
+          enabledSkills: enabledSkills,
+          // 预设助手 ID，用于在会话面板显示助手名称和头像
+          // Preset assistant ID for displaying name and avatar in conversation panel
+          presetAssistantId: isPreset ? acpAgentInfo?.customAgentId : undefined,
+        },
+      });
+
+      if (!conversation || !conversation.id) {
+        alert('Failed to create ACP conversation. Please check your ACP configuration and ensure the CLI is installed.');
         return;
       }
 
-      try {
-        const conversation = await ipcBridge.conversation.create.invoke({
-          type: 'acp',
-          name: input,
-          model: currentModel!, // ACP needs a model too
-          extra: {
-            defaultFiles: files,
-            workspace: finalWorkspace,
-            customWorkspace: isCustomWorkspace,
-            projectId,
-            backend: acpBackend,
-            cliPath: acpAgentInfo?.cliPath,
-            agentName: acpAgentInfo?.name, // 存储自定义代理的配置名称 / Store configured name for custom agents
-            customAgentId: acpAgentInfo?.customAgentId, // 自定义代理的 UUID / UUID for custom agents
-            // Pass preset context (rules only)
-            presetContext: isPreset ? presetRules : undefined,
-            // 启用的 skills 列表（通过 SkillManager 加载）/ Enabled skills list (loaded via SkillManager)
-            enabledSkills: enabledSkills,
-            // 预设助手 ID，用于在会话面板显示助手名称和头像
-            // Preset assistant ID for displaying name and avatar in conversation panel
-            presetAssistantId: isPreset ? acpAgentInfo?.customAgentId : undefined,
-          },
-        });
-
-        if (!conversation || !conversation.id) {
-          alert('Failed to create ACP conversation. Please check your ACP configuration and ensure the CLI is installed.');
-          return;
-        }
-
-        // 更新 workspace 时间戳，确保分组会话能正确排序（仅自定义工作空间）
-        if (isCustomWorkspace) {
-          closeAllTabs();
-          updateWorkspaceTime(finalWorkspace);
-          // 将新会话添加到 tabs
-          openTab(conversation);
-        }
-
-        // 立即触发刷新，让左侧栏开始加载新会话（在导航前）
-        emitter.emit('chat.history.refresh');
-
-        // For ACP, we need to wait for the connection to be ready before sending the message
-        // Store the initial message and let the conversation page handle it when ready
-        const initialMessage = {
-          input,
-          files: files.length > 0 ? files : undefined,
-        };
-
-        // Store initial message in sessionStorage to be picked up by the conversation page
-        sessionStorage.setItem(`acp_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
-
-        // 然后导航到会话页面
-        await navigate(`/conversation/${conversation.id}`);
-      } catch (error: unknown) {
-        console.error('Failed to create ACP conversation:', error);
-
-        // Check if it's an authentication error
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes('[ACP-AUTH-')) {
-          console.error(t('acp.auth.console_error'), errorMessage);
-          const confirmed = window.confirm(t('acp.auth.failed_confirm', { backend: selectedAgent, error: errorMessage }));
-          if (confirmed) {
-            void navigate('/settings/model');
-          }
-        } else {
-          alert(`Failed to create ${selectedAgent} ACP conversation. Please check your ACP configuration and ensure the CLI is installed.`);
-        }
-        throw error; // Re-throw to prevent input clearing
+      // 更新 workspace 时间戳，确保分组会话能正确排序（仅自定义工作空间）
+      if (isCustomWorkspace) {
+        closeAllTabs();
+        updateWorkspaceTime(finalWorkspace);
+        // 将新会话添加到 tabs
+        openTab(conversation);
       }
+
+      // 立即触发刷新，让左侧栏开始加载新会话（在导航前）
+      emitter.emit('chat.history.refresh');
+
+      // For ACP, we need to wait for the connection to be ready before sending the message
+      // Store the initial message and let the conversation page handle it when ready
+      const initialMessage = {
+        input,
+        files: files.length > 0 ? files : undefined,
+      };
+
+      // Store initial message in sessionStorage to be picked up by the conversation page
+      sessionStorage.setItem(`acp_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+
+      // 然后导航到会话页面
+      await navigate(`/conversation/${conversation.id}`);
+    } catch (error: unknown) {
+      console.error('Failed to create ACP conversation:', error);
+
+      // Check if it's an authentication error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('[ACP-AUTH-')) {
+        console.error(t('acp.auth.console_error'), errorMessage);
+        const confirmed = window.confirm(t('acp.auth.failed_confirm', { backend: selectedAgent, error: errorMessage }));
+        if (confirmed) {
+          void navigate('/settings/model');
+        }
+      } else {
+        alert(`Failed to create ${selectedAgent} ACP conversation. Please check your ACP configuration and ensure the CLI is installed.`);
+      }
+      throw error; // Re-throw to prevent input clearing
     }
   };
   const sendMessageHandler = () => {
@@ -1013,7 +904,7 @@ const Guid: React.FC = () => {
       return;
     }
     // 读取默认配置，或回落到新的第一个模型
-    const useModel = await ConfigStorage.get('gemini.defaultModel');
+    const useModel = await ConfigStorage.get('model.defaultModel');
     const defaultModel = modelList.find((m) => m.model.includes(useModel)) || modelList[0];
     if (!defaultModel || !defaultModel.model.length) return;
     const resolvedUseModel = defaultModel.model.includes(useModel) ? useModel : defaultModel.model[0];
@@ -1242,123 +1133,64 @@ const Guid: React.FC = () => {
                   </span>
                 </Dropdown>
 
-                {(selectedAgent === 'gemini' || (isPresetAgent && resolvePresetAgentType(selectedAgentInfo) === 'gemini')) && (
-                  <Dropdown
-                    trigger='hover'
-                    droplist={
-                      <Menu selectedKeys={currentModel ? [currentModel.id + currentModel.useModel] : []}>
-                        {!modelList || modelList.length === 0
-                          ? [
-                              /* 暂无可用模型提示 */
-                              <Menu.Item key='no-models' className='px-12px py-12px text-t-secondary text-14px text-center flex justify-center items-center' disabled>
-                                {t('settings.noAvailableModels')}
-                              </Menu.Item>,
-                              /* Add Model 选项 */
-                              <Menu.Item key='add-model' className='text-12px text-t-secondary' onClick={() => navigate('/settings/model')}>
-                                <Plus theme='outline' size='12' />
-                                {t('settings.addModel')}
-                              </Menu.Item>,
-                            ]
-                          : [
-                              ...(modelList || []).map((provider) => {
-                                const availableModels = getAvailableModels(provider);
-                                // 只渲染有可用模型的 provider
-                                if (availableModels.length === 0) return null;
-                                return (
-                                  <Menu.ItemGroup title={provider.name} key={provider.id}>
-                                    {availableModels.map((modelName) => {
-                                      const isGoogleProvider = provider.platform?.toLowerCase().includes('gemini-with-google-auth');
-                                      const option = isGoogleProvider ? geminiModeLookup.get(modelName) : undefined;
-
-                                      // Manual 模式：显示带子菜单的选项
-                                      // Manual mode: show submenu with specific models
-                                      if (option?.subModels && option.subModels.length > 0) {
-                                        return (
-                                          <Menu.SubMenu
-                                            key={provider.id + modelName}
-                                            title={
-                                              <div className='flex items-center justify-between gap-12px w-full'>
-                                                <span>{option.label}</span>
-                                              </div>
-                                            }
-                                          >
-                                            {option.subModels.map((subModel) => (
-                                              <Menu.Item
-                                                key={provider.id + subModel.value}
-                                                className={currentModel?.id + currentModel?.useModel === provider.id + subModel.value ? '!bg-2' : ''}
-                                                onClick={() => {
-                                                  setCurrentModel({ ...provider, useModel: subModel.value }).catch((error) => {
-                                                    console.error('Failed to set current model:', error);
-                                                  });
-                                                }}
-                                              >
-                                                {subModel.label}
-                                              </Menu.Item>
-                                            ))}
-                                          </Menu.SubMenu>
-                                        );
-                                      }
-
-                                      // 普通模式：显示单个选项
-                                      // Normal mode: show single item
-                                      return (
-                                        <Menu.Item
-                                          key={provider.id + modelName}
-                                          className={currentModel?.id + currentModel?.useModel === provider.id + modelName ? '!bg-2' : ''}
-                                          onClick={() => {
-                                            setCurrentModel({ ...provider, useModel: modelName }).catch((error) => {
-                                              console.error('Failed to set current model:', error);
-                                            });
-                                          }}
-                                        >
-                                          {(() => {
-                                            if (!option) {
-                                              return modelName;
-                                            }
-                                            return (
-                                              <Tooltip
-                                                position='right'
-                                                trigger='hover'
-                                                content={
-                                                  <div className='max-w-240px space-y-6px'>
-                                                    <div className='text-12px text-t-secondary leading-5'>{option.description}</div>
-                                                    {option.modelHint && <div className='text-11px text-t-tertiary'>{option.modelHint}</div>}
-                                                  </div>
-                                                }
-                                              >
-                                                <div className='flex items-center justify-between gap-12px w-full'>
-                                                  <span>{option.label}</span>
-                                                </div>
-                                              </Tooltip>
-                                            );
-                                          })()}
-                                        </Menu.Item>
-                                      );
-                                    })}
-                                  </Menu.ItemGroup>
-                                );
-                              }),
-                              /* Add Model 选项 */
-                              <Menu.Item key='add-model' className='text-12px text-t-secondary' onClick={() => navigate('/settings/model')}>
-                                <Plus theme='outline' size='12' />
-                                {t('settings.addModel')}
-                              </Menu.Item>,
-                            ]}
-                      </Menu>
-                    }
-                  >
-                    <Button className={'sendbox-model-btn'} shape='round'>
-                      {currentModel ? formatGeminiModelLabel(currentModel, currentModel.useModel) : t('conversation.welcome.selectModel')}
-                    </Button>
-                  </Dropdown>
-                )}
+                <Dropdown
+                  trigger='hover'
+                  droplist={
+                    <Menu selectedKeys={currentModel ? [currentModel.id + currentModel.useModel] : []}>
+                      {!modelList || modelList.length === 0
+                        ? [
+                            /* 暂无可用模型提示 */
+                            <Menu.Item key='no-models' className='px-12px py-12px text-t-secondary text-14px text-center flex justify-center items-center' disabled>
+                              {t('settings.noAvailableModels')}
+                            </Menu.Item>,
+                            /* Add Model 选项 */
+                            <Menu.Item key='add-model' className='text-12px text-t-secondary' onClick={() => navigate('/settings/model')}>
+                              <Plus theme='outline' size='12' />
+                              {t('settings.addModel')}
+                            </Menu.Item>,
+                          ]
+                        : [
+                            ...(modelList || []).map((provider) => {
+                              const availableModels = getAvailableModels(provider);
+                              if (availableModels.length === 0) return null;
+                              return (
+                                <Menu.ItemGroup title={provider.name} key={provider.id}>
+                                  {availableModels.map((modelName) => (
+                                    <Menu.Item
+                                      key={provider.id + modelName}
+                                      className={currentModel?.id + currentModel?.useModel === provider.id + modelName ? '!bg-2' : ''}
+                                      onClick={() => {
+                                        setCurrentModel({ ...provider, useModel: modelName }).catch((error) => {
+                                          console.error('Failed to set current model:', error);
+                                        });
+                                      }}
+                                    >
+                                      {modelName}
+                                    </Menu.Item>
+                                  ))}
+                                </Menu.ItemGroup>
+                              );
+                            }),
+                            /* Add Model 选项 */
+                            <Menu.Item key='add-model' className='text-12px text-t-secondary' onClick={() => navigate('/settings/model')}>
+                              <Plus theme='outline' size='12' />
+                              {t('settings.addModel')}
+                            </Menu.Item>,
+                          ]}
+                    </Menu>
+                  }
+                >
+                  <Button className={'sendbox-model-btn'} shape='round'>
+                    {currentModel ? currentModel.useModel : t('conversation.welcome.selectModel')}
+                  </Button>
+                </Dropdown>
               </div>
               <div className={styles.actionSubmit}>
                 <Button
                   shape='circle'
                   type='primary'
                   loading={loading}
-                  disabled={!input.trim() || ((!selectedAgent || selectedAgent === 'gemini' || (isPresetAgent && resolvePresetAgentType(selectedAgentInfo) === 'gemini')) && !currentModel)}
+                  disabled={!input.trim() || !currentModel}
                   icon={<ArrowUp theme='outline' size='14' fill='white' strokeWidth={2} />}
                   onClick={() => {
                     handleSend().catch((error) => {

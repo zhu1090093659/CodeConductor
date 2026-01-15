@@ -18,17 +18,15 @@
  * 预设助手的主 Agent 类型，用于决定创建哪种类型的对话
  * The primary agent type for preset assistants, used to determine which conversation type to create.
  */
-export type PresetAgentType = 'gemini' | 'claude' | 'codex';
+export type PresetAgentType = 'claude' | 'codex';
 
 // 全部后端类型定义 - 包括暂时不支持的 / All backend types - including temporarily unsupported ones
 export type AcpBackendAll =
   | 'claude' // Claude ACP
-  | 'gemini' // Google Gemini ACP
   | 'qwen' // Qwen Code ACP
   | 'iflow' // iFlow CLI ACP
   | 'codex' // OpenAI Codex MCP
   | 'goose' // Block's Goose CLI
-  | 'auggie' // Augment Code CLI
   | 'kimi' // Kimi CLI (Moonshot)
   | 'opencode' // OpenCode CLI
   | 'custom'; // User-configured custom ACP agent
@@ -58,19 +56,19 @@ const DEFAULT_ACP_ARGS = ['--experimental-acp'];
 
 /**
  * 从 ACP_BACKENDS_ALL 生成可检测的 CLI 列表
- * 仅包含有 cliCommand 且已启用的后端（排除 gemini 和 custom）
+ * 仅包含有 cliCommand 且已启用的后端（排除 custom）
  * Generate detectable CLI list from ACP_BACKENDS_ALL
- * Only includes enabled backends with cliCommand (excludes gemini and custom)
+ * Only includes enabled backends with cliCommand (excludes custom)
  */
 function generatePotentialAcpClis(): PotentialAcpCli[] {
   // 需要在 ACP_BACKENDS_ALL 定义之后调用，所以使用延迟初始化
   // Must be called after ACP_BACKENDS_ALL is defined, so use lazy initialization
   return Object.entries(ACP_BACKENDS_ALL)
     .filter(([id, config]) => {
-      // 排除没有 CLI 命令的后端（gemini 内置，custom 用户配置）
-      // Exclude backends without CLI command (gemini is built-in, custom is user-configured)
+      // 排除没有 CLI 命令的后端（custom 用户配置）
+      // Exclude backends without CLI command (custom is user-configured)
       if (!config.cliCommand) return false;
-      if (id === 'gemini' || id === 'custom') return false;
+      if (id === 'custom') return false;
       return config.enabled;
     })
     .map(([id, config]) => ({
@@ -112,13 +110,13 @@ export const POTENTIAL_ACP_CLIS: PotentialAcpCli[] = new Proxy([] as PotentialAc
 
 /**
  * ACP 后端 Agent 配置
- * 用于内置后端（claude, gemini, qwen）和用户自定义 Agent
+ * 用于内置后端（claude, qwen）和用户自定义 Agent
  *
  * Configuration for an ACP backend agent.
- * Used for both built-in backends (claude, gemini, qwen) and custom user agents.
+ * Used for both built-in backends (claude, qwen) and custom user agents.
  */
 export interface AcpBackendConfig {
-  /** 后端唯一标识符 / Unique identifier for the backend (e.g., 'claude', 'gemini', 'custom') */
+  /** 后端唯一标识符 / Unique identifier for the backend (e.g., 'claude', 'custom') */
   id: string;
 
   /** UI 显示名称 / Display name shown in the UI (e.g., 'Goose', 'Claude Code') */
@@ -184,13 +182,13 @@ export interface AcpBackendConfig {
    * 不同 CLI 使用不同约定：
    *   - ['--experimental-acp'] 用于 claude, qwen（未指定时的默认值）
    *   - ['acp'] 用于 goose（子命令）
-   *   - ['--acp'] 用于 auggie
+   *   - ['--acp'] 用于 kimi
    *
    * Arguments to enable ACP mode when spawning the CLI.
    * Different CLIs use different conventions:
    *   - ['--experimental-acp'] for claude, qwen (default if not specified)
    *   - ['acp'] for goose (subcommand)
-   *   - ['--acp'] for auggie
+   *   - ['--acp'] for kimi
    * If not specified, defaults to ['--experimental-acp'].
    */
   acpArgs?: string[];
@@ -207,17 +205,15 @@ export interface AcpBackendConfig {
   /**
    * 此预设的主 Agent 类型（仅 isPreset=true 时生效）
    * 决定选择此预设时创建哪种类型的对话
-   * - 'gemini': 创建 Gemini 对话
    * - 'claude': 创建使用 Claude 后端的 ACP 对话
    * - 'codex': 创建 Codex 对话
-   * 为向后兼容默认为 'gemini'
+   * 为向后兼容默认为 'claude'
    *
    * The primary agent type for this preset (only applies when isPreset=true).
    * Determines which conversation type to create when selecting this preset.
-   * - 'gemini': Creates a Gemini conversation
    * - 'claude': Creates an ACP conversation with Claude backend
    * - 'codex': Creates a Codex conversation
-   * Defaults to 'gemini' for backward compatibility.
+   * Defaults to 'claude' for backward compatibility.
    */
   presetAgentType?: PresetAgentType;
 
@@ -253,14 +249,6 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true,
     supportsStreaming: false,
   },
-  gemini: {
-    id: 'gemini',
-    name: 'Google CLI',
-    cliCommand: 'gemini',
-    authRequired: true,
-    enabled: false,
-    supportsStreaming: true,
-  },
   qwen: {
     id: 'qwen',
     name: 'Qwen Code',
@@ -294,15 +282,6 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true, // ✅ Block's Goose CLI，使用 `goose acp` 启动
     supportsStreaming: false,
     acpArgs: ['acp'], // goose 使用子命令而非 flag
-  },
-  auggie: {
-    id: 'auggie',
-    name: 'Augment Code',
-    cliCommand: 'auggie',
-    authRequired: false,
-    enabled: true, // ✅ Augment Code CLI，使用 `auggie --acp` 启动
-    supportsStreaming: false,
-    acpArgs: ['--acp'], // auggie 使用 --acp flag
   },
   kimi: {
     id: 'kimi',

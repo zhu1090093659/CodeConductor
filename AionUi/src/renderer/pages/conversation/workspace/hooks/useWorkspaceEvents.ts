@@ -12,7 +12,7 @@ import type { ContextMenuState } from '../types';
 
 interface UseWorkspaceEventsOptions {
   conversation_id: string;
-  eventPrefix: 'gemini' | 'acp' | 'codex';
+  eventPrefix: 'acp' | 'codex';
 
   // Dependencies from useWorkspaceTree
   refreshWorkspace: () => void;
@@ -61,11 +61,6 @@ export function useWorkspaceEvents(options: UseWorkspaceEventsOptions) {
    * Listen to agent response stream - auto refresh workspace
    */
   useEffect(() => {
-    const handleGeminiResponse = (data: { type: string }) => {
-      if (data.type === 'tool_group' || data.type === 'tool_call') {
-        refreshWorkspace();
-      }
-    };
     const handleAcpResponse = (data: { type: string }) => {
       if (data.type === 'acp_tool_call') {
         refreshWorkspace();
@@ -76,12 +71,10 @@ export function useWorkspaceEvents(options: UseWorkspaceEventsOptions) {
         refreshWorkspace();
       }
     };
-    const unsubscribeGemini = ipcBridge.geminiConversation.responseStream.on(handleGeminiResponse);
     const unsubscribeAcp = ipcBridge.acpConversation.responseStream.on(handleAcpResponse);
     const unsubscribeCodex = ipcBridge.codexConversation.responseStream.on(handleCodexResponse);
 
     return () => {
-      unsubscribeGemini();
       unsubscribeAcp();
       unsubscribeCodex();
     };

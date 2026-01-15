@@ -49,6 +49,11 @@ const ProjectModePanel: React.FC = () => {
   const workspace = activeTab?.workspace;
   const conversationId = activeTab?.id;
 
+  const buildAiWorkspacePath = useCallback((basePath: string) => {
+    const separator = basePath.includes('\\') ? '\\' : '/';
+    return basePath.endsWith(separator) ? `${basePath}.ai` : `${basePath}${separator}.ai`;
+  }, []);
+
   const refreshTree = useCallback(async () => {
     if (!workspace || !conversationId) {
       setTreeData([]);
@@ -56,18 +61,16 @@ const ProjectModePanel: React.FC = () => {
     }
     setLoading(true);
     try {
-      const res = await ipcBridge.conversation.getWorkspace.invoke({ conversation_id: conversationId, workspace, path: workspace });
+      const aiPath = buildAiWorkspacePath(workspace);
+      const res = await ipcBridge.conversation.getWorkspace.invoke({ conversation_id: conversationId, workspace, path: aiPath });
       const root = res?.[0];
-      const aiNode = root?.children?.find((child) => child.name === '.ai');
-      if (aiNode) {
-        setTreeData([buildTreeNodes(aiNode)]);
-      } else {
-        setTreeData([]);
-      }
+      setTreeData(root ? [buildTreeNodes(root)] : []);
+    } catch {
+      setTreeData([]);
     } finally {
       setLoading(false);
     }
-  }, [conversationId, workspace]);
+  }, [buildAiWorkspacePath, conversationId, workspace]);
 
   const refreshStatus = useCallback(async () => {
     try {

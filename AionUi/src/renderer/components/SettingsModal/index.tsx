@@ -7,14 +7,13 @@
 import AionModal from '@/renderer/components/base/AionModal';
 import AionScrollArea from '@/renderer/components/base/AionScrollArea';
 import { iconColors } from '@/renderer/theme/colors';
-import { Computer, Gemini, Info, LinkCloud, Toolkit, Robot } from '@icon-park/react';
+import { Computer, Info, LinkCloud, Toolkit, Robot } from '@icon-park/react';
 import { Tabs } from '@arco-design/web-react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AboutModalContent from './contents/AboutModalContent';
 import AgentModalContent from './contents/AgentModalContent';
-import GeminiModalContent from './contents/GeminiModalContent';
 import ModelModalContent from './contents/ModelModalContent';
 import SystemModalContent from './contents/SystemModalContent';
 import ToolsModalContent from './contents/ToolsModalContent';
@@ -49,7 +48,7 @@ const RESIZE_DEBOUNCE_DELAY = 150;
 /**
  * 设置标签页类型 / Settings tab type
  */
-export type SettingTab = 'gemini' | 'model' | 'agent' | 'tools' | 'system' | 'about';
+export type SettingTab = 'model' | 'agent' | 'tools' | 'system' | 'about';
 
 /**
  * 设置弹窗组件属性 / Settings modal component props
@@ -99,8 +98,8 @@ export const SubModal: React.FC<SubModalProps> = ({ visible, onCancel, title, ch
 /**
  * 主设置弹窗组件 / Main settings modal component
  *
- * 提供应用的全局设置界面，包括 Gemini、模型、工具、系统和关于等多个标签页
- * Provides global settings interface with multiple tabs including Gemini, Model, Tools, System and About
+ * 提供应用的全局设置界面，包括模型、工具、系统和关于等多个标签页
+ * Provides global settings interface with multiple tabs including Model, Tools, System and About
  *
  * @features
  * - 响应式设计，移动端使用下拉菜单，桌面端使用侧边栏 / Responsive design with dropdown on mobile and sidebar on desktop
@@ -114,7 +113,7 @@ export const SubModal: React.FC<SubModalProps> = ({ visible, onCancel, title, ch
  * openSettings('system');
  * ```
  */
-const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaultTab = 'gemini' }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaultTab = 'model' }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<SettingTab>(defaultTab);
   const [isMobile, setIsMobile] = useState(false);
@@ -154,11 +153,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
   const menuItems = useMemo(
     (): Array<{ key: SettingTab; label: string; icon: React.ReactNode }> => [
       {
-        key: 'gemini',
-        label: t('settings.gemini'),
-        icon: <Gemini theme='outline' size='20' fill={iconColors.secondary} />,
-      },
-      {
         key: 'model',
         label: t('settings.model'),
         icon: <LinkCloud theme='outline' size='20' fill={iconColors.secondary} />,
@@ -185,8 +179,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
   // 渲染当前选中的设置内容 / Render current selected settings content
   const renderContent = () => {
     switch (activeTab) {
-      case 'gemini':
-        return <GeminiModalContent onRequestClose={onCancel} />;
       case 'model':
         return <ModelModalContent />;
       case 'agent':

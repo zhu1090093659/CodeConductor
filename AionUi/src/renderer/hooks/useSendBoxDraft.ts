@@ -7,16 +7,6 @@ export type { FileOrFolderItem } from '@/renderer/types/files';
 
 type Draft =
   | {
-      _type: 'gemini';
-      content: string;
-      atPath: Array<string | FileOrFolderItem>;
-      uploadFile: string[];
-    }
-  | {
-      _type: 'claude';
-      content: unknown;
-    }
-  | {
       _type: 'acp';
       content: string;
       atPath: Array<string | FileOrFolderItem>;
@@ -37,7 +27,6 @@ type SendBoxDraftStore = {
 };
 
 const store: SendBoxDraftStore = {
-  gemini: new Map(),
   acp: new Map(),
   codex: new Map(),
 };
@@ -45,13 +34,6 @@ const store: SendBoxDraftStore = {
 const setDraft = <K extends TChatConversation['type']>(type: K, conversation_id: string, draft: Extract<Draft, { _type: K }> | undefined) => {
   // TODO import ts-pattern for exhaustive check
   switch (type) {
-    case 'gemini':
-      if (draft) {
-        store.gemini.set(conversation_id, draft as Extract<Draft, { _type: 'gemini' }>);
-      } else {
-        store.gemini.delete(conversation_id);
-      }
-      break;
     case 'acp':
       if (draft) {
         store.acp.set(conversation_id, draft as Extract<Draft, { _type: 'acp' }>);
@@ -74,8 +56,6 @@ const setDraft = <K extends TChatConversation['type']>(type: K, conversation_id:
 const getDraft = <K extends TChatConversation['type']>(type: K, conversation_id: string): Extract<Draft, { _type: K }> | undefined => {
   // TODO import ts-pattern for exhaustive check
   switch (type) {
-    case 'gemini':
-      return store.gemini.get(conversation_id) as Extract<Draft, { _type: K }>;
     case 'acp':
       return store.acp.get(conversation_id) as Extract<Draft, { _type: K }>;
     case 'codex':

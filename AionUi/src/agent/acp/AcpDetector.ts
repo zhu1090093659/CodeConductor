@@ -18,7 +18,7 @@ interface DetectedAgent {
   isPreset?: boolean;
   context?: string;
   avatar?: string;
-  presetAgentType?: 'gemini' | 'claude' | 'codex'; // Primary agent type for presets
+  presetAgentType?: 'claude' | 'codex'; // Primary agent type for presets
 }
 
 /**
@@ -109,16 +109,6 @@ class AcpDetector {
       if (result.status === 'fulfilled' && result.value) {
         detected.push(result.value);
       }
-    }
-
-    // 如果检测到ACP工具，添加内置Gemini
-    if (detected.length > 0) {
-      detected.unshift({
-        backend: 'gemini',
-        name: 'Gemini CLI',
-        cliPath: undefined,
-        acpArgs: undefined,
-      });
     }
 
     // Check for custom agents configuration - insert after claude if found

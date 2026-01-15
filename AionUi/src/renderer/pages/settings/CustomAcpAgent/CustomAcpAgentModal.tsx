@@ -19,7 +19,6 @@ import { CheckSmall } from '@icon-park/react';
 
 // CLI Logo 导入 / CLI Logo imports
 import GooseLogo from '@/renderer/assets/logos/goose.svg';
-import AuggieLogo from '@/renderer/assets/logos/auggie.svg';
 import KimiLogo from '@/renderer/assets/logos/kimi.svg';
 import OpencodeLogo from '@/renderer/assets/logos/opencode.svg';
 
@@ -29,7 +28,6 @@ import OpencodeLogo from '@/renderer/assets/logos/opencode.svg';
  */
 const BACKEND_LOGO_MAP: Record<string, string> = {
   goose: GooseLogo,
-  auggie: AuggieLogo,
   kimi: KimiLogo,
   opencode: OpencodeLogo,
 };
@@ -70,18 +68,18 @@ const CustomAcpAgentModal: React.FC<CustomAcpAgentModalProps> = ({ visible, agen
   /**
    * 加载已检测到的 CLI 列表
    * Load detected CLI list from backend
-   * 过滤规则：排除内置后端（gemini, codex）和需要认证的后端，只显示第三方独立 CLI
-   * Filter rule: exclude built-in backends (gemini, codex) and auth-required backends, only show third-party CLIs
+   * 过滤规则：排除内置后端（codex）和需要认证的后端，只显示第三方独立 CLI
+   * Filter rule: exclude built-in backends (codex) and auth-required backends, only show third-party CLIs
    */
   const loadDetectedAgents = useCallback(async () => {
     setLoadingAgents(true);
     try {
       const response = await acpConversation.getAvailableAgents.invoke();
       if (response.success && response.data) {
-        // 只展示第三方独立 CLI（goose, auggie, kimi, opencode）
-        // Only show third-party standalone CLIs (goose, auggie, kimi, opencode)
+        // 只展示第三方独立 CLI（goose, kimi, opencode）
+        // Only show third-party standalone CLIs (goose, kimi, opencode)
         const filteredAgents = response.data.filter((a) => {
-          if (['gemini', 'custom', 'codex'].includes(a.backend)) return false;
+          if (['custom', 'codex'].includes(a.backend)) return false;
           const backendConfig = ACP_BACKENDS_ALL[a.backend];
           return backendConfig && !backendConfig.authRequired;
         });

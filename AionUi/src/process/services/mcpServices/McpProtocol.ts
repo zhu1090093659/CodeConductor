@@ -16,9 +16,9 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
 /**
- * MCP源类型 - 包括所有ACP后端和AionUi内置
+ * MCP源类型 - 包括所有ACP后端
  */
-export type McpSource = AcpBackendAll | 'aionui';
+export type McpSource = AcpBackendAll;
 
 /**
  * MCP操作结果接口

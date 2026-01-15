@@ -38,7 +38,6 @@ describe('Custom ACP Agent Configuration', () => {
     it('should insert custom agent after claude when both are present', () => {
       // Simulates the ordering logic from AcpDetector
       const detected = [
-        { backend: 'gemini', name: 'Gemini CLI' },
         { backend: 'claude', name: 'Claude Code' },
         { backend: 'qwen', name: 'Qwen Code' },
       ];
@@ -60,7 +59,6 @@ describe('Custom ACP Agent Configuration', () => {
 
     it('should append custom agent at end when claude is not present', () => {
       const detected = [
-        { backend: 'gemini', name: 'Gemini CLI' },
         { backend: 'qwen', name: 'Qwen Code' },
       ];
 

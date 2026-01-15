@@ -1,5 +1,5 @@
 import FlexFullContainer from '@/renderer/components/FlexFullContainer';
-import { Computer, Gemini, Info, LinkCloud, System, Toolkit, Robot, SettingOne, Magic } from '@icon-park/react';
+import { Computer, Info, LinkCloud, System, Toolkit, Robot, SettingOne, Magic } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,11 +13,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean }> = ({ collapsed = false })
 
   const menus = useMemo(() => {
     return [
-      {
-        label: t('settings.gemini'),
-        icon: <Gemini />,
-        path: 'gemini',
-      },
       {
         label: t('settings.model'),
         icon: <LinkCloud />,

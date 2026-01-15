@@ -32,7 +32,7 @@ const AssistantManagement: React.FC<AssistantManagementProps> = ({ message }) =>
   const [editDescription, setEditDescription] = useState('');
   const [editContext, setEditContext] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
-  const [editAgent, setEditAgent] = useState<PresetAgentType>('gemini');
+  const [editAgent, setEditAgent] = useState<PresetAgentType>('claude');
   const [editSkills, setEditSkills] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -152,7 +152,7 @@ const AssistantManagement: React.FC<AssistantManagementProps> = ({ message }) =>
     setEditName(assistant.name || '');
     setEditDescription(assistant.description || '');
     setEditAvatar(assistant.avatar || '');
-    setEditAgent(assistant.presetAgentType || 'gemini');
+    setEditAgent(assistant.presetAgentType || 'claude');
     setEditVisible(true);
 
     // 先加载规则、技能内容 / Load rules, skills content
@@ -394,7 +394,6 @@ const AssistantManagement: React.FC<AssistantManagementProps> = ({ message }) =>
             <div className='flex-shrink-0'>
               <Typography.Text bold>{t('settings.assistantMainAgent', { defaultValue: 'Main Agent' })}</Typography.Text>
               <Select className='mt-10px w-full rounded-4px' value={editAgent} onChange={(value) => setEditAgent(value as PresetAgentType)}>
-                <Select.Option value='gemini'>Gemini</Select.Option>
                 <Select.Option value='claude'>Claude</Select.Option>
                 <Select.Option value='codex'>Codex</Select.Option>
               </Select>

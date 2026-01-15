@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AuthType } from '@office-ai/aioncli-core';
+import { AuthType } from './types/auth';
 import type { TProviderWithModel } from './storage';
 import { OpenAIRotatingClient, type OpenAIClientConfig } from './adapters/OpenAIRotatingClient';
 import { GeminiRotatingClient, type GeminiClientConfig } from './adapters/GeminiRotatingClient';

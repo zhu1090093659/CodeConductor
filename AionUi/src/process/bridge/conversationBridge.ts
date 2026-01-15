@@ -5,16 +5,13 @@
  */
 
 import type { CodexAgentManager } from '@/agent/codex';
-import { GeminiAgent } from '@/agent/gemini';
 import type { TChatConversation } from '@/common/storage';
 import { getDatabase } from '@process/database';
-import path from 'path';
 import { ipcBridge } from '../../common';
 import { uuid } from '../../common/utils';
-import { createAcpAgent, createCodexAgent, createGeminiAgent } from '../initAgent';
+import { createAcpAgent, createCodexAgent } from '../initAgent';
 import { ProcessChat } from '../initStorage';
 import type AcpAgentManager from '../task/AcpAgentManager';
-import type { GeminiAgentManager } from '../task/GeminiAgentManager';
 import { copyFilesToDirectory, readDirectoryRecursive } from '../utils';
 import WorkerManage from '../WorkerManage';
 import { migrateConversationToDatabase } from './migrationUtils';
@@ -23,23 +20,6 @@ export function initConversationBridge(): void {
   ipcBridge.conversation.create.provider(async (params): Promise<TChatConversation> => {
     const { type, extra, name, model, id } = params;
     const buildConversation = () => {
-      if (type === 'gemini') {
-        const extraWithPresets = extra as typeof extra & {
-          presetRules?: string;
-          enabledSkills?: string[];
-        };
-        let contextFileName = extra.contextFileName;
-        // Resolve relative paths to CWD (usually project root in dev)
-        // Ensure we pass an absolute path to the agent
-        if (contextFileName && !path.isAbsolute(contextFileName)) {
-          contextFileName = path.resolve(process.cwd(), contextFileName);
-        }
-        // 系统规则（初始化时注入）/ System rules (injected at initialization)
-        // skills 通过 SkillManager 加载 / Skills are loaded via SkillManager
-        const presetRules = extraWithPresets.presetRules || extraWithPresets.presetContext || extraWithPresets.context;
-        const enabledSkills = extraWithPresets.enabledSkills;
-        return createGeminiAgent(model, extra.workspace, extra.defaultFiles, extra.webSearchEngine, extra.customWorkspace, contextFileName, presetRules, enabledSkills);
-      }
       if (type === 'acp') return createAcpAgent(params);
       if (type === 'codex') return createCodexAgent(params);
       throw new Error('Invalid conversation type');
@@ -78,20 +58,6 @@ export function initConversationBridge(): void {
         stack: errorStack,
       });
       throw new Error(`Failed to create ${params.type} conversation: ${errorMessage}`);
-    }
-  });
-
-  // Manually reload conversation context (Gemini): inject recent history into memory
-  ipcBridge.conversation.reloadContext.provider(async ({ conversation_id }) => {
-    try {
-      const task = (await WorkerManage.getTaskByIdRollbackBuild(conversation_id)) as GeminiAgentManager | AcpAgentManager | CodexAgentManager | undefined;
-      if (!task) return { success: false, msg: 'conversation not found' };
-      if (task.type !== 'gemini') return { success: false, msg: 'only supported for gemini' };
-
-      await (task as GeminiAgentManager).reloadContext();
-      return { success: true };
-    } catch (e: unknown) {
-      return { success: false, msg: e instanceof Error ? e.message : String(e) };
     }
   });
 
@@ -242,9 +208,8 @@ export function initConversationBridge(): void {
     try {
       const db = getDatabase();
       const existing = db.getConversation(id);
-      // Only gemini type has model, use 'in' check to safely access
-      const prevModel = existing.success && existing.data && 'model' in existing.data ? existing.data.model : undefined;
-      const nextModel = 'model' in updates ? updates.model : undefined;
+      const prevModel = existing.success && existing.data ? existing.data.model : undefined;
+      const nextModel = updates.model;
       const modelChanged = !!nextModel && JSON.stringify(prevModel) !== JSON.stringify(nextModel);
       // model change detection for task rebuild
 
@@ -331,11 +296,9 @@ export function initConversationBridge(): void {
   })();
 
   ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path }) => {
-    const fileService = GeminiAgent.buildFileServer(workspace);
     try {
       return await readDirectoryRecursive(path, {
         root: workspace,
-        fileService,
         abortController: buildLastAbortController(),
         maxDepth: 10, // 支持更深的目录结构 / Support deeper directory structures
         search: {
@@ -359,7 +322,7 @@ export function initConversationBridge(): void {
   ipcBridge.conversation.stop.provider(async ({ conversation_id }) => {
     const task = WorkerManage.getTaskById(conversation_id);
     if (!task) return { success: true, msg: 'conversation not found' };
-    if (task.type !== 'gemini' && task.type !== 'acp' && task.type !== 'codex') {
+    if (task.type !== 'acp' && task.type !== 'codex') {
       return { success: false, msg: 'not support' };
     }
     await task.stop();
@@ -368,7 +331,7 @@ export function initConversationBridge(): void {
 
   // 通用 sendMessage 实现 - 自动根据 conversation 类型分发
   ipcBridge.conversation.sendMessage.provider(async ({ conversation_id, files, ...other }) => {
-    const task = (await WorkerManage.getTaskByIdRollbackBuild(conversation_id)) as GeminiAgentManager | AcpAgentManager | CodexAgentManager | undefined;
+    const task = (await WorkerManage.getTaskByIdRollbackBuild(conversation_id)) as AcpAgentManager | CodexAgentManager | undefined;
 
     if (!task) {
       return { success: false, msg: 'conversation not found' };
@@ -379,10 +342,7 @@ export function initConversationBridge(): void {
 
     try {
       // 根据 task 类型调用对应的 sendMessage 方法
-      if (task.type === 'gemini') {
-        await (task as GeminiAgentManager).sendMessage({ ...other, files });
-        return { success: true };
-      } else if (task.type === 'acp') {
+      if (task.type === 'acp') {
         await (task as AcpAgentManager).sendMessage({ content: other.input, files, msg_id: other.msg_id });
         return { success: true };
       } else if (task.type === 'codex') {
@@ -405,9 +365,6 @@ export function initConversationBridge(): void {
       // 根据 task 类型调用对应的 confirmMessage 方法
       if (task?.type === 'codex') {
         await (task as CodexAgentManager).confirmMessage({ confirmKey, msg_id, callId });
-        return { success: true };
-      } else if (task.type === 'gemini') {
-        await (task as GeminiAgentManager).confirmMessage({ confirmKey, msg_id, callId });
         return { success: true };
       } else if (task.type === 'acp') {
         await (task as AcpAgentManager).confirmMessage({ confirmKey, msg_id, callId });

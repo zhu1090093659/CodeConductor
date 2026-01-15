@@ -7,7 +7,6 @@ import Guid from './pages/guid';
 import About from './pages/settings/About';
 import AgentSettings from './pages/settings/AgentSettings';
 import DisplaySettings from './pages/settings/DisplaySettings';
-import GeminiSettings from './pages/settings/GeminiSettings';
 import ModeSettings from './pages/settings/ModeSettings';
 import CliProviderSettings from './pages/settings/CliProviderSettings';
 import SkillSettings from './pages/settings/SkillSettings';
@@ -41,7 +40,6 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route index element={<Navigate to='/guid' replace />} />
           <Route path='/guid' element={<Guid />} />
           <Route path='/conversation/:id' element={<Conversation />} />
-          <Route path='/settings/gemini' element={<GeminiSettings />} />
           <Route path='/settings/model' element={<ModeSettings />} />
           <Route path='/settings/providers' element={<CliProviderSettings />} />
           <Route path='/settings/agent' element={<AgentSettings />} />
@@ -50,7 +48,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route path='/settings/about' element={<About />} />
           <Route path='/settings/tools' element={<ToolsSettings />} />
           <Route path='/settings/skills' element={<SkillSettings />} />
-          <Route path='/settings' element={<Navigate to='/settings/gemini' replace />} />
+          <Route path='/settings' element={<Navigate to='/settings/model' replace />} />
           <Route path='/test/components' element={<ComponentsShowcase />} />
         </Route>
         <Route path='*' element={<Navigate to={status === 'authenticated' ? '/guid' : '/login'} replace />} />

@@ -72,7 +72,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData> {
           cliPath = config[data.backend].cliPath;
         }
 
-        // Get acpArgs from backend config (for goose, auggie, etc.)
+        // Get acpArgs from backend config (for goose, kimi, etc.)
         const backendConfig = ACP_BACKENDS_ALL[data.backend];
         if (backendConfig?.acpArgs) {
           customArgs = backendConfig.acpArgs;

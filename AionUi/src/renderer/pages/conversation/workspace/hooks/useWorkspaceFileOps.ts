@@ -17,7 +17,7 @@ import { loadPreviewForFile } from '../utils/previewUtils';
 
 interface UseWorkspaceFileOpsOptions {
   workspace: string;
-  eventPrefix: 'gemini' | 'acp' | 'codex';
+  eventPrefix: 'acp' | 'codex';
   messageApi: MessageApi;
   t: (key: string) => string;
 

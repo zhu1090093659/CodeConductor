@@ -34,15 +34,8 @@ export const conversation = {
   responseStream: bridge.buildEmitter<IResponseMessage>('chat.response.stream'), // 接收消息（统一接口）
   getWorkspace: bridge.buildProvider<IDirOrFile[], { conversation_id: string; workspace: string; path: string; search?: string }>('conversation.get-workspace'),
   responseSearchWorkSpace: bridge.buildProvider<void, { file: number; dir: number; match?: IDirOrFile }>('conversation.response.search.workspace'),
-  reloadContext: bridge.buildProvider<IBridgeResponse, { conversation_id: string }>('conversation.reload-context'),
 };
 
-// Gemini对话相关接口 - 复用统一的conversation接口
-export const geminiConversation = {
-  sendMessage: conversation.sendMessage,
-  confirmMessage: bridge.buildProvider<IBridgeResponse, IConfirmMessageParams>('input.confirm.message'),
-  responseStream: conversation.responseStream,
-};
 
 export const application = {
   restart: bridge.buildProvider<void, void>('restart-app'), // 重启应用
@@ -113,17 +106,6 @@ export const terminal = {
   exit: bridge.buildEmitter<{ id: string; exitCode: number | null; signal?: number }>('terminal:exit'),
 };
 
-export const googleAuth = {
-  login: bridge.buildProvider<IBridgeResponse<{ account: string }>, { proxy?: string }>('google.auth.login'),
-  logout: bridge.buildProvider<void, {}>('google.auth.logout'),
-  status: bridge.buildProvider<IBridgeResponse<{ account: string }>, { proxy?: string }>('google.auth.status'),
-};
-
-// 订阅状态查询：用于动态决定是否展示 gemini-3-pro-preview / subscription check for Gemini models
-export const gemini = {
-  subscriptionStatus: bridge.buildProvider<IBridgeResponse<{ isSubscriber: boolean; tier?: string; lastChecked: number; message?: string }>, { proxy?: string }>('gemini.subscription-status'),
-};
-
 export const mode = {
   fetchModelList: bridge.buildProvider<IBridgeResponse<{ mode: Array<string>; fix_base_url?: string }>, { base_url?: string; api_key: string; try_fix?: boolean; platform?: string }>('mode.get-model-list'),
   saveModelConfig: bridge.buildProvider<IBridgeResponse, IProvider[]>('mode.save-model-config'),
@@ -148,7 +130,7 @@ export const acpConversation = {
         isPreset?: boolean;
         context?: string;
         avatar?: string;
-        presetAgentType?: 'gemini' | 'claude' | 'codex';
+        presetAgentType?: 'claude' | 'codex';
       }>
     >,
     void
@@ -238,7 +220,7 @@ interface ISendMessageParams {
   loading_id?: string;
 }
 
-// Unified confirm message params for all agents (Gemini, ACP, Codex)
+// Unified confirm message params for all agents (ACP, Codex)
 export interface IConfirmMessageParams {
   confirmKey: string;
   msg_id: string;
@@ -247,7 +229,7 @@ export interface IConfirmMessageParams {
 }
 
 export interface ICreateConversationParams {
-  type: 'gemini' | 'acp' | 'codex';
+  type: 'acp' | 'codex';
   id?: string;
   name?: string;
   model: TProviderWithModel;
@@ -258,11 +240,9 @@ export interface ICreateConversationParams {
     projectId?: string;
     backend?: AcpBackend;
     cliPath?: string;
-    webSearchEngine?: 'google' | 'default';
     agentName?: string;
     customAgentId?: string;
     context?: string;
-    contextFileName?: string; // For gemini preset agents
     // System rules for smart assistants
     presetRules?: string; // system rules injected at initialization
     /** Enabled skills list for filtering SkillManager skills */
@@ -270,7 +250,6 @@ export interface ICreateConversationParams {
     /**
      * Preset context/rules to inject into the first message.
      * Used by smart assistants to provide custom prompts/rules.
-     * For Gemini: injected via contextContent
      * For ACP/Codex: injected via <system_instruction> tag in first message
      */
     presetContext?: string;
@@ -289,9 +268,6 @@ export interface ITerminalSpawnParams {
 }
 interface IResetConversationParams {
   id?: string;
-  gemini?: {
-    clearCachedCredentialFile?: boolean;
-  };
 }
 
 // 获取文件夹或文件列表

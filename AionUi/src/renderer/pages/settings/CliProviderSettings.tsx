@@ -9,7 +9,6 @@ import { Button, Form, Input, Message, Select, Tabs } from '@arco-design/web-rea
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 import { CLAUDE_PROVIDER_PRESETS } from '@/renderer/config/cliProviders/claudePresets';
 import { CODEX_PROVIDER_PRESETS, generateThirdPartyConfig } from '@/renderer/config/cliProviders/codexPresets';
-import { GEMINI_PROVIDER_PRESETS } from '@/renderer/config/cliProviders/geminiPresets';
 import { ConfigStorage, type CliProviderConfig, type CliProviderTarget, type CliProvidersStorage } from '@/common/storage';
 import { ipcBridge } from '@/common';
 import useModeModeList from '@/renderer/hooks/useModeModeList';
@@ -26,7 +25,6 @@ type ProviderPreset = {
 const DEFAULT_CONFIG: CliProvidersStorage = {
   claude: {},
   codex: {},
-  gemini: {},
 };
 
 const buildClaudeEnv = (preset: ProviderPreset, config: CliProviderConfig) => {
@@ -72,20 +70,6 @@ const patchCodexConfig = (baseConfig: string, baseUrl?: string, model?: string) 
     next = next.replace(/model\s*=\s*".*?"/g, `model = "${model}"`);
   }
   return next;
-};
-
-const buildGeminiEnv = (config: CliProviderConfig) => {
-  const env: Record<string, string> = {};
-  if (config.apiKey) {
-    env['GEMINI_API_KEY'] = config.apiKey;
-  }
-  if (config.baseUrl) {
-    env['GOOGLE_GEMINI_BASE_URL'] = config.baseUrl;
-  }
-  if (config.model) {
-    env['GEMINI_MODEL'] = config.model;
-  }
-  return env;
 };
 
 const CliProviderSettings: React.FC = () => {
@@ -144,15 +128,7 @@ const CliProviderSettings: React.FC = () => {
         }
         return;
       }
-      if (target === 'gemini') {
-        const env = buildGeminiEnv(config);
-        const result = await applyProvider({ target, env });
-        if (result.success) {
-          message.success('Gemini settings updated');
-        } else {
-          message.error(result.msg || 'Failed to update Gemini settings');
-        }
-      }
+      return;
     },
     [configs, message]
   );
@@ -202,15 +178,10 @@ const CliProviderSettings: React.FC = () => {
               placeholder='Select provider'
               onChange={(value) => {
                 const nextPreset = presets.find((p) => p.name === value);
-                const baseUrl =
-                  nextPreset?.settingsConfig?.env?.['ANTHROPIC_BASE_URL'] ||
-                  nextPreset?.settingsConfig?.env?.['GOOGLE_GEMINI_BASE_URL'] ||
-                  nextPreset?.endpointCandidates?.[0] ||
-                  '';
+                const baseUrl = nextPreset?.settingsConfig?.env?.['ANTHROPIC_BASE_URL'] || nextPreset?.endpointCandidates?.[0] || '';
                 const model =
                   (nextPreset as { model?: string })?.model ||
                   nextPreset?.settingsConfig?.env?.['ANTHROPIC_MODEL']?.toString() ||
-                  nextPreset?.settingsConfig?.env?.['GEMINI_MODEL']?.toString() ||
                   '';
                 const nextConfigs = {
                   ...configs,
@@ -315,7 +286,6 @@ const CliProviderSettings: React.FC = () => {
     () => [
       { key: 'claude', title: 'Claude Code', presets: CLAUDE_PROVIDER_PRESETS },
       { key: 'codex', title: 'Codex', presets: CODEX_PROVIDER_PRESETS },
-      { key: 'gemini', title: 'Gemini', presets: GEMINI_PROVIDER_PRESETS },
     ],
     []
   );

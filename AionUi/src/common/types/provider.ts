@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type CliProviderTarget = 'claude' | 'codex' | 'gemini';
+export type CliProviderTarget = 'claude' | 'codex';
 
 export type CliProviderApplyPayload =
   | {
@@ -15,9 +15,4 @@ export type CliProviderApplyPayload =
       target: 'codex';
       auth: Record<string, unknown>;
       configToml?: string;
-    }
-  | {
-      target: 'gemini';
-      env: Record<string, string>;
-      settings?: Record<string, unknown>;
     };

@@ -6,7 +6,7 @@
 
 import { AIONUI_TIMESTAMP_REGEX } from '@/common/constants';
 import type { ICreateConversationParams } from '@/common/ipcBridge';
-import type { TChatConversation, TProviderWithModel } from '@/common/storage';
+import type { TChatConversation } from '@/common/storage';
 import { uuid } from '@/common/utils';
 import fs from 'fs/promises';
 import path from 'path';
@@ -105,32 +105,6 @@ const buildWorkspaceWidthFiles = async (defaultWorkspaceName: string, workspace?
   }
 
   return { workspace, customWorkspace };
-};
-
-export const createGeminiAgent = async (model: TProviderWithModel, workspace?: string, defaultFiles?: string[], webSearchEngine?: 'google' | 'default', customWorkspace?: boolean, contextFileName?: string, presetRules?: string, enabledSkills?: string[]): Promise<TChatConversation> => {
-  const { workspace: newWorkspace, customWorkspace: finalCustomWorkspace } = await buildWorkspaceWidthFiles(`gemini-temp-${Date.now()}`, workspace, defaultFiles, customWorkspace);
-
-  return {
-    type: 'gemini',
-    model,
-    extra: {
-      workspace: newWorkspace,
-      customWorkspace: finalCustomWorkspace,
-      webSearchEngine,
-      contextFileName,
-      // 系统规则 / System rules
-      presetRules,
-      // 向后兼容：contextContent 保存 rules / Backward compatible: contextContent stores rules
-      contextContent: presetRules,
-      // 启用的 skills 列表（通过 SkillManager 加载）/ Enabled skills list (loaded via SkillManager)
-      enabledSkills,
-    },
-    desc: finalCustomWorkspace ? newWorkspace : '',
-    createTime: Date.now(),
-    modifyTime: Date.now(),
-    name: newWorkspace,
-    id: uuid(),
-  };
 };
 
 export const createAcpAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {

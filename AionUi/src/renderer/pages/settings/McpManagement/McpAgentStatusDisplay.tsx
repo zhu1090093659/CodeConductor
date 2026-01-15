@@ -1,7 +1,5 @@
-import AuggieLogo from '@/renderer/assets/logos/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/claude.svg';
 import CodexLogo from '@/renderer/assets/logos/codex.svg';
-import GeminiLogo from '@/renderer/assets/logos/gemini.svg';
 import GooseLogo from '@/renderer/assets/logos/goose.svg';
 import IflowLogo from '@/renderer/assets/logos/iflow.svg';
 import KimiLogo from '@/renderer/assets/logos/kimi.svg';
@@ -20,12 +18,10 @@ interface McpAgentStatusDisplayProps {
 
 const AGENT_LOGO_MAP: Record<string, string> = {
   claude: ClaudeLogo,
-  gemini: GeminiLogo,
   qwen: QwenLogo,
   iflow: IflowLogo,
   codex: CodexLogo,
   goose: GooseLogo,
-  auggie: AuggieLogo,
   kimi: KimiLogo,
   opencode: OpenCodeLogo,
 };

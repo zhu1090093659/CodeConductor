@@ -19,7 +19,7 @@
 ---
 
 <p align="center">
-  <strong>🚀 Cowork 与你的AI, Gemini CLI, Claude Code, Codex, Qwen Code, Goose Cli, Auggie, 等ai agent </strong><br>
+  <strong>🚀 Cowork 与你的AI, Claude Code, Codex, Qwen Code, Goose Cli, 等ai agent </strong><br>
   <em> 任何用户友好 | 可视的图形化界面 | 多模型支持 | 本地数据安全</em>
 </p>
 
@@ -58,7 +58,7 @@
 
 ### 🤖 **多代理模式 - Cowork for 你的命令行 AI 工具，统一图形界面**
 
-_如果你已经安装了 Gemini CLI、Claude Code、CodeX、Qwen Code、Goose AI、Augment Code 等命令行工具，AionUi 可以自动检测并为它们提供统一的图形界面_
+_如果你已经安装了 Claude Code、CodeX、Qwen Code、Goose AI 等命令行工具，AionUi 可以自动检测并为它们提供统一的图形界面_
 
 - ✅ **自动检测 + 统一界面** - 自动识别本地 CLI 工具，提供统一的图形界面，告别命令行
 - ✅ **本地保存 + 多会话** - 对话保存在本地，支持多会话并行，每个会话独立上下文
@@ -119,7 +119,7 @@ _开多个对话、任务不混乱、记忆独立、效率翻倍_
 
 ### 🌐 **随时随地访问 - WebUI 模式**
 
-_远程控制您的 AI 工具 - 从网络中的任何设备访问 AionUi！安全控制本地 Gemini CLI、Claude Code、Codex 等工具，数据不离开您的设备_
+_远程控制您的 AI 工具 - 从网络中的任何设备访问 AionUi！安全控制本地 Claude Code、Codex 等工具，数据不离开您的设备_
 
 ```bash
 # 基本启动
@@ -141,12 +141,12 @@ AionUi --webui --remote
 
 **就像 Claude Cowork 让 Claude Code 更易用，AionUi 是你所有命令行 AI 工具的 Cowork 平台**
 
-Gemini CLI、Claude Code、Codex、Qwen Code 等命令行工具虽然强大，但存在通用痛点：对话无法保存、单会话限制、文件操作繁琐、只能使用单一模型。
+Claude Code、Codex、Qwen Code 等命令行工具虽然强大，但存在通用痛点：对话无法保存、单会话限制、文件操作繁琐、只能使用单一模型。
 
 AionUi 为这些命令行工具提供统一的 **Cowork 能力**：
 
 - 🎯 **统一平台** - 一个界面管理所有命令行 AI 工具，无需切换
-- 🚀 **多工具支持** - 不仅支持 Claude Code，还支持 Gemini CLI、Codex、Qwen Code 等
+- 🚀 **多工具支持** - 不仅支持 Claude Code，还支持 Codex、Qwen Code 等
 - 🌐 **跨平台** - macOS、Windows、Linux 全平台支持（Claude Cowork 目前仅 macOS）
 - 🔄 **多模型切换** - 在同一个界面中灵活切换不同模型，满足不同任务需求
 - 📄 **实时预览** - 9+ 种格式可视化预览，AI 生成的文件立即查看效果
@@ -175,12 +175,12 @@ A: AionUi 是一款**免费开源**的 **Multi-AI Agent Desktop  **。相比于�
 
 <details>
 <summary><strong>Q: 我可以用 AionUi 做什么？</strong></summary>
-A: 它可以成为你的**私有化 Cowork 工作空间**。你可以让它帮你批量整理文件夹、深度美化 Excel、实时预览网页代码。它是你探索办公自动化流程、增强 Claude Code 或 Gemini CLI 体验的最佳图形化选择。
+A: 它可以成为你的**私有化 Cowork 工作空间**。你可以让它帮你批量整理文件夹、深度美化 Excel、实时预览网页代码。它是你探索办公自动化流程、增强 Claude Code 体验的最佳图形化选择。
 </details>
 
 <details>
 <summary><strong>Q: AionUi 是开箱即用吗？</strong></summary>
-A: 是的！安装后可以直接使用 Google 账号登录，AionUi 会自动关联 Gemini CLI，无需额外配置即可开始使用。
+A: 是的！安装后完成基础配置即可开始使用。
 </details>
 
 <details>
@@ -192,7 +192,7 @@ A: AionUi 完全免费开源，但使用 AI 模型需要相应的 API Key。
 <summary><strong>Q: 支持哪些 AI 模型？</strong></summary>
 A: 支持 Gemini、OpenAI、Claude、Qwen 等主流模型，以及 Ollama、LM Studio 等本地模型。
 
-还可以同时运行多个 AI Agent（如 Gemini CLI、Claude Code、Qwen Code 等），详见配置指南。
+还可以同时运行多个 AI Agent（如 Claude Code、Qwen Code 等），详见配置指南。
 
 </details>
 
@@ -214,7 +214,6 @@ A: 所有对话数据存储在本地 SQLite 数据库，不会上传到任何服
 
 - **多平台支持** - 支持 Gemini、OpenAI、Claude、Qwen 等主流模型，灵活切换
 - **本地模型支持** - 支持 Ollama、LM Studio 等本地模型部署，选择 Custom 平台并设置本地 API 地址（如 `http://localhost:11434/v1`）即可接入
-- **Gemini 3 订阅优化** - 自动识别订阅用户，推荐高级模型
 
 ### 🗂️ **文件管理**
 

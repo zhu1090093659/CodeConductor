@@ -12,10 +12,6 @@ import type { PreviewContentType } from '@/common/types/preview';
 import type { PreviewMetadata } from '@/renderer/pages/conversation/preview/context/PreviewContext';
 
 interface EventTypes {
-  'gemini.selected.file': [Array<string | FileOrFolderItem>];
-  'gemini.selected.file.append': [Array<string | FileOrFolderItem>];
-  'gemini.selected.file.clear': void;
-  'gemini.workspace.refresh': void;
   'acp.selected.file': [Array<string | FileOrFolderItem>];
   'acp.selected.file.append': [Array<string | FileOrFolderItem>];
   'acp.selected.file.clear': void;

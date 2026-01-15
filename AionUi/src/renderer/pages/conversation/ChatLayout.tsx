@@ -11,10 +11,8 @@ import { ExpandLeft, ExpandRight, Robot } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
-import AuggieLogo from '@/renderer/assets/logos/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/claude.svg';
 import CodexLogo from '@/renderer/assets/logos/codex.svg';
-import GeminiLogo from '@/renderer/assets/logos/gemini.svg';
 import GooseLogo from '@/renderer/assets/logos/goose.svg';
 import IflowLogo from '@/renderer/assets/logos/iflow.svg';
 import KimiLogo from '@/renderer/assets/logos/kimi.svg';
@@ -25,12 +23,10 @@ import type { AcpBackend } from '@/types/acpTypes';
 // Agent Logo 映射
 const AGENT_LOGO_MAP: Partial<Record<AcpBackend, string>> = {
   claude: ClaudeLogo,
-  gemini: GeminiLogo,
   qwen: QwenLogo,
   codex: CodexLogo,
   iflow: IflowLogo,
   goose: GooseLogo,
-  auggie: AuggieLogo,
   kimi: KimiLogo,
   opencode: OpenCodeLogo,
 };

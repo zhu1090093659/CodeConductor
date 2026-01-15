@@ -59,7 +59,7 @@ const ChangeWorkspaceIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ classNam
   );
 };
 
-const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, eventPrefix = 'gemini', messageApi: externalMessageApi }) => {
+const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, eventPrefix = 'acp', messageApi: externalMessageApi }) => {
   const { t } = useTranslation();
   const { openPreview } = usePreviewContext();
   const navigate = useNavigate();

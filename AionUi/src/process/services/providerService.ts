@@ -28,39 +28,12 @@ const writeJson = async (filePath: string, data: Record<string, unknown>) => {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
 };
 
-const readEnvFile = async (filePath: string): Promise<Record<string, string>> => {
-  try {
-    const content = await fs.readFile(filePath, 'utf-8');
-    const env: Record<string, string> = {};
-    content.split('\n').forEach((line) => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) return;
-      const idx = trimmed.indexOf('=');
-      if (idx === -1) return;
-      const key = trimmed.slice(0, idx).trim();
-      const value = trimmed.slice(idx + 1).trim();
-      env[key] = value;
-    });
-    return env;
-  } catch {
-    return {};
-  }
-};
-
-const writeEnvFile = async (filePath: string, env: Record<string, string>) => {
-  await ensureDir(filePath);
-  const lines = Object.entries(env).map(([key, value]) => `${key}=${value}`);
-  await fs.writeFile(filePath, lines.join('\n') + '\n', 'utf-8');
-};
-
 const getCliPaths = () => {
   const home = os.homedir();
   return {
     claudeSettings: path.join(home, '.claude', 'settings.json'),
     codexAuth: path.join(home, '.codex', 'auth.json'),
     codexConfig: path.join(home, '.codex', 'config.toml'),
-    geminiEnv: path.join(home, '.gemini', '.env'),
-    geminiSettings: path.join(home, '.gemini', 'settings.json'),
   };
 };
 
@@ -84,13 +57,5 @@ export async function applyCliProvider(payload: CliProviderApplyPayload): Promis
     return;
   }
 
-  if (payload.target === 'gemini') {
-    const existingEnv = await readEnvFile(paths.geminiEnv);
-    const mergedEnv = { ...existingEnv, ...payload.env };
-    await writeEnvFile(paths.geminiEnv, mergedEnv);
-    if (payload.settings) {
-      const existingSettings = await readJson(paths.geminiSettings);
-      await writeJson(paths.geminiSettings, { ...existingSettings, ...payload.settings });
-    }
-  }
+  return;
 }

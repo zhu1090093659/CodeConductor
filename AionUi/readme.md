@@ -19,7 +19,7 @@
 ---
 
 <p align="center">
-  <strong>🚀 Cowork with Your AI, Gemini CLI, Claude Code, Codex, Qwen Code, Goose CLI, Auggie, and more</strong><br>
+  <strong>🚀 Cowork with Your AI, Claude Code, Codex, Qwen Code, Goose CLI, and more</strong><br>
   <em>User-friendly | Visual graphical interface | Multi-model support | Local data security</em>
 </p>
 
@@ -58,7 +58,7 @@
 
 ### 🤖 **Multi-Agent Mode - Cowork for Your Command-Line AI Tools, Unified Graphical Interface**
 
-_If you have installed command-line tools like Gemini CLI, Claude Code, CodeX, Qwen Code, Goose AI, Augment Code, AionUi can automatically detect them and provide a unified graphical interface_
+_If you have installed command-line tools like Claude Code, CodeX, Qwen Code, Goose AI, AionUi can automatically detect them and provide a unified graphical interface_
 
 - ✅ **Auto Detection + Unified Interface** - Automatically recognizes local CLI tools, provides a unified graphical interface, say goodbye to command line
 - ✅ **Local Storage + Multi-Session** - Conversations saved locally, supports multiple parallel sessions, each session with independent context
@@ -117,7 +117,7 @@ _Open multiple conversations, tasks don't get mixed up, independent memory, doub
 
 ### 🌐 **Access Anywhere - WebUI Mode**
 
-_Remotely control your AI tools - Access AionUi from any device on the network! Securely control local Gemini CLI, Claude Code, Codex, and other tools, data never leaves your device_
+_Remotely control your AI tools - Access AionUi from any device on the network! Securely control local Claude Code, Codex, and other tools, data never leaves your device_
 
 ```bash
 # Basic startup
@@ -139,12 +139,12 @@ AionUi --webui --remote
 
 **Just like Claude Cowork makes Claude Code easier to use, AionUi is the Cowork platform for all your command-line AI tools**
 
-Gemini CLI, Claude Code, Codex, Qwen Code are powerful, but share common pain points: conversations can't be saved, single-session limitations, cumbersome file operations, and only support a single model.
+Claude Code, Codex, Qwen Code are powerful, but share common pain points: conversations can't be saved, single-session limitations, cumbersome file operations, and only support a single model.
 
 AionUi provides unified **Cowork capabilities** for these command-line tools:
 
 - 🎯 **Unified Platform** - One interface to manage all command-line AI tools, no switching needed
-- 🚀 **Multi-Tool Support** - Not only supports Claude Code, but also Gemini CLI, Codex, Qwen Code, and more
+- 🚀 **Multi-Tool Support** - Not only supports Claude Code, but also Codex, Qwen Code, and more
 - 🌐 **Cross-Platform** - Full platform support for macOS, Windows, Linux (Claude Cowork currently only macOS)
 - 🔄 **Multi-Model Switching** - Flexibly switch between different models in the same interface, meeting different task requirements
 - 📄 **Real-time Preview** - Visual preview for 9+ formats, immediately view the effects of AI-generated files
@@ -175,12 +175,12 @@ A: AionUi is a **free and open-source** **Multi-AI Agent Desktop**. Compared to 
 
 <details>
 <summary><strong>Q: What can I do with AionUi?</strong></summary>
-A: It can be your **private Cowork workspace**. You can let it help you batch organize folders, deeply beautify Excel, and preview web code in real-time. It's your best graphical choice for exploring office automation workflows and enhancing your experience with Claude Code or Gemini CLI.
+A: It can be your **private Cowork workspace**. You can let it help you batch organize folders, deeply beautify Excel, and preview web code in real-time. It's your best graphical choice for exploring office automation workflows and enhancing your experience with Claude Code.
 </details>
 
 <details>
 <summary><strong>Q: Is AionUi ready to use out of the box?</strong></summary>
-A: Yes! After installation, you can directly use Google account login, AionUi will automatically associate with Gemini CLI, no additional configuration needed to start using.
+A: Yes! After installation, complete the basic configuration to start using.
 </details>
 
 <details>
@@ -192,7 +192,7 @@ A: AionUi is completely free and open source, but using AI models requires corre
 <summary><strong>Q: Which AI models are supported?</strong></summary>
 A: Supports mainstream models like Gemini, OpenAI, Claude, Qwen, as well as local models like Ollama, LM Studio.
 
-You can also run multiple AI Agents simultaneously (such as Gemini CLI, Claude Code, Qwen Code, etc.), see the configuration guide for details.
+You can also run multiple AI Agents simultaneously (such as Claude Code, Qwen Code, etc.), see the configuration guide for details.
 
 </details>
 

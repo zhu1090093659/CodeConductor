@@ -10,7 +10,6 @@ import { CodexAgentManager } from '@/agent/codex';
 // import type { AcpAgentTask } from './task/AcpAgentTask';
 import { ProcessChat } from './initStorage';
 import type AgentBaseTask from './task/BaseAgentManager';
-import { GeminiAgentManager } from './task/GeminiAgentManager';
 import { getDatabase } from './database/export';
 
 const taskList: {
@@ -30,24 +29,6 @@ const buildConversation = (conversation: TChatConversation) => {
   }
 
   switch (conversation.type) {
-    case 'gemini': {
-      const task = new GeminiAgentManager(
-        {
-          workspace: conversation.extra.workspace,
-          conversation_id: conversation.id,
-          webSearchEngine: conversation.extra.webSearchEngine,
-          // 系统规则 / System rules
-          presetRules: conversation.extra.presetRules,
-          // 向后兼容 / Backward compatible
-          contextContent: conversation.extra.contextContent,
-          // 启用的 skills 列表（通过 SkillManager 加载）/ Enabled skills list (loaded via SkillManager)
-          enabledSkills: conversation.extra.enabledSkills,
-        },
-        conversation.model
-      );
-      taskList.push({ id: conversation.id, task });
-      return task;
-    }
     case 'acp': {
       const task = new AcpAgentManager({ ...conversation.extra, conversation_id: conversation.id });
       taskList.push({ id: conversation.id, task });

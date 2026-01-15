@@ -217,7 +217,7 @@ function ConversationPage() {
   return (
     <>
       {messageContext}
-      <ChatWorkspace conversation_id={conversationId} workspace={workspacePath} eventPrefix='gemini' messageApi={messageApi} />
+      <ChatWorkspace conversation_id={conversationId} workspace={workspacePath} eventPrefix='acp' messageApi={messageApi} />
     </>
   );
 }
@@ -235,10 +235,10 @@ function MyComponent() {
       console.log('Selected files:', items);
     };
 
-    emitter.on('gemini.selected.file', handleFileSelected);
+    emitter.on('acp.selected.file', handleFileSelected);
 
     return () => {
-      emitter.off('gemini.selected.file', handleFileSelected);
+      emitter.off('acp.selected.file', handleFileSelected);
     };
   }, []);
 }
@@ -251,7 +251,7 @@ import { emitter } from '@/renderer/utils/emitter';
 
 function RefreshButton() {
   const handleRefresh = () => {
-    emitter.emit('gemini.workspace.refresh');
+    emitter.emit('acp.workspace.refresh');
   };
 
   return <button onClick={handleRefresh}>Refresh</button>;
@@ -265,7 +265,7 @@ import { emitter } from '@/renderer/utils/emitter';
 
 function ClearButton() {
   const handleClear = () => {
-    emitter.emit('gemini.selected.file.clear');
+    emitter.emit('acp.selected.file.clear');
   };
 
   return <button onClick={handleClear}>Clear Selection</button>;
@@ -278,7 +278,6 @@ function ClearButton() {
 
 `eventPrefix` is used to distinguish different agent types, supports:
 
-- `gemini` - Gemini AI conversation
 - `acp` - ACP (AI Code Partner) conversation
 - `codex` - Codex conversation
 

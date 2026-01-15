@@ -19,7 +19,7 @@
 ---
 
 <p align="center">
-  <strong>🚀 Cowork とあなたのAI, Gemini CLI, Claude Code, Codex, Qwen Code, Goose CLI, Auggie, その他のAIエージェント</strong><br>
+  <strong>🚀 Cowork とあなたのAI, Claude Code, Codex, Qwen Code, Goose CLI, その他のAIエージェント</strong><br>
   <em>ユーザーフレンドリー | 視覚的なグラフィカルインターフェース | マルチモデル対応 | ローカルデータセキュリティ</em>
 </p>
 
@@ -58,7 +58,7 @@
 
 ### 🤖 **マルチエージェントモード - あなたのコマンドラインAIツールのためのCowork、统一グラフィカルインターフェース**
 
-_Gemini CLI、Claude Code、CodeX、Qwen Code、Goose AI、Augment Codeなどのコマンドラインツールをインストール済みの場合、AionUiは自动的に検出し、统一されたグラフィカルインターフェースを提供します_
+_Claude Code、CodeX、Qwen Code、Goose AIなどのコマンドラインツールをインストール済みの場合、AionUiは自动的に検出し、统一されたグラフィカルインターフェースを提供します_
 
 - ✅ **自动検出 + 统一インターフェース** - ローカルCLIツールを自动认识し、统一されたグラフィカルインターフェースを提供、コマンドラインに别れを告げる
 - ✅ **ローカル保存 + マルチセッション** - 会話をローカルに保存、マルチセッション并列をサポート、各セッションは独立したコンテキスト
@@ -119,7 +119,7 @@ _複数の会話を開く、タスクが混乱しない、記憶が独立、効�
 
 ### 🌐 **どこからでもアクセス - WebUIモード**
 
-_AIツールをリモート制御 - ネットワーク上の任意のデバイスからAionUiにアクセス！ローカルのGemini CLI、Claude Code、Codexなどのツールを安全に制御、データはデバイスから離れません_
+_AIツールをリモート制御 - ネットワーク上の任意のデバイスからAionUiにアクセス！ローカルのClaude Code、Codexなどのツールを安全に制御、データはデバイスから離れません_
 
 ```bash
 # 基本起動
@@ -141,12 +141,12 @@ AionUi --webui --remote
 
 **Claude CoworkがClaude Codeをより使いやすくするように、AionUiはすべてのコマンドラインAIツールのためのCoworkプラットフォームです**
 
-Gemini CLI、Claude Code、Codex、Qwen Codeなどのコマンドラインツールは強力ですが、共通の痛みがあります：会話が保存できない、単一セッション制限、ファイル操作が煩雑、単一モデルのみ使用可能。
+Claude Code、Codex、Qwen Codeなどのコマンドラインツールは強力ですが、共通の痛みがあります：会話が保存できない、単一セッション制限、ファイル操作が煩雑、単一モデルのみ使用可能。
 
 AionUiはこれらのコマンドラインツールに統一された **Cowork機能** を提供します：
 
 - 🎯 **統一プラットフォーム** - すべてのコマンドラインAIツールを1つのインターフェースで管理、切り替え不要
-- 🚀 **マルチツール対応** - Claude Codeだけでなく、Gemini CLI、Codex、Qwen Codeなどもサポート
+- 🚀 **マルチツール対応** - Claude Codeだけでなく、Codex、Qwen Codeなどもサポート
 - 🌐 **クロスプラットフォーム** - macOS、Windows、Linux全プラットフォーム対応（Claude Coworkは現在macOSのみ）
 - 🔄 **マルチモデル切り替え** - 同じインターフェースで異なるモデルを柔軟に切り替え、さまざまなタスク要件に対応
 - 📄 **リアルタイムプレビュー** - 9種類以上の形式のビジュアルプレビュー、AI生成ファイルを即座に確認
@@ -175,12 +175,12 @@ A: AionUiは**無料かつオープンソース**の **マルチAIエージェ�
 
 <details>
 <summary><strong>Q: AionUiで何ができますか？</strong></summary>
-A: AionUiはあなたの**プライベートなCoworkワークスペース**になります。フォルダの自動整理、Excelの美化、ウェブコードのリアルタイムプレビューなどをAIに任せることができます。オフィスオートメーションのワークフローを探索し、Claude CodeやGemini CLIの体験を向上させるための最適なグラフィカルな選択肢です。
+A: AionUiはあなたの**プライベートなCoworkワークスペース**になります。フォルダの自動整理、Excelの美化、ウェブコードのリアルタイムプレビューなどをAIに任せることができます。オフィスオートメーションのワークフローを探索し、Claude Codeの体験を向上させるための最適なグラフィカルな選択肢です。
 </details>
 
 <details>
 <summary><strong>Q: AionUiはすぐに使えますか？</strong></summary>
-A: はい！インストール後、Googleアカウントでログインするだけで使用できます。AionUiは自動的にGemini CLIと関連付けられ、追加の設定なしで使用を開始できます。
+A: はい！インストール後、基本設定を完了すれば使用を開始できます。
 </details>
 
 <details>
@@ -192,7 +192,7 @@ A: AionUiは完全に無料でオープンソースですが、AIモデルを使
 <summary><strong>Q: どのAIモデルがサポートされていますか？</strong></summary>
 A: Gemini、OpenAI、Claude、Qwenなどの主流モデル、およびOllama、LM Studioなどのローカルモデルをサポートしています。
 
-複数のAIエージェント（Gemini CLI、Claude Code、Qwen Codeなど）を同時に実行することもできます。詳細は設定ガイドを参照してください。
+複数のAIエージェント（Claude Code、Qwen Codeなど）を同時に実行することもできます。詳細は設定ガイドを参照してください。
 
 </details>
 
@@ -214,7 +214,6 @@ A: すべての会話データはローカルのSQLiteデータベースに保�
 
 - **マルチプラットフォームサポート** - Gemini、OpenAI、Claude、Qwenなどの主流モデルをサポート、柔軟に切り替え
 - **ローカルモデルサポート** - Ollama、LM Studioなどのローカルモデルデプロイメントをサポート、Customプラットフォームを選択し、ローカルAPIアドレス（例：`http://localhost:11434/v1`）を設定するだけで接続可能
-- **Gemini 3 サブスクリプション最適化** - サブスクリプションユーザーを自動識別、高度なモデルを推奨
 
 ### 🗂️ **ファイル管理**
 
