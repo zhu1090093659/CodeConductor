@@ -93,6 +93,20 @@ export const createProject = async (workspace: string, name?: string): Promise<P
   const next = [project, ...projects];
   await saveProjects(next);
   await setActiveProjectId(project.id);
+  try {
+    const enabledByAgent = await ConfigStorage.get('skills.enabledByAgent').catch(() => ({}));
+    if (enabledByAgent && Object.keys(enabledByAgent).length > 0) {
+      const result = await ipcBridge.skills.copyToProject.invoke({
+        workspace: project.workspace,
+        enabledByAgent,
+      });
+      if (!result.success) {
+        console.warn('[ProjectService] Failed to copy skills to project:', result.msg || project.workspace);
+      }
+    }
+  } catch (error) {
+    console.warn('[ProjectService] Failed to load skill settings:', error);
+  }
   return project;
 };
 

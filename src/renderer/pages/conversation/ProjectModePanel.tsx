@@ -9,7 +9,7 @@ import type { ProjectInfo } from '@/common/storage';
 import { ConfigStorage } from '@/common/storage';
 import type { IDirOrFile } from '@/common/ipcBridge';
 import { emitter } from '@/renderer/utils/emitter';
-import { loadPreviewForFile } from '@/renderer/pages/conversation/workspace/utils/previewUtils';
+import { getPreviewContentType, loadPreviewForFile } from '@/renderer/pages/conversation/workspace/utils/previewUtils';
 import { useConversationTabs } from '@/renderer/pages/conversation/context/ConversationTabsContext';
 import { useProjects } from '@/renderer/hooks/useProjects';
 import { deleteProject, ensureProjectForWorkspace, renameProject, setActiveProjectId } from '@/renderer/utils/projectService';
@@ -49,11 +49,6 @@ const ProjectModePanel: React.FC = () => {
   const workspace = activeTab?.workspace;
   const conversationId = activeTab?.id;
 
-  const buildAiWorkspacePath = useCallback((basePath: string) => {
-    const separator = basePath.includes('\\') ? '\\' : '/';
-    return basePath.endsWith(separator) ? `${basePath}.ai` : `${basePath}${separator}.ai`;
-  }, []);
-
   const refreshTree = useCallback(async () => {
     if (!workspace || !conversationId) {
       setTreeData([]);
@@ -61,8 +56,8 @@ const ProjectModePanel: React.FC = () => {
     }
     setLoading(true);
     try {
-      const aiPath = buildAiWorkspacePath(workspace);
-      const res = await ipcBridge.conversation.getWorkspace.invoke({ conversation_id: conversationId, workspace, path: aiPath });
+      // Load full workspace tree (not only .ai)
+      const res = await ipcBridge.conversation.getWorkspace.invoke({ conversation_id: conversationId, workspace, path: workspace });
       const root = res?.[0];
       setTreeData(root ? [buildTreeNodes(root)] : []);
     } catch {
@@ -70,7 +65,7 @@ const ProjectModePanel: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [buildAiWorkspacePath, conversationId, workspace]);
+  }, [conversationId, workspace]);
 
   const refreshStatus = useCallback(async () => {
     try {
@@ -100,13 +95,31 @@ const ProjectModePanel: React.FC = () => {
 
   const handleSelect = useCallback(
     async (_keys: string[], info: any) => {
-      const node: TreeNode | undefined = info?.node;
-      const nodeData = node?.data;
+      // Arco Tree returns a NodeInstance; the tree item is stored in node.props.dataRef
+      // We attach IDirOrFile as dataRef.data in our treeData
+      const dataRef: TreeNode | undefined = info?.node?.props?.dataRef;
+      const nodeData = dataRef?.data;
       if (!nodeData?.isFile || !nodeData.fullPath) return;
       if (!workspace) return;
-      const preview = await loadPreviewForFile(nodeData, workspace);
-      if (!preview) return;
-      emitter.emit('workspace.preview.open', preview);
+      try {
+        const preview = await loadPreviewForFile(nodeData, workspace);
+        if (!preview) return;
+        emitter.emit('workspace.preview.open', preview);
+      } catch {
+        const contentType = getPreviewContentType(nodeData.name);
+        const ext = nodeData.name.toLowerCase().split('.').pop() || '';
+        emitter.emit('workspace.preview.open', {
+          content: '',
+          contentType,
+          metadata: {
+            title: nodeData.name,
+            fileName: nodeData.name,
+            filePath: nodeData.fullPath,
+            workspace,
+            language: ext,
+          },
+        });
+      }
     },
     [workspace]
   );

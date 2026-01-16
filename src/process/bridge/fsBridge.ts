@@ -12,6 +12,7 @@ import http from 'node:http';
 import { app } from 'electron';
 import { ipcBridge } from '../../common';
 import { getSystemDir, getAssistantsDir, getSkillsDir } from '../initStorage';
+import { listAvailableSkills } from '../services/skillFileService';
 import { readDirectoryRecursive } from '../utils';
 
 // ============================================================================
@@ -617,43 +618,7 @@ export function initFsBridge(): void {
   ipcBridge.fs.listAvailableSkills.provider(async () => {
     try {
       const skillsDir = getSkillsDir();
-      const skills: Array<{ name: string; description: string; location: string }> = [];
-
-      const parseFrontMatter = (content: string) => {
-        const frontMatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
-        if (!frontMatterMatch) return {};
-        const yaml = frontMatterMatch[1];
-        const nameMatch = yaml.match(/^name:\s*(.+)$/m);
-        const descMatch = yaml.match(/^description:\s*['"]?(.+?)['"]?$/m);
-        return {
-          name: nameMatch ? nameMatch[1].trim() : '',
-          description: descMatch ? descMatch[1].trim() : '',
-        };
-      };
-
-      const walk = async (dirPath: string) => {
-        const entries = await fs.readdir(dirPath, { withFileTypes: true });
-        for (const entry of entries) {
-          const fullPath = path.join(dirPath, entry.name);
-          if (entry.isDirectory()) {
-            await walk(fullPath);
-            continue;
-          }
-          if (entry.isFile() && entry.name.toLowerCase() === 'skill.md') {
-            try {
-              const content = await fs.readFile(fullPath, 'utf-8');
-              const { name, description } = parseFrontMatter(content);
-              if (name) {
-                skills.push({ name, description: description || '', location: fullPath });
-              }
-            } catch {
-              // Ignore invalid skill files
-            }
-          }
-        }
-      };
-
-      await walk(skillsDir);
+      const skills = await listAvailableSkills(skillsDir);
       console.log(`[fsBridge] Listed ${skills.length} available skills from ${skillsDir}`);
       return skills;
     } catch (error) {

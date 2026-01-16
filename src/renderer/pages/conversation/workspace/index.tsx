@@ -223,6 +223,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, e
   useEffect(() => {
     return addEventListener('workspace.preview.open', (payload) => {
       if (payload?.metadata?.workspace && payload.metadata.workspace !== workspace) return;
+      setIsWorkspaceCollapsed(false);
       setPreviewError(null);
       setPreviewLoading(false);
       setWorkspacePreview({

@@ -6,11 +6,21 @@
 
 import { ipcBridge } from '@/common';
 import { syncSkillRepos } from '../services/skillRepoService';
+import { copySkillsToProject } from '../services/skillProjectService';
 
 export function initSkillsBridge(): void {
   ipcBridge.skills.syncRepos.provider(async ({ repos }) => {
     try {
       const result = await syncSkillRepos(repos || []);
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
+  ipcBridge.skills.copyToProject.provider(async ({ workspace, enabledByAgent }) => {
+    try {
+      const result = await copySkillsToProject(workspace, enabledByAgent);
       return { success: true, data: result };
     } catch (error) {
       return { success: false, msg: error instanceof Error ? error.message : String(error) };

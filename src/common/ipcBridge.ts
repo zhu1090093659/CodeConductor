@@ -163,6 +163,7 @@ export const provider = {
 
 export const skills = {
   syncRepos: bridge.buildProvider<IBridgeResponse<{ repos: SkillRepoConfig[]; errors?: Array<{ id: string; error: string }> }>, { repos: SkillRepoConfig[] }>('skills.sync-repos'),
+  copyToProject: bridge.buildProvider<IBridgeResponse<CopySkillsToProjectResult>, CopySkillsToProjectParams>('skills.copy-to-project'),
 };
 
 // Codex 对话相关接口 - 复用统一的conversation接口
@@ -298,6 +299,17 @@ export interface IResponseMessage {
   data: unknown;
   msg_id: string;
   conversation_id: string;
+}
+
+export interface CopySkillsToProjectParams {
+  workspace: string;
+  enabledByAgent?: Record<string, string[]>;
+}
+
+export interface CopySkillsToProjectResult {
+  copied: Array<{ agent: string; skill: string; targetDir: string }>;
+  skipped: Array<{ agent: string; skill: string; targetDir: string }>;
+  errors: Array<{ agent: string; skill: string; error: string }>;
 }
 
 interface IBridgeResponse<D = {}> {

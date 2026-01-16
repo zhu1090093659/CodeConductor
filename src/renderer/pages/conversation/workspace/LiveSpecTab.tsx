@@ -10,6 +10,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import MarkdownPreview from '@/renderer/pages/conversation/preview/components/viewers/MarkdownViewer';
 import { joinPath } from '@/renderer/utils/path';
 
+const normalizePath = (value: string) => value.replace(/\\/g, '/').toLowerCase();
+
 const readFileSafe = async (filePath: string) => {
   try {
     return await ipcBridge.fs.readFile.invoke({ path: filePath });
@@ -24,8 +26,20 @@ const LiveSpecTab: React.FC<{
 }> = ({ workspace, onApproveExecute }) => {
   const specPath = useMemo(() => joinPath(workspace, '.ai', 'specs', 'tech_spec.md'), [workspace]);
   const taskPath = useMemo(() => joinPath(workspace, '.ai', 'tasks', 'current_task.md'), [workspace]);
+  const normalizedSpecPath = useMemo(() => normalizePath(specPath), [specPath]);
+  const normalizedTaskPath = useMemo(() => normalizePath(taskPath), [taskPath]);
   const [specContent, setSpecContent] = useState('');
   const [taskContent, setTaskContent] = useState('');
+
+  const resolveTargetPath = useCallback(
+    (filePath: string) => {
+      const normalizedPath = normalizePath(filePath);
+      if (normalizedPath === normalizedSpecPath) return 'spec';
+      if (normalizedPath === normalizedTaskPath) return 'task';
+      return null;
+    },
+    [normalizedSpecPath, normalizedTaskPath]
+  );
 
   const refreshContent = useCallback(async () => {
     const [spec, task] = await Promise.all([readFileSafe(specPath), readFileSafe(taskPath)]);
@@ -41,7 +55,7 @@ const LiveSpecTab: React.FC<{
     void ipcBridge.fileWatch.startWatch.invoke({ filePath: specPath });
     void ipcBridge.fileWatch.startWatch.invoke({ filePath: taskPath });
     const unsubscribe = ipcBridge.fileWatch.fileChanged.on((payload) => {
-      if (payload.filePath === specPath || payload.filePath === taskPath) {
+      if (resolveTargetPath(payload.filePath)) {
         void refreshContent();
       }
     });
@@ -50,7 +64,24 @@ const LiveSpecTab: React.FC<{
       void ipcBridge.fileWatch.stopWatch.invoke({ filePath: taskPath });
       unsubscribe?.();
     };
-  }, [refreshContent, specPath, taskPath]);
+  }, [refreshContent, resolveTargetPath, specPath, taskPath]);
+
+  useEffect(() => {
+    const unsubscribe = ipcBridge.fileStream.contentUpdate.on(({ filePath, content, operation }) => {
+      const target = resolveTargetPath(filePath);
+      if (target === 'spec') {
+        setSpecContent(operation === 'delete' ? '' : content);
+        return;
+      }
+      if (target === 'task') {
+        setTaskContent(operation === 'delete' ? '' : content);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [resolveTargetPath]);
 
   return (
     <div className='relative h-full w-full overflow-hidden'>

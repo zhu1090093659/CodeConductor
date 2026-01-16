@@ -34,6 +34,7 @@ const AGENT_LOGO_MAP: Partial<Record<AcpBackend, string>> = {
 import { iconColors } from '@/renderer/theme/colors';
 import { WORKSPACE_TOGGLE_EVENT, WORKSPACE_HAS_FILES_EVENT, dispatchWorkspaceStateEvent, dispatchWorkspaceToggleEvent, type WorkspaceHasFilesDetail } from '@/renderer/utils/workspaceEvents';
 import { ACP_BACKENDS_ALL } from '@/types/acpTypes';
+import { addEventListener } from '@/renderer/utils/emitter';
 import classNames from 'classnames';
 
 const MIN_CHAT_RATIO = 25;
@@ -338,6 +339,15 @@ const ChatLayout: React.FC<{
 
     previousPreviewOpenRef.current = isPreviewOpen;
   }, [isPreviewOpen, isDesktop, layout, rightSiderCollapsed, workspaceEnabled]);
+
+  // When sidebar triggers workspace file preview, ensure workspace panel is visible
+  // Keep it simple: force expand workspace panel on preview request
+  useEffect(() => {
+    if (!workspaceEnabled) return;
+    return addEventListener('workspace.preview.open', () => {
+      setRightSiderCollapsed(false);
+    });
+  }, [workspaceEnabled]);
 
   const mobileHandle =
     workspaceEnabled && layout?.isMobile

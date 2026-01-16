@@ -12,11 +12,12 @@ import { app } from 'electron';
 import { application } from '../common/ipcBridge';
 import type { TMessage } from '@/common/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/presets/assistantPresets';
-import type { IChatConversationRefer, IConfigStorageRefer, IEnvStorageRefer, IMcpServer, TChatConversation } from '../common/storage';
+import type { IChatConversationRefer, IConfigStorageRefer, IEnvStorageRefer, IMcpServer, SkillRepoConfig, TChatConversation } from '../common/storage';
 import { ChatMessageStorage, ChatStorage, ConfigStorage, EnvStorage } from '../common/storage';
 import { copyDirectoryRecursively, getCliSafePath, getConfigPath, getDataPath, getTempPath, verifyDirectoryFiles } from './utils';
 import { getDatabase } from './database/export';
 import type { AcpBackendConfig } from '@/types/acpTypes';
+import { syncSkillRepos } from './services/skillRepoService';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
@@ -33,6 +34,12 @@ const STORAGE_PATH = {
 };
 
 const getHomePage = getConfigPath;
+
+const DEFAULT_SKILL_REPO: SkillRepoConfig = {
+  id: 'anthropics-skills',
+  url: 'https://github.com/anthropics/skills',
+  branch: 'main',
+};
 
 const mkdirSync = (path: string) => {
   return _mkdirSync(path, { recursive: true });
@@ -533,6 +540,29 @@ const getDefaultMcpServers = (): IMcpServer[] => {
   }));
 };
 
+const initDefaultSkillRepos = async (): Promise<void> => {
+  try {
+    const existingReposRaw = await configFile.get('skills.repos').catch((): SkillRepoConfig[] | undefined => undefined);
+    const existingRepos = Array.isArray(existingReposRaw) ? existingReposRaw : [];
+    const hasDefault = existingRepos.some((repo) => repo.id === DEFAULT_SKILL_REPO.id || repo.url === DEFAULT_SKILL_REPO.url);
+    if (hasDefault) {
+      return;
+    }
+
+    const result = await syncSkillRepos([DEFAULT_SKILL_REPO]);
+    const nextRepos = [result.repos[0] || DEFAULT_SKILL_REPO, ...existingRepos];
+    await configFile.set('skills.repos', nextRepos);
+
+    if (result.errors.length > 0) {
+      console.warn(`[AionUi] Default skill repo sync errors: ${result.errors.map((error) => error.id).join(', ')}`);
+    } else {
+      console.log('[AionUi] Default skill repo synced');
+    }
+  } catch (error) {
+    console.warn('[AionUi] Failed to initialize default skill repo:', error);
+  }
+};
+
 const initStorage = async () => {
   console.log('[AionUi] Starting storage initialization...');
 
@@ -565,6 +595,12 @@ const initStorage = async () => {
     }
   } catch (error) {
     console.error('[AionUi] Failed to initialize default MCP servers:', error);
+  }
+  // 4.5 Initialize default skill repo
+  try {
+    await initDefaultSkillRepos();
+  } catch (error) {
+    console.warn('[AionUi] Failed to initialize default skill repos:', error);
   }
   // 5. 初始化内置助手（Assistants）
   try {
