@@ -40,7 +40,8 @@
     "deleteSuccess": "删除成功",
     "deleteFailed": "删除失败",
     "default": "默认",
-    "escToCancel": "按 ESC 取消"
+    "escToCancel": "按 ESC 取消",
+    "commands_empty": "暂无可用命令"
   },
   "login": {
     "pageTitle": "CodeConductor - 登录",
@@ -354,6 +355,7 @@
     "assistantModelsHint": "选择此助手可以使用的模型。",
     "assistantSkills": "技能",
     "skills": "技能",
+    "commands": "命令集",
     "assistantSkillsHint": "",
     "assistantSkillsPlaceholder": "请输入 Markdown 格式的技能...",
     "promptEdit": "编辑",

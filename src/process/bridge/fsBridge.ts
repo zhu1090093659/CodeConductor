@@ -22,6 +22,36 @@ import { readDirectoryRecursive } from '../utils';
 type ResourceType = 'rules' | 'skills';
 
 /**
+ * Recursively list markdown files in directory
+ * 递归列出目录内的 Markdown 文件
+ */
+async function listMarkdownFiles(dirPath: string, maxDepth = 6): Promise<string[]> {
+  const results: string[] = [];
+  const walk = async (currentDir: string, depth: number) => {
+    if (depth < 0) return;
+    let entries: Array<import('fs').Dirent>;
+    try {
+      entries = await fs.readdir(currentDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.name === 'node_modules') continue;
+      const fullPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath, depth - 1);
+        continue;
+      }
+      if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) {
+        results.push(fullPath);
+      }
+    }
+  };
+  await walk(dirPath, maxDepth);
+  return results;
+}
+
+/**
  * Find the builtin resource directory (rules or skills)
  * 查找内置资源目录（rules 或 skills）
  */
@@ -134,9 +164,13 @@ const ruleFilePattern = (id: string, loc: string) => `${id}.${loc}.md`;
 const skillFilePattern = (id: string, loc: string) => `${id}-skills.${loc}.md`;
 
 export function initFsBridge(): void {
-  ipcBridge.fs.getFilesByDir.provider(async ({ dir }) => {
-    const tree = await readDirectoryRecursive(dir);
+  ipcBridge.fs.getFilesByDir.provider(async ({ dir, maxDepth }) => {
+    const tree = await readDirectoryRecursive(dir, { maxDepth });
     return tree ? [tree] : [];
+  });
+
+  ipcBridge.fs.listMarkdownFiles.provider(async ({ dir, maxDepth }) => {
+    return listMarkdownFiles(dir, maxDepth);
   });
 
   ipcBridge.fs.getImageBase64.provider(async ({ path: filePath }) => {

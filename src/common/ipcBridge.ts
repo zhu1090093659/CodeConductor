@@ -40,7 +40,9 @@ export const conversation = {
 export const application = {
   restart: bridge.buildProvider<void, void>('restart-app'), // 重启应用
   openDevTools: bridge.buildProvider<void, void>('open-dev-tools'), // 打开开发者工具
-  systemInfo: bridge.buildProvider<{ cacheDir: string; workDir: string; platform: string; arch: string }, void>('system.info'), // 获取系统信息
+  systemInfo: bridge.buildProvider<{ cacheDir: string; workDir: string; homeDir: string; platform: string; arch: string }, void>('system.info'), // 获取系统信息
+  homeDir: bridge.buildProvider<{ homeDir: string }, void>('system.home-dir'), // 获取用户目录
+  commandDirs: bridge.buildProvider<{ cursor: string; claude: string; codex: string }, void>('system.command-dirs'), // 获取命令目录
   updateSystemInfo: bridge.buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // 更新系统信息
   getZoomFactor: bridge.buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: bridge.buildProvider<number, { factor: number }>('app.set-zoom-factor'),
@@ -50,7 +52,8 @@ export const dialog = {
   showOpen: bridge.buildProvider<string[] | undefined, { defaultPath?: string; properties?: OpenDialogOptions['properties']; filters?: OpenDialogOptions['filters'] } | undefined>('show-open'), // 打开文件/文件夹选择窗口
 };
 export const fs = {
-  getFilesByDir: bridge.buildProvider<Array<IDirOrFile>, { dir: string; root: string }>('get-file-by-dir'), // 获取指定文件夹下所有文件夹和文件列表
+  getFilesByDir: bridge.buildProvider<Array<IDirOrFile>, { dir: string; root: string; maxDepth?: number }>('get-file-by-dir'), // 获取指定文件夹下所有文件夹和文件列表
+  listMarkdownFiles: bridge.buildProvider<string[], { dir: string; maxDepth?: number }>('list-markdown-files'), // 获取目录下的 Markdown 文件
   getImageBase64: bridge.buildProvider<string, { path: string }>('get-image-base64'), // 获取图片base64
   fetchRemoteImage: bridge.buildProvider<string, { url: string }>('fetch-remote-image'), // 远程图片转base64
   readFile: bridge.buildProvider<string, { path: string }>('read-file'), // 读取文件内容（UTF-8）

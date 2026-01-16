@@ -23,6 +23,7 @@ import { usePreviewContext } from '@/renderer/pages/conversation/preview';
 import { buildDisplayMessage } from '@/renderer/utils/messageFiles';
 import { useLatestRef } from '@/renderer/hooks/useLatestRef';
 import { useAutoTitle } from '@/renderer/hooks/useAutoTitle';
+import { useSlashCommands } from '@/renderer/hooks/useSlashCommands';
 
 const useAcpSendBoxDraft = getSendBoxDraftHook('acp', {
   _type: 'acp',
@@ -157,6 +158,7 @@ const AcpSendBox: React.FC<{
   const { thought, running, acpStatus, aiProcessing, setAiProcessing } = useAcpMessage(conversation_id);
   const { t } = useTranslation();
   const { checkAndUpdateTitle } = useAutoTitle();
+  const { commands: slashCommands } = useSlashCommands();
   const { atPath, uploadFile, setAtPath, setUploadFile, content, setContent } = useSendBoxDraft(conversation_id);
   const { setSendBoxHandler } = usePreviewContext();
 
@@ -275,8 +277,9 @@ const AcpSendBox: React.FC<{
   }, [conversation_id, backend, acpStatus]);
 
   const onSendHandler = async (message: string) => {
+    let finalMessage = message;
     if (workspacePath) {
-      const slashResult = await handleSlashCommand(message, workspacePath);
+      const slashResult = await handleSlashCommand(message, workspacePath, { commands: slashCommands });
       if (slashResult.handled) {
         if (slashResult.message) {
           Message.success(slashResult.message);
@@ -284,12 +287,15 @@ const AcpSendBox: React.FC<{
         if (slashResult.error) {
           Message.error(slashResult.error);
         }
-        return;
+        if (!slashResult.messageToSend) {
+          return;
+        }
+        finalMessage = slashResult.messageToSend;
       }
     }
     const msg_id = uuid();
 
-    const displayMessage = buildDisplayMessage(message, uploadFile, workspacePath);
+    const displayMessage = buildDisplayMessage(finalMessage, uploadFile, workspacePath);
 
     // 立即清空输入框，避免用户误以为消息没发送
     // Clear input immediately to avoid user thinking message wasn't sent
@@ -307,7 +313,7 @@ const AcpSendBox: React.FC<{
         conversation_id,
         files: uploadFile,
       });
-      void checkAndUpdateTitle(conversation_id, message);
+      void checkAndUpdateTitle(conversation_id, finalMessage);
       emitter.emit('chat.history.refresh');
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -374,6 +380,7 @@ const AcpSendBox: React.FC<{
         className='z-10'
         onFilesAdded={handleFilesAdded}
         supportedExts={allSupportedExts}
+        slashCommands={slashCommands}
         tools={
           <Button
             type='secondary'

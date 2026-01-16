@@ -7,9 +7,20 @@
 import { ipcBridge } from '@/common';
 import type { IDirOrFile } from '@/common/ipcBridge';
 import { STORAGE_KEYS } from '@/common/storageKeys';
+import { uuid } from '@/common/utils';
+import DirectorySelectionModal from '@/renderer/components/DirectorySelectionModal';
 import FlexFullContainer from '@/renderer/components/FlexFullContainer';
 import useDebounce from '@/renderer/hooks/useDebounce';
 import { usePreviewContext } from '@/renderer/pages/conversation/preview';
+import CodePreview from '@/renderer/pages/conversation/preview/components/viewers/CodeViewer';
+import DiffPreview from '@/renderer/pages/conversation/preview/components/viewers/DiffViewer';
+import ExcelPreview from '@/renderer/pages/conversation/preview/components/viewers/ExcelViewer';
+import HTMLPreview from '@/renderer/pages/conversation/preview/components/viewers/HTMLViewer';
+import ImagePreview from '@/renderer/pages/conversation/preview/components/viewers/ImageViewer';
+import MarkdownPreview from '@/renderer/pages/conversation/preview/components/viewers/MarkdownViewer';
+import PDFPreview from '@/renderer/pages/conversation/preview/components/viewers/PDFViewer';
+import PPTPreview from '@/renderer/pages/conversation/preview/components/viewers/PPTViewer';
+import WordPreview from '@/renderer/pages/conversation/preview/components/viewers/WordViewer';
 import { iconColors } from '@/renderer/theme/colors';
 import { addEventListener, emitter } from '@/renderer/utils/emitter';
 import { isElectronDesktop } from '@/renderer/utils/platform';
@@ -20,26 +31,15 @@ import { Down, FileText, FolderOpen, Refresh, Search } from '@icon-park/react';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import DirectorySelectionModal from '@/renderer/components/DirectorySelectionModal';
-import { uuid } from '@/common/utils';
+import { useWorkspaceDragImport } from './hooks/useWorkspaceDragImport';
 import { useWorkspaceEvents } from './hooks/useWorkspaceEvents';
 import { useWorkspaceFileOps } from './hooks/useWorkspaceFileOps';
 import { useWorkspaceModals } from './hooks/useWorkspaceModals';
 import { useWorkspacePaste } from './hooks/useWorkspacePaste';
 import { useWorkspaceTree } from './hooks/useWorkspaceTree';
-import { useWorkspaceDragImport } from './hooks/useWorkspaceDragImport';
 import type { WorkspaceProps } from './types';
-import { extractNodeData, extractNodeKey, findNodeByKey, getTargetFolderPath } from './utils/treeHelpers';
 import { getPreviewContentType, loadPreviewForFile, type PreviewLoadResult } from './utils/previewUtils';
-import MarkdownPreview from '@/renderer/pages/conversation/preview/components/viewers/MarkdownViewer';
-import CodePreview from '@/renderer/pages/conversation/preview/components/viewers/CodeViewer';
-import DiffPreview from '@/renderer/pages/conversation/preview/components/viewers/DiffViewer';
-import PDFPreview from '@/renderer/pages/conversation/preview/components/viewers/PDFViewer';
-import PPTPreview from '@/renderer/pages/conversation/preview/components/viewers/PPTViewer';
-import WordPreview from '@/renderer/pages/conversation/preview/components/viewers/WordViewer';
-import ExcelPreview from '@/renderer/pages/conversation/preview/components/viewers/ExcelViewer';
-import ImagePreview from '@/renderer/pages/conversation/preview/components/viewers/ImageViewer';
-import HTMLPreview from '@/renderer/pages/conversation/preview/components/viewers/HTMLViewer';
+import { extractNodeData, extractNodeKey, findNodeByKey, getTargetFolderPath } from './utils/treeHelpers';
 
 const ChangeWorkspaceIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...rest }) => {
   const clipPathId = useId();
@@ -439,7 +439,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, e
     }
 
     const { content, contentType, metadata } = workspacePreview;
-    const renderers: Record<string, () => JSX.Element> = {
+    const renderers: Record<string, () => React.ReactElement> = {
       markdown: () => <MarkdownPreview content={content} hideToolbar filePath={metadata?.filePath} />,
       diff: () => <DiffPreview content={content} metadata={metadata} hideToolbar />,
       code: () => <CodePreview content={content} language={metadata?.language} hideToolbar viewMode='preview' />,
@@ -963,9 +963,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, e
               </FlexFullContainer>
             </div>
             <div className='flex-1 min-w-0 border-l border-b-base flex flex-col'>
-              <div className='h-32px px-12px flex items-center bg-bg-2 text-12px text-t-secondary border-b border-b-base'>
-                {workspacePreview?.metadata?.fileName || t('conversation.workspace.previewTitle', { defaultValue: 'Preview' })}
-              </div>
+              <div className='h-32px px-12px flex items-center bg-bg-2 text-12px text-t-secondary border-b border-b-base'>{workspacePreview?.metadata?.fileName || t('conversation.workspace.previewTitle', { defaultValue: 'Preview' })}</div>
               <div className='flex-1 min-h-0'>{renderWorkspacePreview()}</div>
             </div>
           </div>

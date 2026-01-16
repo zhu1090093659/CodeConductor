@@ -1,5 +1,5 @@
 import FlexFullContainer from '@/renderer/components/FlexFullContainer';
-import { Computer, Info, LinkCloud, System, Toolkit, Robot, Magic } from '@icon-park/react';
+import { Computer, Info, LinkCloud, System, Toolkit, Robot, Magic, Write } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +32,11 @@ const SettingsSider: React.FC<{ collapsed?: boolean }> = ({ collapsed = false })
         label: t('settings.skills', { defaultValue: 'Skills' }),
         icon: <Magic />,
         path: 'skills',
+      },
+      {
+        label: t('settings.commands', { defaultValue: 'Commands' }),
+        icon: <Write />,
+        path: 'commands',
       },
       {
         label: t('settings.display'),

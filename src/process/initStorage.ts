@@ -5,6 +5,7 @@
  */
 
 import { mkdirSync as _mkdirSync, existsSync, readdirSync, readFileSync } from 'fs';
+import os from 'os';
 import fs from 'fs/promises';
 import path from 'path';
 import { app } from 'electron';
@@ -660,9 +661,14 @@ export const getSystemDir = () => {
     // Use CLI-safe path (symlink on macOS) for all agents to avoid spaces in paths
     // 所有 agent 使用 CLI 安全路径（macOS 上的符号链接）以避免路径中空格导致的问题
     workDir: dirConfig?.workDir || getCliSafePath(),
+    homeDir: os.homedir(),
     platform: process.platform as PlatformType,
     arch: process.arch as ArchitectureType,
   };
+};
+
+export const getHomeDir = () => {
+  return os.homedir();
 };
 
 /**

@@ -6,7 +6,7 @@
 
 import { Button, Input, Message, Tag } from '@arco-design/web-react';
 import { ArrowUp, CloseSmall } from '@icon-park/react';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCompositionInput } from '../hooks/useCompositionInput';
 import { useDragUpload } from '../hooks/useDragUpload';
@@ -16,6 +16,7 @@ import { allSupportedExts } from '../services/FileService';
 import { usePreviewContext } from '@/renderer/pages/conversation/preview';
 import { useLatestRef } from '../hooks/useLatestRef';
 import { useInputFocusRing } from '@/renderer/hooks/useInputFocusRing';
+import type { SlashCommandItem } from '@/renderer/utils/commandRegistry';
 
 const constVoid = (): void => undefined;
 // 临界值：超过该字符数直接切换至多行模式，避免为超长文本做昂贵的宽度测量
@@ -38,11 +39,32 @@ const SendBox: React.FC<{
   defaultMultiLine?: boolean;
   lockMultiLine?: boolean;
   sendButtonPrefix?: React.ReactNode;
-}> = ({ onSend, onStop, prefix, className, loading, tools, disabled, placeholder, value: input = '', onChange: setInput = constVoid, onFilesAdded, supportedExts = allSupportedExts, defaultMultiLine = false, lockMultiLine = false, sendButtonPrefix }) => {
+  slashCommands?: SlashCommandItem[];
+}> = ({
+  onSend,
+  onStop,
+  prefix,
+  className,
+  loading,
+  tools,
+  disabled,
+  placeholder,
+  value: input = '',
+  onChange: setInput = constVoid,
+  onFilesAdded,
+  supportedExts = allSupportedExts,
+  defaultMultiLine = false,
+  lockMultiLine = false,
+  sendButtonPrefix,
+  slashCommands = [],
+}) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isSingleLine, setIsSingleLine] = useState(!defaultMultiLine);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [cursorIndex, setCursorIndex] = useState(0);
+  const [activeCommandIndex, setActiveCommandIndex] = useState(0);
+  const [commandMenuHidden, setCommandMenuHidden] = useState(false);
   const isInputActive = isInputFocused;
   const { activeBorderColor, inactiveBorderColor, activeShadow } = useInputFocusRing();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -163,7 +185,42 @@ const SendBox: React.FC<{
   const [message, context] = Message.useMessage();
 
   // 使用共享的输入法合成处理
-  const { compositionHandlers, createKeyDownHandler } = useCompositionInput();
+  const { compositionHandlers, createKeyDownHandler, isComposing } = useCompositionInput();
+
+  const getCommandQuery = useCallback(
+    (value: string, cursor: number) => {
+      if (cursor < 0 || cursor > value.length) return null;
+      const beforeCursor = value.slice(0, cursor);
+      const slashIndex = beforeCursor.lastIndexOf('/');
+      if (slashIndex === -1) return null;
+      const prevChar = slashIndex > 0 ? beforeCursor[slashIndex - 1] : '';
+      if (prevChar && !/\s/.test(prevChar)) return null;
+      const tokenEndMatch = value.slice(slashIndex + 1).search(/\s/);
+      const tokenEnd = tokenEndMatch === -1 ? value.length : slashIndex + 1 + tokenEndMatch;
+      if (cursor > tokenEnd) return null;
+      const query = value.slice(slashIndex + 1, cursor);
+      return { slashIndex, tokenEnd, query };
+    },
+    [slashCommands]
+  );
+
+  const commandQuery = useMemo(() => {
+    if (commandMenuHidden) return null;
+    return getCommandQuery(input, cursorIndex);
+  }, [commandMenuHidden, cursorIndex, getCommandQuery, input]);
+
+  const filteredCommands = useMemo(() => {
+    if (!commandQuery) return [];
+    const keyword = commandQuery.query.toLowerCase();
+    return slashCommands.filter((command) => command.trigger.toLowerCase().startsWith(keyword));
+  }, [commandQuery, slashCommands]);
+
+  const isCommandMenuOpen = Boolean(commandQuery);
+
+  useEffect(() => {
+    setActiveCommandIndex(0);
+  }, [commandQuery?.query, filteredCommands.length]);
+
 
   // 使用共享的PasteService集成
   const { onPaste, onFocus: handlePasteFocus } = usePasteService({
@@ -177,6 +234,7 @@ const SendBox: React.FC<{
         const currentValue = textarea.value;
         const newValue = currentValue.slice(0, cursorPosition) + text + currentValue.slice(cursorPosition);
         setInput(newValue);
+        setCommandMenuHidden(false);
         // 设置光标到插入文本后的位置
         setTimeout(() => {
           textarea.setSelectionRange(cursorPosition + text.length, cursorPosition + text.length);
@@ -184,6 +242,7 @@ const SendBox: React.FC<{
       } else {
         // 如果无法获取光标位置，回退到追加到末尾的行为
         setInput(text);
+        setCommandMenuHidden(false);
       }
     },
   });
@@ -195,21 +254,32 @@ const SendBox: React.FC<{
     setIsInputFocused(false);
   }, []);
 
+  const syncCursorIndex = useCallback((target?: HTMLTextAreaElement | null) => {
+    const element =
+      target ||
+      (document.activeElement && (document.activeElement as HTMLTextAreaElement)) ||
+      (containerRef.current?.querySelector('textarea') as HTMLTextAreaElement | null);
+    if (element && typeof element.selectionStart === 'number') {
+      setCursorIndex(element.selectionStart);
+    }
+  }, []);
+
   const sendMessageHandler = () => {
+    const currentInput = latestInputRef.current;
     if (loading || isLoading) {
       message.warning(t('messages.conversationInProgress'));
       return;
     }
-    if (!input.trim() && domSnippets.length === 0) {
+    if (!currentInput.trim() && domSnippets.length === 0) {
       return;
     }
     setIsLoading(true);
 
     // 构建消息内容：如果有 DOM 片段，附加完整 HTML / Build message: if has DOM snippets, append full HTML
-    let finalMessage = input;
+    let finalMessage = currentInput;
     if (domSnippets.length > 0) {
       const snippetsHtml = domSnippets.map((s) => `\n\n---\nDOM Snippet (${s.tag}):\n\`\`\`html\n${s.html}\n\`\`\``).join('');
-      finalMessage = input + snippetsHtml;
+      finalMessage = currentInput + snippetsHtml;
     }
 
     onSend(finalMessage)
@@ -222,6 +292,61 @@ const SendBox: React.FC<{
         setIsLoading(false);
       });
   };
+
+  const applyCommandSelection = useCallback(
+    (command: SlashCommandItem, execute: boolean) => {
+      if (!commandQuery) return;
+      const before = input.slice(0, commandQuery.slashIndex);
+      const after = input.slice(commandQuery.tokenEnd);
+      const nextValue = `${before}/${command.trigger}${after}`;
+      setInput(nextValue);
+      setCommandMenuHidden(true);
+      setTimeout(() => {
+        syncCursorIndex();
+        if (execute) {
+          sendMessageHandler();
+        }
+      }, 0);
+    },
+    [commandQuery, input, sendMessageHandler, setInput, syncCursorIndex]
+  );
+
+  const baseKeyDownHandler = useMemo(() => createKeyDownHandler(sendMessageHandler), [createKeyDownHandler, sendMessageHandler]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (isComposing.current) return;
+      if (isCommandMenuOpen) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setCommandMenuHidden(true);
+          return;
+        }
+        if (filteredCommands.length > 0) {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveCommandIndex((prev) => (prev + 1) % filteredCommands.length);
+            return;
+          }
+          if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveCommandIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+            return;
+          }
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const selected = filteredCommands[activeCommandIndex];
+            if (selected) {
+              applyCommandSelection(selected, true);
+            }
+            return;
+          }
+        }
+      }
+      baseKeyDownHandler(e);
+    },
+    [activeCommandIndex, applyCommandSelection, baseKeyDownHandler, filteredCommands, isCommandMenuOpen, isComposing]
+  );
 
   const stopHandler = async () => {
     if (!onStop) return;
@@ -294,13 +419,24 @@ const SendBox: React.FC<{
             }}
             onChange={(v) => {
               setInput(v);
+              setCommandMenuHidden(false);
+              setTimeout(() => syncCursorIndex(), 0);
             }}
             onPaste={onPaste}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             {...compositionHandlers}
             autoSize={isSingleLine ? false : { minRows: 1, maxRows: 10 }}
-            onKeyDown={createKeyDownHandler(sendMessageHandler)}
+            onKeyDown={handleKeyDown}
+            onClick={(e) => {
+              syncCursorIndex(e.target as HTMLTextAreaElement);
+            }}
+            onKeyUp={(e) => {
+              syncCursorIndex(e.target as HTMLTextAreaElement);
+            }}
+            onSelect={(e) => {
+              syncCursorIndex(e.target as HTMLTextAreaElement);
+            }}
           ></Input.TextArea>
           {isSingleLine && (
             <div className='flex items-center gap-2'>
@@ -320,6 +456,41 @@ const SendBox: React.FC<{
             </div>
           )}
         </div>
+        {isCommandMenuOpen && (
+          <div className='mt-8px border border-border-2 bg-bg-1 rd-12px overflow-hidden shadow-sm'>
+            <div className='max-h-220px overflow-y-auto'>
+              {filteredCommands.length === 0 ? (
+                <div className='px-12px py-10px text-12px text-t-secondary'>{t('common.commands_empty', { defaultValue: 'No commands available' })}</div>
+              ) : (
+                filteredCommands.map((command, index) => {
+                  const isActive = index === activeCommandIndex;
+                  const namespaceLabel = command.namespace ? `/${command.namespace}` : '';
+                  return (
+                    <div
+                      key={command.id}
+                      className={`px-12px py-8px cursor-pointer ${isActive ? 'bg-aou-2' : 'hover:bg-aou-1'}`}
+                      onMouseEnter={() => setActiveCommandIndex(index)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        applyCommandSelection(command, true);
+                      }}
+                    >
+                      <div className='flex items-center justify-between gap-8px text-13px text-t-primary'>
+                        <div className='truncate'>
+                          /{command.trigger}
+                          {namespaceLabel && <span className='text-12px text-t-secondary ml-6px'>{namespaceLabel}</span>}
+                        </div>
+                        <div className='text-11px text-t-secondary uppercase'>{command.source}</div>
+                      </div>
+                      <div className='text-12px text-t-secondary mt-2px truncate'>{command.description || command.argumentHint || ''}</div>
+                      {command.argumentHint && <div className='text-11px text-t-secondary mt-2px truncate'>{command.argumentHint}</div>}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
         {!isSingleLine && (
           <div className='flex items-center justify-between gap-2 w-full'>
             <div className='sendbox-tools'>{tools}</div>

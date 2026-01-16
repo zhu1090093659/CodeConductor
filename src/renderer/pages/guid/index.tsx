@@ -27,6 +27,7 @@ import { useInputFocusRing } from '@/renderer/hooks/useInputFocusRing';
 import { useCompositionInput } from '@/renderer/hooks/useCompositionInput';
 import { useDragUpload } from '@/renderer/hooks/useDragUpload';
 import { usePasteService } from '@/renderer/hooks/usePasteService';
+import { useSlashCommands } from '@/renderer/hooks/useSlashCommands';
 import useModeModeList from '@/renderer/hooks/useModeModeList';
 import { allSupportedExts, type FileMetadata, getCleanFileNames } from '@/renderer/services/FileService';
 import { buildDisplayMessage } from '@/renderer/utils/messageFiles';
@@ -179,6 +180,9 @@ const Guid: React.FC = () => {
   }, []);
   const location = useLocation();
   const [input, setInput] = useState('');
+  const [cursorIndex, setCursorIndex] = useState(0);
+  const [commandMenuHidden, setCommandMenuHidden] = useState(false);
+  const [activeCommandIndex, setActiveCommandIndex] = useState(0);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [mentionSelectorVisible, setMentionSelectorVisible] = useState(false);
@@ -674,6 +678,15 @@ const Guid: React.FC = () => {
   const handleInputChange = useCallback(
     (value: string) => {
       setInput(value);
+      setCommandMenuHidden(false);
+      setTimeout(() => {
+        const textarea = document.activeElement as HTMLTextAreaElement | null;
+        if (textarea && textarea.tagName === 'TEXTAREA') {
+          setCursorIndex(textarea.selectionStart ?? value.length);
+        } else {
+          setCursorIndex(value.length);
+        }
+      }, 0);
       const match = value.match(mentionMatchRegex);
       if (match) {
         setMentionQuery(match[1]);
@@ -875,9 +888,91 @@ const Guid: React.FC = () => {
         setLoading(false);
       });
   };
+
+  const { commands: slashCommands } = useSlashCommands();
+
+  const getCommandQuery = useCallback((value: string, cursor: number) => {
+    if (cursor < 0 || cursor > value.length) return null;
+    const beforeCursor = value.slice(0, cursor);
+    const slashIndex = beforeCursor.lastIndexOf('/');
+    if (slashIndex === -1) return null;
+    const prevChar = slashIndex > 0 ? beforeCursor[slashIndex - 1] : '';
+    if (prevChar && !/\s/.test(prevChar)) return null;
+    const tokenEndMatch = value.slice(slashIndex + 1).search(/\s/);
+    const tokenEnd = tokenEndMatch === -1 ? value.length : slashIndex + 1 + tokenEndMatch;
+    if (cursor > tokenEnd) return null;
+    const query = value.slice(slashIndex + 1, cursor);
+    return { slashIndex, tokenEnd, query };
+  }, []);
+
+  const commandQuery = useMemo(() => {
+    if (commandMenuHidden || mentionOpen || mentionSelectorOpen) return null;
+    return getCommandQuery(input, cursorIndex);
+  }, [commandMenuHidden, cursorIndex, getCommandQuery, input, mentionOpen, mentionSelectorOpen]);
+
+  const filteredCommands = useMemo(() => {
+    if (!commandQuery) return [];
+    const keyword = commandQuery.query.toLowerCase();
+    return slashCommands.filter((command) => command.trigger.toLowerCase().startsWith(keyword));
+  }, [commandQuery, slashCommands]);
+
+  const isCommandMenuOpen = Boolean(commandQuery);
+
+  useEffect(() => {
+    setActiveCommandIndex(0);
+  }, [commandQuery?.query, filteredCommands.length]);
+
+  const applyCommandSelection = useCallback(
+    (trigger: string) => {
+      if (!commandQuery) return;
+      const before = input.slice(0, commandQuery.slashIndex);
+      const after = input.slice(commandQuery.tokenEnd);
+      const nextValue = `${before}/${trigger}${after}`;
+      setInput(nextValue);
+      setCommandMenuHidden(true);
+      setTimeout(() => {
+        const textarea = document.activeElement as HTMLTextAreaElement | null;
+        if (textarea && textarea.tagName === 'TEXTAREA') {
+          const nextCursor = before.length + trigger.length + 1;
+          textarea.setSelectionRange(nextCursor, nextCursor);
+          setCursorIndex(nextCursor);
+        } else {
+          setCursorIndex(nextValue.length);
+        }
+      }, 0);
+    },
+    [commandQuery, input]
+  );
   const handleInputKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (isComposing.current) return;
+      if (isCommandMenuOpen) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setCommandMenuHidden(true);
+          return;
+        }
+        if (filteredCommands.length > 0) {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setActiveCommandIndex((prev) => (prev + 1) % filteredCommands.length);
+            return;
+          }
+          if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setActiveCommandIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+            return;
+          }
+          if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            const selected = filteredCommands[activeCommandIndex];
+            if (selected) {
+              applyCommandSelection(selected.trigger);
+            }
+            return;
+          }
+        }
+      }
       if ((mentionOpen || mentionSelectorOpen) && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
         event.preventDefault();
         if (filteredMentionOptions.length === 0) return;
@@ -933,7 +1028,22 @@ const Guid: React.FC = () => {
         sendMessageHandler();
       }
     },
-    [filteredMentionOptions, mentionOpen, mentionQuery, mentionSelectorOpen, selectMentionAgent, sendMessageHandler, mentionActiveIndex, mentionSelectorVisible, input, isComposing]
+    [
+      activeCommandIndex,
+      applyCommandSelection,
+      filteredCommands,
+      filteredMentionOptions,
+      input,
+      isCommandMenuOpen,
+      isComposing,
+      mentionActiveIndex,
+      mentionOpen,
+      mentionQuery,
+      mentionSelectorOpen,
+      mentionSelectorVisible,
+      selectMentionAgent,
+      sendMessageHandler,
+    ]
   );
   const setDefaultModel = async () => {
     if (!modelList || modelList.length === 0) {
@@ -1101,7 +1211,61 @@ const Guid: React.FC = () => {
                 </Dropdown>
               </div>
             )}
-            <Input.TextArea rows={3} placeholder={typewriterPlaceholder || t('conversation.welcome.placeholder')} className={`text-16px focus:b-none rounded-xl !bg-transparent !b-none !resize-none !p-0 ${styles.lightPlaceholder}`} value={input} onChange={handleInputChange} onPaste={onPaste} onFocus={handleTextareaFocus} onBlur={handleTextareaBlur} {...compositionHandlers} onKeyDown={handleInputKeyDown}></Input.TextArea>
+            <Input.TextArea
+              rows={3}
+              placeholder={typewriterPlaceholder || t('conversation.welcome.placeholder')}
+              className={`text-16px focus:b-none rounded-xl !bg-transparent !b-none !resize-none !p-0 ${styles.lightPlaceholder}`}
+              value={input}
+              onChange={handleInputChange}
+              onPaste={onPaste}
+              onFocus={handleTextareaFocus}
+              onBlur={handleTextareaBlur}
+              {...compositionHandlers}
+              onKeyDown={handleInputKeyDown}
+              onClick={(e) => {
+                const textarea = e.target as HTMLTextAreaElement;
+                setCursorIndex(textarea.selectionStart ?? input.length);
+              }}
+              onKeyUp={(e) => {
+                const textarea = e.target as HTMLTextAreaElement;
+                setCursorIndex(textarea.selectionStart ?? input.length);
+              }}
+              onSelect={(e) => {
+                const textarea = e.target as HTMLTextAreaElement;
+                setCursorIndex(textarea.selectionStart ?? input.length);
+              }}
+            ></Input.TextArea>
+            {isCommandMenuOpen && (
+              <div className='mt-8px border border-border-2 bg-bg-1 rd-12px overflow-hidden shadow-sm'>
+                <div className='max-h-220px overflow-y-auto'>
+                  {filteredCommands.length === 0 ? (
+                    <div className='px-12px py-10px text-12px text-t-secondary'>{t('common.commands_empty', { defaultValue: 'No commands available' })}</div>
+                  ) : (
+                    filteredCommands.map((command, index) => {
+                      const isActive = index === activeCommandIndex;
+                      return (
+                        <div
+                          key={command.id}
+                          className={`px-12px py-8px cursor-pointer ${isActive ? 'bg-aou-2' : 'hover:bg-aou-1'}`}
+                          onMouseEnter={() => setActiveCommandIndex(index)}
+                          onMouseDown={(event) => {
+                            event.preventDefault();
+                            applyCommandSelection(command.trigger);
+                          }}
+                        >
+                          <div className='flex items-center justify-between gap-8px text-13px text-t-primary'>
+                            <div className='truncate'>/{command.trigger}</div>
+                            <div className='text-11px text-t-secondary uppercase'>{command.source}</div>
+                          </div>
+                          <div className='text-12px text-t-secondary mt-2px truncate'>{command.description || command.argumentHint || ''}</div>
+                          {command.argumentHint && <div className='text-11px text-t-secondary mt-2px truncate'>{command.argumentHint}</div>}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
             {mentionOpen && (
               <div className='absolute z-50' style={{ left: 16, top: 44 }}>
                 {mentionMenu}

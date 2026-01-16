@@ -37,6 +37,7 @@ export interface IConfigStorageRefer {
   'cli.providers'?: CliProvidersStorage;
   'skills.repos'?: SkillRepoConfig[];
   'skills.enabledByAgent'?: Record<AcpBackend, string[]>;
+  'commands.custom'?: CustomCommandConfig[];
   'project.list'?: ProjectInfo[];
   'project.activeId'?: string;
   'project.recentIds'?: string[];
@@ -56,6 +57,14 @@ export interface IConfigStorageRefer {
   'guid.lastSelectedAgent'?: string;
   // 迁移标记：修复老版本中助手 enabled 默认值问题 / Migration flag: fix assistant enabled default value issue
   'migration.assistantEnabledFixed'?: boolean;
+}
+
+export interface CustomCommandConfig {
+  id: string;
+  name: string;
+  content: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export type CliProviderTarget = 'claude' | 'codex';

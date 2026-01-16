@@ -5,8 +5,9 @@
  */
 
 import { app } from 'electron';
+import path from 'path';
 import { ipcBridge } from '../../common';
-import { getSystemDir, ProcessEnv } from '../initStorage';
+import { getSystemDir, getHomeDir, ProcessEnv } from '../initStorage';
 import { copyDirectoryRecursively } from '../utils';
 import WorkerManage from '../WorkerManage';
 import { getZoomFactor, setZoomFactor } from '../utils/zoom';
@@ -36,6 +37,19 @@ export function initApplicationBridge(): void {
 
   ipcBridge.application.systemInfo.provider(() => {
     return Promise.resolve(getSystemDir());
+  });
+
+  ipcBridge.application.homeDir.provider(() => {
+    return Promise.resolve({ homeDir: getHomeDir() });
+  });
+
+  ipcBridge.application.commandDirs.provider(() => {
+    const home = getHomeDir();
+    return Promise.resolve({
+      cursor: path.join(home, '.cursor', 'commands'),
+      claude: path.join(home, '.claude', 'commands'),
+      codex: path.join(home, '.codex', 'prompts'),
+    });
   });
 
   ipcBridge.application.openDevTools.provider(() => {

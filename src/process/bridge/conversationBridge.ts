@@ -9,11 +9,11 @@ import type { TChatConversation } from '@/common/storage';
 import { getDatabase } from '@process/database';
 import { ipcBridge } from '../../common';
 import { uuid } from '../../common/utils';
+import WorkerManage from '../WorkerManage';
 import { createAcpAgent, createCodexAgent } from '../initAgent';
 import { ProcessChat } from '../initStorage';
 import type AcpAgentManager from '../task/AcpAgentManager';
 import { copyFilesToDirectory, readDirectoryRecursive } from '../utils';
-import WorkerManage from '../WorkerManage';
 import { migrateConversationToDatabase } from './migrationUtils';
 
 export function initConversationBridge(): void {
@@ -208,8 +208,11 @@ export function initConversationBridge(): void {
     try {
       const db = getDatabase();
       const existing = db.getConversation(id);
-      const prevModel = existing.success && existing.data ? existing.data.model : undefined;
-      const nextModel = updates.model;
+      const prevModel =
+        existing.success && existing.data && 'model' in existing.data
+          ? (existing.data as { model?: unknown }).model
+          : undefined;
+      const nextModel = 'model' in updates ? (updates as { model?: unknown }).model : undefined;
       const modelChanged = !!nextModel && JSON.stringify(prevModel) !== JSON.stringify(nextModel);
       // model change detection for task rebuild
 

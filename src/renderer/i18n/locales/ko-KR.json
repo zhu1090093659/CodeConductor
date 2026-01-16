@@ -43,7 +43,8 @@
     "deleteSuccess": "삭제 성공",
     "deleteFailed": "삭제 실패",
     "default": "기본",
-    "escToCancel": "취소하려면 esc"
+    "escToCancel": "취소하려면 esc",
+    "commands_empty": "사용 가능한 명령이 없습니다"
   },
   "login": {
     "pageTitle": "CodeConductor - 로그인",
@@ -357,6 +358,7 @@
     "assistantModelsHint": "이 어시스턴트가 사용할 수 있는 모델을 선택하세요.",
     "assistantSkills": "스킬",
     "skills": "스킬",
+    "commands": "명령",
     "assistantSkillsHint": "",
     "assistantSkillsPlaceholder": "Markdown 형식으로 스킬 입력...",
     "promptEdit": "편집",

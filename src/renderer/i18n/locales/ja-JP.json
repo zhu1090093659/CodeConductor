@@ -171,7 +171,8 @@
     "deleteSuccess": "削除に成功しました",
     "deleteFailed": "削除に失敗しました",
     "default": "デフォルト",
-    "escToCancel": "ESC でキャンセル"
+    "escToCancel": "ESC でキャンセル",
+    "commands_empty": "利用可能なコマンドがありません"
   },
   "login": {
     "pageTitle": "CodeConductor - ログイン",
@@ -447,6 +448,7 @@
     "assistantModelsHint": "このアシスタントが使用できるモデルを選択してください。",
     "assistantSkills": "スキル",
     "skills": "スキル",
+    "commands": "コマンド",
     "assistantSkillsHint": "",
     "assistantSkillsPlaceholder": "Markdown 形式でスキルを入力...",
     "promptEdit": "編集",

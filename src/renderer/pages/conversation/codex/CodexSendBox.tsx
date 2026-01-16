@@ -21,6 +21,7 @@ import HorizontalFileList from '@/renderer/components/HorizontalFileList';
 import { usePreviewContext } from '@/renderer/pages/conversation/preview';
 import { useLatestRef } from '@/renderer/hooks/useLatestRef';
 import { useAutoTitle } from '@/renderer/hooks/useAutoTitle';
+import { useSlashCommands } from '@/renderer/hooks/useSlashCommands';
 
 interface CodexDraftData {
   _type: 'codex';
@@ -40,6 +41,7 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
   const [workspacePath, setWorkspacePath] = useState('');
   const { t } = useTranslation();
   const { checkAndUpdateTitle } = useAutoTitle();
+  const { commands: slashCommands } = useSlashCommands();
   const addOrUpdateMessage = useAddOrUpdateMessage();
   const { setSendBoxHandler } = usePreviewContext();
 
@@ -174,8 +176,9 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
   });
 
   const onSendHandler = async (message: string) => {
+    let finalMessage = message;
     if (workspacePath) {
-      const slashResult = await handleSlashCommand(message, workspacePath);
+      const slashResult = await handleSlashCommand(message, workspacePath, { commands: slashCommands });
       if (slashResult.handled) {
         if (slashResult.message) {
           Message.success(slashResult.message);
@@ -183,7 +186,10 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
         if (slashResult.error) {
           Message.error(slashResult.error);
         }
-        return;
+        if (!slashResult.messageToSend) {
+          return;
+        }
+        finalMessage = slashResult.messageToSend;
       }
     }
     const msg_id = uuid();
@@ -197,7 +203,7 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
 
     // 不再自动添加 @ 前缀，避免消息显示换行和歧义
     const filePaths = [...currentUploadFile, ...currentAtPath.map((item) => (typeof item === 'string' ? item : item.path))];
-    const displayMessage = buildDisplayMessage(message, filePaths, workspacePath);
+    const displayMessage = buildDisplayMessage(finalMessage, filePaths, workspacePath);
 
     // 前端先写入用户消息，避免导航/事件竞争导致看不到消息
     const userMessage: TMessage = {
@@ -220,7 +226,7 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
         conversation_id,
         files: [...currentUploadFile, ...atPathStrings], // 包含上传文件和选中的工作空间文件
       });
-      void checkAndUpdateTitle(conversation_id, message);
+      void checkAndUpdateTitle(conversation_id, finalMessage);
       emitter.emit('chat.history.refresh');
     } finally {
       // Clear waiting state when done
@@ -332,6 +338,7 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
         onStop={handleStop}
         onFilesAdded={handleFilesAdded}
         supportedExts={allSupportedExts}
+        slashCommands={slashCommands}
         tools={
           <Button
             type='secondary'

@@ -43,7 +43,8 @@
     "deleteSuccess": "Deleted successfully",
     "deleteFailed": "Failed to delete",
     "default": "Default",
-    "escToCancel": "esc to cancel"
+    "escToCancel": "esc to cancel",
+    "commands_empty": "No commands available"
   },
   "login": {
     "pageTitle": "CodeConductor - Sign In",
@@ -357,6 +358,7 @@
     "assistantModelsHint": "Select which models this assistant can use.",
     "assistantSkills": "Skills",
     "skills": "Skills",
+    "commands": "Commands",
     "assistantSkillsHint": "",
     "assistantSkillsPlaceholder": "Enter skills in Markdown format...",
     "promptEdit": "Edit",

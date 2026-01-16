@@ -9,11 +9,15 @@ import { ConfigStorage } from '@/common/storage';
 import type { IMcpServer } from '@/common/storage';
 import { dispatchTerminalRunEvent } from './terminalEvents';
 import { joinPath } from './path';
+import type { SlashCommandItem } from './commandRegistry';
+import { expandCommandTemplate } from './commandRegistry';
 
 export interface SlashCommandResult {
   handled: boolean;
   message?: string;
   error?: string;
+  messageToSend?: string;
+  command?: SlashCommandItem;
 }
 
 const findJiraServer = (servers: IMcpServer[]) => {
@@ -45,13 +49,20 @@ const generatePlan = async (workspace: string) => {
   await ipcBridge.fs.writeFile.invoke({ path: specPath, data: template });
 };
 
-export const handleSlashCommand = async (input: string, workspace: string): Promise<SlashCommandResult> => {
+export const handleSlashCommand = async (
+  input: string,
+  workspace: string,
+  options?: {
+    commands?: SlashCommandItem[];
+  }
+): Promise<SlashCommandResult> => {
   const trimmed = input.trim();
   if (!trimmed.startsWith('/')) {
     return { handled: false };
   }
 
-  const [command, subcommand, ...rest] = trimmed.split(/\s+/);
+  const [commandToken, subcommand, ...rest] = trimmed.slice(1).split(/\s+/);
+  const command = `/${commandToken}`;
   switch (command) {
     case '/run': {
       const commandText = rest.join(' ') || 'claude --prompt-file .ai/tasks/current_task.md';
@@ -88,6 +99,19 @@ export const handleSlashCommand = async (input: string, workspace: string): Prom
       return { handled: true, message: `Synced ${jiraKey} to .ai/backlog.md.` };
     }
     default:
-      return { handled: true, error: 'Unknown command.' };
+      break;
   }
+
+  const availableCommands = options?.commands || [];
+  const matched = availableCommands.find((item) => item.trigger === commandToken);
+  if (!matched) {
+    return { handled: true, error: 'Unknown command.' };
+  }
+  const argText = [subcommand, ...rest].filter(Boolean).join(' ').trim();
+  const messageToSend = expandCommandTemplate(matched.body || '', argText);
+  return {
+    handled: true,
+    command: matched,
+    messageToSend,
+  };
 };
