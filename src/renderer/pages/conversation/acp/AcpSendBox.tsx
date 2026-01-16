@@ -4,7 +4,7 @@ import { transformMessage, type TMessage } from '@/common/chatLib';
 import type { IResponseMessage } from '@/common/ipcBridge';
 import { uuid } from '@/common/utils';
 import SendBox from '@/renderer/components/sendbox';
-import ThoughtDisplay, { type ThoughtData } from '@/renderer/components/ThoughtDisplay';
+import type { ThoughtData } from '@/renderer/components/ThoughtDisplay';
 import { getSendBoxDraftHook, type FileOrFolderItem } from '@/renderer/hooks/useSendBoxDraft';
 import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/useSendBoxFiles';
 import { useAddOrUpdateMessage } from '@/renderer/messages/hooks';
@@ -39,8 +39,13 @@ const useAcpMessage = (conversation_id: string) => {
     description: '',
     subject: '',
   });
+  const thoughtRef = useRef(thought);
   const [acpStatus, setAcpStatus] = useState<'connecting' | 'connected' | 'authenticated' | 'session_active' | 'disconnected' | 'error' | null>(null);
   const [aiProcessing, setAiProcessing] = useState(false); // New loading state for AI response
+
+  useEffect(() => {
+    thoughtRef.current = thought;
+  }, [thought]);
 
   const handleResponseMessage = useCallback(
     (message: IResponseMessage) => {
@@ -51,18 +56,30 @@ const useAcpMessage = (conversation_id: string) => {
       switch (message.type) {
         case 'thought':
           setThought(message.data as ThoughtData);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: message.data as ThoughtData,
+            running: true,
+          });
           break;
         case 'start':
           setRunning(true);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: { subject: '', description: '' },
+            running: true,
+          });
           break;
         case 'finish':
           setRunning(false);
           setAiProcessing(false);
-          setThought({ subject: '', description: '' });
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: thoughtRef.current,
+            running: false,
+          });
           break;
         case 'content':
-          // Clear thought when final answer arrives
-          setThought({ subject: '', description: '' });
           addOrUpdateMessage(transformedMessage);
           break;
         case 'agent_status': {
@@ -90,6 +107,11 @@ const useAcpMessage = (conversation_id: string) => {
         case 'error':
           // Stop AI processing state when error occurs
           setAiProcessing(false);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: { subject: '', description: '' },
+            running: false,
+          });
           addOrUpdateMessage(transformedMessage);
           break;
         default:
@@ -110,6 +132,11 @@ const useAcpMessage = (conversation_id: string) => {
     setThought({ subject: '', description: '' });
     setAcpStatus(null);
     setAiProcessing(false);
+    emitter.emit('conversation.thought.update', {
+      conversationId: conversation_id,
+      thought: { subject: '', description: '' },
+      running: false,
+    });
   }, [conversation_id]);
 
   return { thought, setThought, running, acpStatus, aiProcessing, setAiProcessing };
@@ -304,6 +331,11 @@ const AcpSendBox: React.FC<{
 
     // Start AI processing loading state
     setAiProcessing(true);
+    emitter.emit('conversation.thought.update', {
+      conversationId: conversation_id,
+      thought: { subject: '', description: '' },
+      running: true,
+    });
 
     // Send message via ACP
     try {
@@ -368,8 +400,6 @@ const AcpSendBox: React.FC<{
 
   return (
     <div className='max-w-800px w-full mx-auto flex flex-col mt-auto mb-16px'>
-      <ThoughtDisplay thought={thought} running={running || aiProcessing} onStop={handleStop} />
-
       <SendBox
         value={content}
         onChange={setContent}

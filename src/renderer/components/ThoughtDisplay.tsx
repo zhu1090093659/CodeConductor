@@ -5,7 +5,8 @@
  */
 
 import { Tag, Spin } from '@arco-design/web-react';
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import { Down, Up } from '@icon-park/react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeContext } from '@/renderer/context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -40,6 +41,8 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   const { t } = useTranslation();
   const [elapsedTime, setElapsedTime] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
+  const [isExpanded, setIsExpanded] = useState(false);
+  const prevRunningRef = useRef(false);
 
   // 计时器 Timer for elapsed time
   useEffect(() => {
@@ -59,6 +62,16 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
 
     return () => clearInterval(timer);
   }, [running, thought?.subject]);
+
+  // Auto expand while running, auto collapse when finished (once).
+  useEffect(() => {
+    if (running) {
+      setIsExpanded(true);
+    } else if (prevRunningRef.current && !running) {
+      setIsExpanded(false);
+    }
+    prevRunningRef.current = running;
+  }, [running]);
 
   // 处理 ESC 键取消 Handle ESC key to cancel
   useEffect(() => {
@@ -83,8 +96,7 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
       return {
         background,
         marginBottom: '8px',
-        maxHeight: '100px',
-        overflow: 'scroll' as const,
+        border: '1px solid var(--bg-3)',
       };
     }
 
@@ -102,32 +114,69 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   // 运行中但没有 thought 时显示默认处理状态
   if (running && !thought?.subject) {
     return (
-      <div className='px-10px py-10px rd-20px text-14px pb-40px lh-20px text-t-primary flex items-center gap-8px' style={containerStyle}>
-        <Spin size={14} />
-        <span className='text-t-secondary'>
-          {t('conversation.chat.processing')}
-          <span className='ml-8px opacity-60'>
-            ({t('common.escToCancel')}, {formatElapsedTime(elapsedTime)})
-          </span>
-        </span>
+      <div className='rd-12px overflow-hidden' style={containerStyle}>
+        <div className='px-10px py-8px text-14px lh-20px text-t-primary flex items-center justify-between gap-8px'>
+          <div className='flex items-center gap-8px min-w-0'>
+            <Spin size={14} />
+            <Tag color='arcoblue' size='small'>
+              Thinking
+            </Tag>
+            <span className='text-t-secondary truncate'>{t('conversation.chat.processing')}</span>
+          </div>
+          <div className='flex items-center gap-8px shrink-0'>
+            {running && (
+              <span className='text-t-tertiary text-12px whitespace-nowrap'>
+                ({t('common.escToCancel')}, {formatElapsedTime(elapsedTime)})
+              </span>
+            )}
+            <button type='button' className='flex items-center gap-4px text-xs text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer' onClick={() => setIsExpanded((v) => !v)}>
+              <span>{isExpanded ? t('common.collapse') : t('common.expandMore')}</span>
+              {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
+            </button>
+          </div>
+        </div>
+
+        {isExpanded && (
+          <div className='px-10px pb-10px'>
+            <div className='bg-1/40 rounded-8px p-10px max-h-220px overflow-y-auto'>
+              <div className='text-t-secondary text-12px'>{t('codex.thinking.analyzing', { defaultValue: 'Thinking…' })}</div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className='px-10px py-10px rd-20px text-14px pb-40px lh-20px text-t-primary' style={containerStyle}>
-      <div className='flex items-center gap-8px'>
-        {running && <Spin size={14} />}
-        <Tag color='arcoblue' size='small'>
-          {thought.subject}
-        </Tag>
-        <span className='flex-1 truncate'>{thought.description}</span>
-        {running && (
-          <span className='text-t-tertiary text-12px whitespace-nowrap'>
-            ({t('common.escToCancel')}, {formatElapsedTime(elapsedTime)})
-          </span>
-        )}
+    <div className='rd-12px overflow-hidden' style={containerStyle}>
+      <div className='px-10px py-8px text-14px lh-20px text-t-primary flex items-center justify-between gap-8px'>
+        <div className='flex items-center gap-8px min-w-0'>
+          {running && <Spin size={14} />}
+          <Tag color='arcoblue' size='small'>
+            {thought.subject}
+          </Tag>
+          {!isExpanded && <span className='text-t-secondary truncate'>{thought.description}</span>}
+        </div>
+        <div className='flex items-center gap-8px shrink-0'>
+          {running && (
+            <span className='text-t-tertiary text-12px whitespace-nowrap'>
+              ({t('common.escToCancel')}, {formatElapsedTime(elapsedTime)})
+            </span>
+          )}
+          <button type='button' className='flex items-center gap-4px text-xs text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer' onClick={() => setIsExpanded((v) => !v)}>
+            <span>{isExpanded ? t('common.collapse') : t('common.expandMore')}</span>
+            {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
+          </button>
+        </div>
       </div>
+
+      {isExpanded && (
+        <div className='px-10px pb-10px'>
+          <div className='bg-1/40 rounded-8px p-10px max-h-260px overflow-y-auto'>
+            <div className='text-t-primary whitespace-pre-wrap break-words'>{thought.description}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,6 +11,8 @@ import type { FileOrFolderItem } from '@/renderer/types/files';
 import type { PreviewContentType } from '@/common/types/preview';
 import type { PreviewMetadata } from '@/renderer/pages/conversation/preview/context/PreviewContext';
 
+type ThoughtData = { subject: string; description: string };
+
 interface EventTypes {
   'acp.selected.file': [Array<string | FileOrFolderItem>];
   'acp.selected.file.append': [Array<string | FileOrFolderItem>];
@@ -29,6 +31,10 @@ interface EventTypes {
   'preview.open': [{ content: string; contentType: PreviewContentType; metadata?: { title?: string; fileName?: string } }];
   // 工作区预览事件 / Workspace preview events
   'workspace.preview.open': [{ content: string; contentType: PreviewContentType; metadata?: PreviewMetadata }];
+
+  // Conversation thought updates (rendered in chat view)
+  // Note: this is UI-only state and is not persisted in DB.
+  'conversation.thought.update': [{ conversationId: string; thought: ThoughtData; running: boolean }];
 }
 
 export const emitter = new EventEmitter<EventTypes>();

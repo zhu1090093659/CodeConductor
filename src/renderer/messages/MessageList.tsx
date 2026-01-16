@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ipcBridge } from '@/common';
 import type { CodexToolCallUpdate, TMessage } from '@/common/chatLib';
 import { iconColors } from '@/renderer/theme/colors';
 import { Image } from '@arco-design/web-react';
 import { Down, Up } from '@icon-park/react';
+import ThoughtDisplay, { type ThoughtData } from '@renderer/components/ThoughtDisplay';
+import { useConversationContextSafe } from '@renderer/context/ConversationContext';
 import MessageAcpPermission from '@renderer/messages/acp/MessageAcpPermission';
 import MessageAcpToolCall from '@renderer/messages/acp/MessageAcpToolCall';
 import MessageAgentStatus from '@renderer/messages/MessageAgentStatus';
@@ -15,6 +18,7 @@ import classNames from 'classnames';
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import HOC from '../utils/HOC';
+import { useAddEventListener } from '../utils/emitter';
 import MessageCodexPermission from './codex/MessageCodexPermission';
 import MessageCodexToolCall from './codex/MessageCodexToolCall';
 import MessageFileChanges from './codex/MessageFileChanges';
@@ -71,10 +75,14 @@ const MessageItem: React.FC<{ message: TMessage }> = HOC((props) => {
 
 const MessageList: React.FC<{ className?: string }> = () => {
   const list = useMessageList();
+  const conversation = useConversationContextSafe();
+  const conversationId = conversation?.conversationId;
   const ref = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [toolBatchOpenMap, setToolBatchOpenMap] = useState<Record<string, boolean>>({});
+  const [thought, setThought] = useState<ThoughtData>({ subject: '', description: '' });
+  const [thoughtRunning, setThoughtRunning] = useState(false);
   const previousListLengthRef = useRef(list.length);
   const { t } = useTranslation();
 
@@ -286,6 +294,45 @@ const MessageList: React.FC<{ className?: string }> = () => {
     setShowScrollButton(false);
   };
 
+  useAddEventListener(
+    'conversation.thought.update',
+    (payload) => {
+      if (!conversationId) return;
+      if (payload.conversationId !== conversationId) return;
+      setThought(payload.thought);
+      setThoughtRunning(payload.running);
+    },
+    [conversationId]
+  );
+
+  // Keep thought visible at bottom while running (unless user is reading history).
+  useEffect(() => {
+    if (!thoughtRunning) return;
+    if (isUserScrolling) return;
+    if (!isAtBottom()) return;
+    const timer = setTimeout(() => scrollToBottom(), 50);
+    return () => clearTimeout(timer);
+  }, [isUserScrolling, thoughtRunning, thought.description]);
+
+  const thoughtNode = useMemo(() => {
+    if (!conversationId) return null;
+    if (!thoughtRunning && !thought?.subject && !thought?.description) return null;
+    return (
+      <div className='w-full message-item px-8px m-t-10px max-w-full md:max-w-780px mx-auto'>
+        <div className='w-full min-w-0'>
+          <ThoughtDisplay
+            thought={thought}
+            running={thoughtRunning}
+            style='compact'
+            onStop={() => {
+              return ipcBridge.conversation.stop.invoke({ conversation_id: conversationId }).then(() => {});
+            }}
+          />
+        </div>
+      </div>
+    );
+  }, [conversationId, thought, thoughtRunning]);
+
   return (
     <div className='relative flex-1 h-full'>
       <div className='flex-1 overflow-auto h-full pb-10px box-border' ref={ref} onScroll={handleScroll}>
@@ -293,6 +340,7 @@ const MessageList: React.FC<{ className?: string }> = () => {
         <Image.PreviewGroup actionsLayout={['zoomIn', 'zoomOut', 'originalSize', 'rotateLeft', 'rotateRight']}>
           <ImagePreviewContext.Provider value={{ inPreviewGroup: true }}>
             {renderListNodes}
+            {thoughtNode}
           </ImagePreviewContext.Provider>
         </Image.PreviewGroup>
       </div>

@@ -15,7 +15,7 @@ import { iconColors } from '@/renderer/theme/colors';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildDisplayMessage } from '@/renderer/utils/messageFiles';
-import ThoughtDisplay, { type ThoughtData } from '@/renderer/components/ThoughtDisplay';
+import type { ThoughtData } from '@/renderer/components/ThoughtDisplay';
 import FilePreview from '@/renderer/components/FilePreview';
 import HorizontalFileList from '@/renderer/components/HorizontalFileList';
 import { usePreviewContext } from '@/renderer/pages/conversation/preview';
@@ -48,7 +48,7 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
   const [running, setRunning] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(false); // New loading state for AI response
   const [codexStatus, setCodexStatus] = useState<string | null>(null);
-  const [thought, setThought] = useState<ThoughtData>({
+  const [_thought, setThought] = useState<ThoughtData>({
     description: '',
     subject: '',
   });
@@ -81,6 +81,11 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
     setAiProcessing(false);
     setCodexStatus(null);
     setThought({ subject: '', description: '' });
+    emitter.emit('conversation.thought.update', {
+      conversationId: conversation_id,
+      thought: { subject: '', description: '' },
+      running: false,
+    });
   }, [conversation_id]);
 
   // 注册预览面板添加到发送框的 handler
@@ -105,14 +110,23 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
       switch (message.type) {
         case 'thought':
           setThought(message.data as ThoughtData);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: message.data as ThoughtData,
+            running: true,
+          });
           break;
         case 'finish':
           setThought(message.data as ThoughtData);
           setAiProcessing(false);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: (message.data as ThoughtData) || { subject: '', description: '' },
+            running: false,
+          });
           break;
         case 'content':
         case 'codex_permission': {
-          setThought({ subject: '', description: '' });
           const transformedMessage = transformMessage(message);
           if (transformedMessage) {
             addOrUpdateMessage(transformedMessage);
@@ -130,11 +144,11 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
         }
         default: {
           setRunning(false);
-          setThought({ subject: '', description: '' });
           const transformedMessage = transformMessage(message);
           if (transformedMessage) {
             addOrUpdateMessage(transformedMessage);
           }
+          break;
         }
       }
     });
@@ -217,6 +231,11 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
     };
     addOrUpdateMessage(userMessage, true); // 立即保存到存储，避免刷新丢失
     setAiProcessing(true);
+    emitter.emit('conversation.thought.update', {
+      conversationId: conversation_id,
+      thought: { subject: '', description: '' },
+      running: true,
+    });
     try {
       // 提取实际的文件路径发送给后端
       const atPathStrings = currentAtPath.map((item) => (typeof item === 'string' ? item : item.path));
@@ -259,6 +278,11 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
       try {
         // Set waiting state when processing initial message
         setAiProcessing(true);
+        emitter.emit('conversation.thought.update', {
+          conversationId: conversation_id,
+          thought: { subject: '', description: '' },
+          running: true,
+        });
 
         const { input, files = [] } = JSON.parse(stored) as { input: string; files?: string[] };
         // 使用固定的msg_id，基于conversation_id确保唯一性
@@ -314,8 +338,6 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
 
   return (
     <div className='max-w-800px w-full mx-auto flex flex-col mt-auto mb-16px'>
-      <ThoughtDisplay thought={thought} running={aiProcessing || running} onStop={handleStop} />
-
       <SendBox
         value={content}
         onChange={(val) => {
