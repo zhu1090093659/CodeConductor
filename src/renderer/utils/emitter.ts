@@ -25,12 +25,14 @@ interface EventTypes {
   'chat.history.refresh': void;
   // 会话删除事件 / Conversation deletion event
   'conversation.deleted': [string]; // conversationId
+  'conversation.workspace.close': [string]; // workspace path
   // Project events
   'project.updated': void;
   // 预览面板事件 / Preview panel events
   'preview.open': [{ content: string; contentType: PreviewContentType; metadata?: { title?: string; fileName?: string } }];
   // 工作区预览事件 / Workspace preview events
   'workspace.preview.open': [{ content: string; contentType: PreviewContentType; metadata?: PreviewMetadata }];
+  'workspace.preview.close': [string]; // workspace path
 
   // Conversation thought updates (rendered in chat view)
   // Note: this is UI-only state and is not persisted in DB.

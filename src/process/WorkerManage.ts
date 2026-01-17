@@ -5,6 +5,7 @@
  */
 
 import type { TChatConversation } from '@/common/storage';
+import path from 'path';
 import AcpAgentManager from './task/AcpAgentManager';
 import { CodexAgentManager } from '@/agent/codex';
 // import type { AcpAgentTask } from './task/AcpAgentTask';
@@ -16,6 +17,11 @@ const taskList: {
   id: string;
   task: AgentBaseTask<unknown>;
 }[] = [];
+
+const normalizeWorkspacePath = (value: string): string => {
+  const resolved = path.resolve(value).replace(/[\\/]+$/, '');
+  return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+};
 
 const getTaskById = (id: string) => {
   return taskList.find((item) => item.id === id)?.task;
@@ -84,6 +90,57 @@ const clear = () => {
   taskList.length = 0;
 };
 
+const killByWorkspace = async (workspace: string) => {
+  if (!workspace) return 0;
+  const normalizedTarget = normalizeWorkspacePath(workspace);
+
+  // Find all tasks matching the workspace
+  const tasksToKill: AgentBaseTask<unknown>[] = [];
+  for (let i = taskList.length - 1; i >= 0; i -= 1) {
+    const task = taskList[i]?.task as { workspace?: string } | undefined;
+    if (!task?.workspace) continue;
+    const normalizedWorkspace = normalizeWorkspacePath(task.workspace);
+    if (normalizedWorkspace === normalizedTarget || normalizedWorkspace.startsWith(normalizedTarget + path.sep)) {
+      tasksToKill.push(taskList[i].task);
+    }
+  }
+
+  if (tasksToKill.length === 0) return 0;
+
+  // Step 1: Send stop message to all tasks to gracefully disconnect CLI child processes
+  // This is crucial because the CLI process (claude, codex, etc.) has its cwd set to workspace
+  const stopPromises = tasksToKill.map(async (task) => {
+    try {
+      // stop() sends 'stop.stream' message to worker, which calls agent.stop() -> connection.disconnect()
+      // This kills the CLI child process that is holding the workspace directory lock
+      await Promise.race([
+        (task as { stop?: () => Promise<void> }).stop?.(),
+        new Promise((resolve) => setTimeout(resolve, 2000)), // Timeout after 2s
+      ]);
+    } catch (error) {
+      console.warn('[WorkerManage] Failed to stop task gracefully:', error);
+    }
+  });
+
+  await Promise.all(stopPromises);
+
+  // Step 2: Wait for CLI processes to fully exit and release directory handles
+  // Windows needs extra time to release file handles after process termination
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  // Step 3: Kill the worker processes and remove from task list
+  for (const task of tasksToKill) {
+    task.kill();
+    // Find current index (may have shifted due to splicing)
+    const currentIndex = taskList.findIndex((t) => t.task === task);
+    if (currentIndex !== -1) {
+      taskList.splice(currentIndex, 1);
+    }
+  }
+
+  return tasksToKill.length;
+};
+
 const addTask = (id: string, task: AgentBaseTask<unknown>) => {
   const existing = taskList.find((item) => item.id === id);
   if (existing) {
@@ -104,6 +161,7 @@ const WorkerManage = {
   addTask,
   listTasks,
   kill,
+  killByWorkspace,
   clear,
 };
 

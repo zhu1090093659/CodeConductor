@@ -12,7 +12,7 @@ import { emitter } from '@/renderer/utils/emitter';
 import { getPreviewContentType, loadPreviewForFile } from '@/renderer/pages/conversation/workspace/utils/previewUtils';
 import { useConversationTabs } from '@/renderer/pages/conversation/context/ConversationTabsContext';
 import { useProjects } from '@/renderer/hooks/useProjects';
-import { deleteProject, ensureProjectForWorkspace, renameProject, setActiveProjectId } from '@/renderer/utils/projectService';
+import { deleteProject, ensureProjectForWorkspace, renameProject, setActiveProjectId, type DeleteProjectResult } from '@/renderer/utils/projectService';
 import { Empty, Input, Message, Modal, Popconfirm, Spin, Tree, Tooltip } from '@arco-design/web-react';
 import { DeleteOne, EditOne, FileText, FolderOpen, Plus } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -179,9 +179,19 @@ const ProjectModePanel: React.FC = () => {
         okText: t('common.confirm', { defaultValue: '确认' }),
         cancelText: t('common.cancel', { defaultValue: '取消' }),
         onOk: () => {
-          deleteProject(project.id).then((ok) => {
-            if (ok) {
-              messageApi.success(t('project.deleteSuccess', { defaultValue: 'Project deleted.' }));
+          deleteProject(project.id).then((result: DeleteProjectResult) => {
+            if (result.success) {
+              if (result.workspaceRemoved) {
+                messageApi.success(t('project.deleteSuccess', { defaultValue: 'Project deleted.' }));
+              } else {
+                // Project removed from list, but workspace directory couldn't be deleted
+                messageApi.warning(
+                  t('project.deletePartial', {
+                    defaultValue: 'Project removed. The folder could not be deleted and may need manual removal.',
+                    workspace: result.workspace,
+                  })
+                );
+              }
             } else {
               messageApi.error(t('project.deleteFailed', { defaultValue: 'Failed to delete project.' }));
             }

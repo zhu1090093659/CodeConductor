@@ -40,4 +40,13 @@ export function initTerminalBridge(): void {
     terminalService.dispose(id);
     return { success: true };
   });
+
+  ipcBridge.terminal.disposeByCwd.provider(async ({ cwd }) => {
+    try {
+      const count = terminalService.disposeByCwd(cwd);
+      return { success: true, data: { count } };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
 }

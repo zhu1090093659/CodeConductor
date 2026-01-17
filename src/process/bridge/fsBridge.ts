@@ -493,11 +493,54 @@ export function initFsBridge(): void {
   });
 
   // Delete file or directory on disk (删除磁盘上的文件或文件夹)
+  // Windows EBUSY workaround: rename to temp location first, then delete with retries
   ipcBridge.fs.removeEntry.provider(async ({ path: targetPath }) => {
     try {
       const stats = await fs.lstat(targetPath);
       if (stats.isDirectory()) {
-        await fs.rm(targetPath, { recursive: true, force: true });
+        // Windows-specific: try rename-then-delete strategy to handle EBUSY
+        if (process.platform === 'win32') {
+          const parentDir = path.dirname(targetPath);
+          const baseName = path.basename(targetPath);
+          const tempName = `.deleted_${baseName}_${Date.now()}`;
+          const tempPath = path.join(parentDir, tempName);
+
+          try {
+            // Step 1: Rename to temp location (usually succeeds even when delete fails)
+            await fs.rename(targetPath, tempPath);
+            console.log(`[fsBridge] Renamed ${targetPath} to ${tempPath}`);
+
+            // Step 2: Try to delete from temp location with retries
+            let deleted = false;
+            for (let attempt = 0; attempt < 5; attempt++) {
+              try {
+                await fs.rm(tempPath, { recursive: true, force: true });
+                deleted = true;
+                console.log(`[fsBridge] Successfully deleted ${tempPath} on attempt ${attempt + 1}`);
+                break;
+              } catch (rmError) {
+                console.warn(`[fsBridge] Delete attempt ${attempt + 1} failed:`, rmError);
+                // Wait before retry, increasing delay each time
+                await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+              }
+            }
+
+            if (!deleted) {
+              // Schedule for cleanup on next app start by leaving temp file
+              // The temp file has a distinctive name so it can be cleaned up later
+              console.warn(`[fsBridge] Could not delete ${tempPath}, left for later cleanup`);
+            }
+
+            // Return success because the original path is gone
+            return { success: true };
+          } catch (renameError) {
+            // Rename failed, fall back to direct delete with more retries
+            console.warn(`[fsBridge] Rename failed, trying direct delete:`, renameError);
+          }
+        }
+
+        // Standard delete with retries
+        await fs.rm(targetPath, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
       } else {
         await fs.unlink(targetPath);
 

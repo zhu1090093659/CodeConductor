@@ -6,6 +6,7 @@
 
 import type { IPty } from 'node-pty';
 import { spawn } from 'node-pty';
+import path from 'path';
 import { uuid } from '@/common/utils';
 
 export interface TerminalSpawnOptions {
@@ -24,6 +25,7 @@ export interface TerminalEvents {
 
 export class TerminalService {
   private terminals = new Map<string, IPty>();
+  private terminalCwds = new Map<string, string>();
   private events: TerminalEvents;
 
   constructor(events: TerminalEvents) {
@@ -37,12 +39,13 @@ export class TerminalService {
     const cols = options.cols ?? 80;
     const rows = options.rows ?? 24;
     const env = { ...process.env, ...(options.env || {}) };
+    const cwd = options.cwd || process.cwd();
 
     const ptyProcess = spawn(shell, args, {
       name: 'xterm-256color',
       cols,
       rows,
-      cwd: options.cwd || process.cwd(),
+      cwd,
       env,
     });
 
@@ -52,10 +55,12 @@ export class TerminalService {
 
     ptyProcess.onExit((event) => {
       this.terminals.delete(terminalId);
+      this.terminalCwds.delete(terminalId);
       this.events.onExit(terminalId, event.exitCode ?? null, event.signal);
     });
 
     this.terminals.set(terminalId, ptyProcess);
+    this.terminalCwds.set(terminalId, cwd);
     return terminalId;
   }
 
@@ -76,6 +81,24 @@ export class TerminalService {
     if (!terminal) return;
     terminal.kill();
     this.terminals.delete(terminalId);
+    this.terminalCwds.delete(terminalId);
+  }
+
+  disposeByCwd(targetCwd: string): number {
+    if (!targetCwd) return 0;
+    const normalizedTarget = this.normalizePath(targetCwd);
+    if (!normalizedTarget) return 0;
+
+    let disposed = 0;
+    for (const [terminalId, cwd] of Array.from(this.terminalCwds.entries())) {
+      const normalizedCwd = this.normalizePath(cwd);
+      if (!normalizedCwd) continue;
+      if (normalizedCwd === normalizedTarget || normalizedCwd.startsWith(normalizedTarget + path.sep)) {
+        this.dispose(terminalId);
+        disposed += 1;
+      }
+    }
+    return disposed;
   }
 
   private resolveDefaultShell(): string {
@@ -83,5 +106,11 @@ export class TerminalService {
       return process.env.COMSPEC || 'powershell.exe';
     }
     return process.env.SHELL || 'bash';
+  }
+
+  private normalizePath(value: string): string {
+    const resolved = path.resolve(value);
+    const normalized = resolved.replace(/[\\/]+$/, '');
+    return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
   }
 }

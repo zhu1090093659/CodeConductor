@@ -14,7 +14,10 @@ import { removeWorkspaceEntry } from '@/renderer/utils/workspaceFs';
 
 const RECENT_LIMIT = 8;
 
-const normalizeWorkspace = (workspace: string) => workspace.trim();
+const normalizeWorkspace = (workspace: string) => {
+  const normalized = workspace.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+};
 
 const loadProjects = async (): Promise<ProjectInfo[]> => {
   const stored = await ConfigStorage.get('project.list');
@@ -133,11 +136,61 @@ export const renameProject = async (projectId: string, nextName: string): Promis
   return true;
 };
 
-export const deleteProject = async (projectId: string): Promise<boolean> => {
+export interface DeleteProjectResult {
+  success: boolean;
+  workspaceRemoved: boolean;
+  workspace?: string;
+}
+
+export const deleteProject = async (projectId: string): Promise<DeleteProjectResult> => {
   const [projects, activeId, recentIds] = await Promise.all([loadProjects(), getActiveProjectId(), loadRecentIds()]);
   const targetProject = projects.find((project) => project.id === projectId);
-  if (!targetProject) return false;
+  if (!targetProject) return { success: false, workspaceRemoved: true };
 
+  const isActiveProject = activeId === projectId;
+  const nextProjects = projects.filter((project) => project.id !== projectId);
+  const nextRecent = recentIds.filter((id) => id !== projectId);
+  const fallbackId = nextRecent[0] || nextProjects[0]?.id || null;
+
+  if (isActiveProject) {
+    await setActiveProjectId(fallbackId);
+    emitter.emit('project.updated');
+  }
+
+  if (targetProject.workspace) {
+    // Step 1: Close UI components that may be reading the workspace
+    emitter.emit('conversation.workspace.close', targetProject.workspace);
+    emitter.emit('workspace.preview.close', targetProject.workspace);
+
+    // Step 2: Abort any ongoing workspace reads
+    try {
+      await ipcBridge.conversation.abortWorkspaceRead.invoke();
+    } catch {
+      // Ignore abort errors
+    }
+
+    // Step 3: Kill all tasks using this workspace FIRST (before removing conversations)
+    // This ensures child processes are terminated before we try to delete anything
+    try {
+      const cleanupResult = await ipcBridge.conversation.cleanupWorkspace.invoke({ workspace: targetProject.workspace });
+      console.log('[ProjectService] Cleanup workspace result:', cleanupResult);
+    } catch (cleanupError) {
+      console.warn('[ProjectService] Failed to cleanup workspace tasks:', cleanupError);
+    }
+
+    // Step 4: Dispose terminals
+    try {
+      await ipcBridge.terminal.disposeByCwd.invoke({ cwd: targetProject.workspace });
+    } catch {
+      // Ignore terminal dispose errors
+    }
+
+    // Step 5: Wait for processes to fully terminate
+    // Windows needs extra time to release file handles after process termination
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  // Step 6: Remove related conversations from database
   const normalizedWorkspace = normalizeWorkspace(targetProject.workspace);
   try {
     const conversations = await ipcBridge.database.getUserConversations.invoke({ page: 0, pageSize: 10000 });
@@ -150,40 +203,70 @@ export const deleteProject = async (projectId: string): Promise<boolean> => {
     });
 
     for (const conv of relatedConversations) {
-      const ok = await ipcBridge.conversation.remove.invoke({ id: conv.id });
-      if (!ok) {
-        console.error('[ProjectService] Failed to remove conversation:', conv.id);
-        return false;
+      try {
+        await ipcBridge.conversation.remove.invoke({ id: conv.id });
+        emitter.emit('conversation.deleted', conv.id);
+      } catch (convError) {
+        // Log but don't fail - continue removing other conversations
+        console.warn('[ProjectService] Failed to remove conversation:', conv.id, convError);
       }
-      emitter.emit('conversation.deleted', conv.id);
     }
     if (relatedConversations.length > 0) {
       emitter.emit('chat.history.refresh');
     }
   } catch (error) {
-    console.error('[ProjectService] Failed to remove conversations:', error);
-    return false;
+    console.warn('[ProjectService] Error removing conversations:', error);
+    // Don't return false - continue to remove project from list
   }
 
+  // Step 7: Try to remove the workspace directory with multiple attempts
+  let workspaceRemoved = false;
   if (targetProject.workspace) {
-    const res = await removeWorkspaceEntry(targetProject.workspace);
-    if (!res?.success) {
-      console.error('[ProjectService] Failed to remove workspace:', res?.msg || targetProject.workspace);
-      return false;
+    // Try multiple times with increasing delays - Windows may need more time to release handles
+    for (let attempt = 0; attempt < 3 && !workspaceRemoved; attempt++) {
+      if (attempt > 0) {
+        // Wait before retry with exponential backoff
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+        console.log(`[ProjectService] Retry attempt ${attempt + 1} to remove workspace...`);
+      }
+      try {
+        const res = await removeWorkspaceEntry(targetProject.workspace);
+        if (res?.success) {
+          console.log('[ProjectService] Successfully removed workspace directory:', targetProject.workspace);
+          workspaceRemoved = true;
+        } else {
+          console.warn(`[ProjectService] Remove attempt ${attempt + 1} failed:`, res?.msg || 'Unknown error');
+        }
+      } catch (fsError) {
+        console.warn(`[ProjectService] Remove attempt ${attempt + 1} exception:`, fsError);
+      }
     }
+    if (!workspaceRemoved) {
+      console.error('[ProjectService] All attempts to remove workspace failed:', targetProject.workspace);
+      // The rename-then-delete strategy in fsBridge should handle EBUSY
+      // and leave a temp directory that can be cleaned up later
+    }
+  } else {
+    workspaceRemoved = true; // No workspace to remove
   }
 
-  const nextProjects = projects.filter((project) => project.id !== projectId);
-  await saveProjects(nextProjects);
-  const nextRecent = recentIds.filter((id) => id !== projectId);
-  await saveRecentIds(nextRecent);
-  if (activeId === projectId) {
-    const fallback = nextRecent[0] || nextProjects[0]?.id || null;
-    await setActiveProjectId(fallback);
-  } else {
-    emitter.emit('project.updated');
+  // Step 8: ALWAYS remove project from list - this must succeed
+  try {
+    await saveProjects(nextProjects);
+    await saveRecentIds(nextRecent);
+    console.log('[ProjectService] Project removed from list:', projectId);
+  } catch (saveError) {
+    console.error('[ProjectService] Failed to save project list:', saveError);
+    return { success: false, workspaceRemoved, workspace: targetProject.workspace };
   }
-  return true;
+
+  emitter.emit('project.updated');
+
+  return {
+    success: true,
+    workspaceRemoved,
+    workspace: workspaceRemoved ? undefined : targetProject.workspace,
+  };
 };
 
 export const getActiveProject = async (): Promise<ProjectInfo | null> => {

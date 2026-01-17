@@ -95,6 +95,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
 
   // 获取当前激活的 tab / Get active tab
   const activeTab = openTabs.find((tab) => tab.id === activeTabId) || null;
+  const normalizeWorkspacePath = useCallback((value: string) => value.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase(), []);
 
   const openTab = useCallback((conversation: TChatConversation) => {
     // Hide collab children from tabs (they are internal implementation details).
@@ -160,6 +161,23 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
       });
     },
     [activeTabId]
+  );
+
+  const closeTabsByWorkspace = useCallback(
+    (workspace: string) => {
+      const normalizedTarget = normalizeWorkspacePath(workspace || '');
+      if (!normalizedTarget) return;
+      setOpenTabs((prev) => {
+        const filtered = prev.filter((tab) => normalizeWorkspacePath(tab.workspace) !== normalizedTarget);
+        if (filtered.length === prev.length) return prev;
+
+        if (activeTabId && !filtered.some((tab) => tab.id === activeTabId)) {
+          setActiveTabId(filtered.length > 0 ? filtered[filtered.length - 1].id : null);
+        }
+        return filtered;
+      });
+    },
+    [activeTabId, normalizeWorkspacePath]
   );
 
   const switchTab = useCallback((conversationId: string) => {
@@ -241,6 +259,12 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
       closeTab(conversationId);
     });
   }, [closeTab]);
+
+  useEffect(() => {
+    return addEventListener('conversation.workspace.close', (workspace) => {
+      closeTabsByWorkspace(workspace);
+    });
+  }, [closeTabsByWorkspace]);
 
   return (
     <ConversationTabsContext.Provider

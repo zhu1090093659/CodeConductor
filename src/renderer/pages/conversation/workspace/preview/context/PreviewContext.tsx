@@ -6,7 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import type { PreviewContentType } from '@/common/types/preview';
-import { emitter } from '@/renderer/utils/emitter';
+import { addEventListener, emitter } from '@/renderer/utils/emitter';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 /** DOM 片段数据结构 / DOM snippet data structure */
@@ -73,6 +73,7 @@ const PreviewContext = createContext<PreviewContextValue | null>(null);
 
 // 持久化 key / Persistence key
 const PREVIEW_STATE_KEY = 'aionui_preview_state';
+const normalizePath = (value: string) => value.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
 
 // 从 localStorage 恢复状态 / Restore state from localStorage
 // 注意：isOpen 不从 localStorage 恢复，新会话时预览面板默认关闭
@@ -513,6 +514,43 @@ export const PreviewProvider: React.FC<{ children: React.ReactNode }> = ({ child
       unsubscribeIpc();
     };
   }, [openPreview]);
+
+  // 删除项目时关闭对应工作区的预览 tabs
+  // Close preview tabs for the workspace when deleting a project
+  useEffect(() => {
+    return addEventListener('workspace.preview.close', (workspace) => {
+      const normalizedTarget = normalizePath(workspace || '');
+      if (!normalizedTarget) return;
+
+      setTabs((prevTabs) => {
+        const nextTabs = prevTabs.filter((tab) => {
+          const metaWorkspace = tab.metadata?.workspace ? normalizePath(tab.metadata.workspace) : '';
+          if (metaWorkspace && (metaWorkspace === normalizedTarget || metaWorkspace.startsWith(`${normalizedTarget}/`))) {
+            return false;
+          }
+          const metaPath = tab.metadata?.filePath ? normalizePath(tab.metadata.filePath) : '';
+          if (metaPath && metaPath.startsWith(`${normalizedTarget}/`)) {
+            return false;
+          }
+          return true;
+        });
+
+        if (nextTabs.length === prevTabs.length) return prevTabs;
+
+        if (activeTabId && !nextTabs.some((tab) => tab.id === activeTabId)) {
+          if (nextTabs.length > 0) {
+            setActiveTabId(nextTabs[nextTabs.length - 1].id);
+            setIsOpen(true);
+          } else {
+            setActiveTabId(null);
+            setIsOpen(false);
+          }
+        }
+
+        return nextTabs;
+      });
+    });
+  }, [activeTabId]);
 
   return (
     <PreviewContext.Provider

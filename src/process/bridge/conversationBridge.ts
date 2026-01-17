@@ -255,6 +255,15 @@ export function initConversationBridge(): void {
     return Promise.resolve();
   });
 
+  ipcBridge.conversation.cleanupWorkspace.provider(async ({ workspace }) => {
+    try {
+      const count = await WorkerManage.killByWorkspace(workspace);
+      return { success: true, data: { count } };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
   ipcBridge.conversation.get.provider(async ({ id }) => {
     try {
       const db = getDatabase();
@@ -292,11 +301,22 @@ export function initConversationBridge(): void {
 
   const buildLastAbortController = (() => {
     let lastGetWorkspaceAbortController = new AbortController();
-    return () => {
+    const abort = () => {
       lastGetWorkspaceAbortController.abort();
-      return (lastGetWorkspaceAbortController = new AbortController());
+      lastGetWorkspaceAbortController = new AbortController();
+      return lastGetWorkspaceAbortController;
     };
+    return abort;
   })();
+
+  ipcBridge.conversation.abortWorkspaceRead.provider(async () => {
+    try {
+      buildLastAbortController();
+      return { success: true };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
 
   ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path }) => {
     try {
