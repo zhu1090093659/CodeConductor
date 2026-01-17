@@ -40,6 +40,7 @@ const ProjectModePanel: React.FC = () => {
   const { activeTab } = useConversationTabs();
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [jiraStatus, setJiraStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
   const [mcpStatus, setMcpStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
   const { projects, activeProjectId, activeProject } = useProjects();
@@ -47,12 +48,14 @@ const ProjectModePanel: React.FC = () => {
   const [editingProjectName, setEditingProjectName] = useState('');
   const [messageApi, messageContext] = Message.useMessage();
 
-  const workspace = activeTab?.workspace;
-  const conversationId = activeTab?.id;
+  // Project selection should drive the workspace tree (not the active conversation tab)
+  const workspace = activeProject?.workspace || activeTab?.workspace;
+  const conversationId = activeTab?.id || '';
 
   const refreshTree = useCallback(async () => {
-    if (!workspace || !conversationId) {
+    if (!workspace) {
       setTreeData([]);
+      setExpandedKeys([]);
       return;
     }
     setLoading(true);
@@ -61,8 +64,11 @@ const ProjectModePanel: React.FC = () => {
       const res = await ipcBridge.conversation.getWorkspace.invoke({ conversation_id: conversationId, workspace, path: workspace });
       const root = res?.[0];
       setTreeData(root ? [buildTreeNodes(root)] : []);
+      // Default collapse folders when panel is shown
+      setExpandedKeys([]);
     } catch {
       setTreeData([]);
+      setExpandedKeys([]);
     } finally {
       setLoading(false);
     }
@@ -282,15 +288,16 @@ const ProjectModePanel: React.FC = () => {
         <div className='flex items-center justify-center h-120px'>
           <Spin loading />
         </div>
-      ) : !workspace || !conversationId ? (
-        <Empty description={t('project.selectConversation', { defaultValue: '请选择对话查看文件' })} />
+      ) : !workspace ? (
+        <Empty description={t('project.empty', { defaultValue: '暂无项目' })} />
       ) : treeData.length === 0 ? (
         <Empty description={t('project.aiNotFound', { defaultValue: '未找到 .ai' })} />
       ) : (
         <Tree
-          className='workspace-tree !pl-12px !pr-12px'
+          className='workspace-tree !pl-0 !pr-0'
           treeData={treeData}
           blockNode
+          expandedKeys={expandedKeys}
           renderTitle={(node) => {
             const isFile = Boolean(node.isLeaf);
             const icon = isFile ? <FileText theme='outline' size={14} fill={iconColors.secondary} className='flex-shrink-0' /> : <FolderOpen theme='outline' size={14} fill={iconColors.primary} className='flex-shrink-0' />;
@@ -302,6 +309,7 @@ const ProjectModePanel: React.FC = () => {
             );
           }}
           onSelect={handleSelect}
+          onExpand={(keys) => setExpandedKeys(keys)}
         />
       )}
     </div>

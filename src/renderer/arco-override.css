@@ -173,7 +173,7 @@ body[arco-theme='dark'] .arco-message-error {
 /* Workspace tree base aesthetics */
 .workspace-tree .arco-tree-node-title {
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 4px 8px 4px 4px;
   min-height: 28px;
   display: flex;
   align-items: center;
@@ -190,7 +190,8 @@ body[arco-theme='dark'] .arco-message-error {
 }
 
 .workspace-tree .arco-tree-node-switcher {
-  width: 18px;
+  width: 16px;
+  margin-right: 2px;
 }
 
 /* Alert styles - content is now displayed below the Alert card, so these rules are no longer needed */
