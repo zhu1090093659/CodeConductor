@@ -385,16 +385,16 @@ This project is licensed under [Apache-2.0](LICENSE).
 Thanks to all developers who have contributed to CodeConductor!
 
 <p align="center">
-  <a href="https://github.com/iOfficeAI/CodeConductor/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=iOfficeAI/CodeConductor&max=20" alt="Contributors" />
+  <a href="https://github.com/zhu1090093659/CodeProductor/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=zhu1090093659/CodeProductor&max=20" alt="Contributors" />
   </a>
 </p>
 
 ## 📊 Star History
 
 <p align="center">
-  <a href="https://www.star-history.com/#iOfficeAI/aionui&Date" target="_blank">
-    <img src="https://api.star-history.com/svg?repos=iOfficeAI/aionui&type=Date" alt="GitHub Star Trends" width="600">
+  <a href="https://www.star-history.com/#zhu1090093659/CodeProductor&Date" target="_blank">
+    <img src="https://api.star-history.com/svg?repos=zhu1090093659/CodeProductor&type=Date" alt="GitHub Star Trends" width="600">
   </a>
 </p>
 
