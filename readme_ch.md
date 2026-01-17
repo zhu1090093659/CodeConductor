@@ -41,6 +41,7 @@
 
 [✨ 看看能做什么](#✨-看看-aionui-能做什么) ·
 [🤔 为什么选择 CodeConductor](#🤔-为什么选择-codeconductor) ·
+[（对比 AionUI）新增与增强](#codeconductor-相比-aionui-的新增与增强) ·
 [✨ 核心功能](#✨-核心功能) ·
 [🚀 快速开始](#🚀-快速开始) ·
 [📖 详细使用说明](#📖-详细使用说明) ·
@@ -200,6 +201,42 @@ A: 支持 Gemini、OpenAI、Claude、Qwen 等主流模型，以及 Ollama、LM S
 <summary><strong>Q: 数据安全吗？</strong></summary>
 A: 所有对话数据存储在本地 SQLite 数据库，不会上传到任何服务器。
 </details>
+
+## CodeConductor 相比 AionUI 的新增与增强
+
+CodeConductor 基于 AionUI 二次开发。AionUI 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
+
+CodeConductor is a secondary development based on AionUI. While AionUI already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
+
+### Multi-role collaboration view (PM/Analyst/Engineer)
+
+在同一个项目会话里启用多角色协作，让 PM/Analyst/Engineer 分工对话，并在一个视图中集中查看与同步信息，减少来回切换与上下文丢失。
+
+Enable PM/Analyst/Engineer collaboration inside one project conversation, then view and coordinate the three roles in one place to reduce context switching.
+
+### Safer “high-impact” actions with explicit approvals
+
+对“执行命令 / 应用改动”这类高影响动作提供更明确的确认与可视化提示，让你在使用编程 Agent 时更可控、更安心。
+
+Add clearer approval prompts and visual cues for high-impact actions (like executing commands or applying changes), so you stay in control when working with coding agents.
+
+### Slash commands for faster project workflows
+
+为项目对话提供斜杠命令入口，把常见操作变成“可发现、可复用”的快捷流程，提升输入效率与一致性。
+
+Provide slash commands in project chats to make common actions discoverable and reusable, improving speed and consistency.
+
+### Project-first conversations with workspace context
+
+更强调“项目会话 + 工作区上下文”的组织方式，让对话更接近真实项目协作：以工作区为中心，围绕任务推进与产物交付展开。
+
+Emphasize project-first conversations with workspace context, so chats behave more like real project work: task-driven, artifact-oriented, and easier to navigate.
+
+### Review-friendly changes with preview and diff as first-class citizens
+
+把预览与对比放到更核心的位置：更顺畅地查看生成结果、对照修改、确认差异，减少“生成后还得自己拼凑验证”的成本。
+
+Make preview and diff more central to the workflow, so you can review outputs and changes with less friction before you accept or apply them.
 
 ---
 
