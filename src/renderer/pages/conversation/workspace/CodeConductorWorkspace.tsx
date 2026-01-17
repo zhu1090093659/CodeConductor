@@ -99,35 +99,26 @@ const CodeConductorWorkspace: React.FC<{
   };
 
   return (
-    <div className='h-full w-full overflow-hidden'>
-      <Tabs
-        activeTab={activeTab}
-        onChange={setActiveTab}
-        type='capsule'
-        size='small'
-        destroyOnHide={false}
-        className='h-full'
-      >
+    <div className='h-full w-full overflow-hidden flex flex-col min-h-0'>
+      <Tabs activeTab={activeTab} onChange={setActiveTab} type='capsule' size='small' destroyOnHide={false} justify className='flex-1 min-h-0'>
         <Tabs.TabPane key='spec' title='Live Spec'>
-          <div className='h-full'>
+          <div className='h-full min-h-0'>
             <LiveSpecTab workspace={workspace} onApproveExecute={handleApproveExecute} />
           </div>
         </Tabs.TabPane>
         <Tabs.TabPane key='terminal' title='Terminal'>
-          <div className='h-full'>
+          <div className='h-full min-h-0'>
             <TerminalTab workspace={workspace} active={activeTab === 'terminal'} />
           </div>
         </Tabs.TabPane>
         <Tabs.TabPane key='diff' title='Diff'>
-          <div className='h-full'>
+          <div className='h-full min-h-0'>
             <DiffTab workspace={workspace} active={activeTab === 'diff'} />
           </div>
         </Tabs.TabPane>
         <Tabs.TabPane key='preview' title='Preview'>
           <div className='h-full flex flex-col overflow-hidden'>
-            <div className='h-32px px-12px flex items-center bg-bg-2 text-12px text-t-secondary border-b border-b-base'>
-              {preview?.metadata?.fileName || preview?.metadata?.title || 'Preview'}
-            </div>
+            <div className='h-32px px-12px flex items-center bg-bg-2 text-12px text-t-secondary border-b border-b-base'>{preview?.metadata?.fileName || preview?.metadata?.title || 'Preview'}</div>
             <div className='flex-1 min-h-0 overflow-auto p-12px'>{renderPreviewBody()}</div>
           </div>
         </Tabs.TabPane>

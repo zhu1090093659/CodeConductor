@@ -16,6 +16,7 @@ import AcpSendBox from '../acp/AcpSendBox';
 import type { AcpBackend } from '@/types/acpTypes';
 import CodexSendBox from '../codex/CodexSendBox';
 import { ConversationProvider } from '@/renderer/context/ConversationContext';
+import FlexFullContainer from '@/renderer/components/FlexFullContainer';
 
 type CollabRole = 'pm' | 'analyst' | 'engineer';
 
@@ -115,7 +116,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
 
   return (
     <ConversationProvider value={{ conversationId: activeConversationId, workspace, type: parentConversation.type }}>
-      <div className='flex-1 flex flex-col px-20px'>
+      <div className='flex-1 min-h-0 flex flex-col px-20px'>
         <div className='flex items-center justify-between mb-10px'>
           <div className='text-sm text-t-secondary'>Merged roles</div>
           <Select size='mini' value={activeRole} onChange={(v) => setActiveRole(v as CollabRole)} style={{ width: 140 }}>
@@ -125,7 +126,9 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
           </Select>
         </div>
 
-        <MessageList className='flex-1' renderMessageHeader={messageHeader} />
+        <FlexFullContainer>
+          <MessageList renderMessageHeader={messageHeader} />
+        </FlexFullContainer>
 
         {parentConversation.type === 'acp' ? <AcpSendBox conversation_id={activeConversationId} backend={(parentConversation.extra as any)?.backend || ('claude' as AcpBackend)} /> : <CodexSendBox conversation_id={activeConversationId} />}
       </div>

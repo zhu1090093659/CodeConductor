@@ -84,13 +84,13 @@ const LiveSpecTab: React.FC<{
   }, [resolveTargetPath]);
 
   return (
-    <div className='relative h-full w-full overflow-hidden'>
+    <div className='relative h-full w-full overflow-hidden min-h-0'>
       <div className='absolute right-12px top-12px z-10'>
         <Button type='primary' onClick={onApproveExecute}>
           Approve & Execute
         </Button>
       </div>
-      <div className='h-full overflow-auto p-12px space-y-12px'>
+      <div className='h-full min-h-0 overflow-auto p-12px space-y-12px'>
         <div className='rounded-8px border border-[var(--bg-3)] overflow-hidden'>
           <div className='h-32px px-12px flex items-center bg-bg-2 text-12px text-t-secondary'>tech_spec.md</div>
           <div className='p-12px'>
