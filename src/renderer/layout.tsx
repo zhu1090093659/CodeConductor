@@ -17,7 +17,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import ccLogoPng from '../../resources/cc_logo.png';
 import { LayoutContext } from './context/LayoutContext';
 import { useDirectorySelection } from './hooks/useDirectorySelection';
-import { useMultiAgentDetection } from './hooks/useMultiAgentDetection';
 import { processCustomCss } from './utils/customCssProcessor';
 
 const useDebug = () => {
@@ -70,7 +69,6 @@ const Layout: React.FC<{
   const [isMobile, setIsMobile] = useState(false);
   const [customCss, setCustomCss] = useState<string>('');
   const { onClick } = useDebug();
-  const { contextHolder: multiAgentContextHolder } = useMultiAgentDetection();
   const { contextHolder: directorySelectionContextHolder } = useDirectorySelection();
   const location = useLocation();
   const workspaceAvailable = location.pathname.startsWith('/conversation/');
@@ -274,7 +272,6 @@ const Layout: React.FC<{
             }
           >
             <Outlet />
-            {multiAgentContextHolder}
             {directorySelectionContextHolder}
             <PwaPullToRefresh />
           </ArcoLayout.Content>
