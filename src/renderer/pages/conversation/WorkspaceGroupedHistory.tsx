@@ -178,7 +178,9 @@ const WorkspaceGroupedHistory: React.FC<{ onSessionClick?: () => void; collapsed
         .invoke({ page: 0, pageSize: 10000 })
         .then((data) => {
           if (data && Array.isArray(data)) {
-            setConversations(data);
+            // Hide collab children (internal implementation details)
+            const visible = data.filter((conv) => !(conv.extra as { collabParentId?: string } | undefined)?.collabParentId);
+            setConversations(visible);
           } else {
             setConversations([]);
           }
@@ -203,9 +205,7 @@ const WorkspaceGroupedHistory: React.FC<{ onSessionClick?: () => void; collapsed
 
   // 按时间线和workspace分组
   const timelineSections = useMemo(() => {
-    const filtered = activeProjectId
-      ? conversations.filter((conv) => resolveProjectIdForConversation(conv, projects) === activeProjectId)
-      : conversations;
+    const filtered = activeProjectId ? conversations.filter((conv) => resolveProjectIdForConversation(conv, projects) === activeProjectId) : conversations;
     return groupConversationsByTimelineAndWorkspace(filtered, t);
   }, [conversations, t, activeProjectId, projects]);
 

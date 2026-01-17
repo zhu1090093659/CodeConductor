@@ -18,6 +18,60 @@ export type AssistantPreset = {
 
 export const ASSISTANT_PRESETS: AssistantPreset[] = [
   {
+    id: 'pm',
+    avatar: '🧩',
+    presetAgentType: 'claude',
+    resourceDir: 'assistant/pm',
+    ruleFiles: {
+      'en-US': 'pm.md',
+      'zh-CN': 'pm.md',
+    },
+    nameI18n: {
+      'en-US': 'PM',
+      'zh-CN': 'PM',
+    },
+    descriptionI18n: {
+      'en-US': 'Project manager: break down work, define scope, and keep delivery on track.',
+      'zh-CN': '项目经理：拆解任务、明确范围、推动交付。',
+    },
+  },
+  {
+    id: 'analyst',
+    avatar: '🧠',
+    presetAgentType: 'claude',
+    resourceDir: 'assistant/analyst',
+    ruleFiles: {
+      'en-US': 'analyst.md',
+      'zh-CN': 'analyst.md',
+    },
+    nameI18n: {
+      'en-US': 'Analyst',
+      'zh-CN': 'Analyst',
+    },
+    descriptionI18n: {
+      'en-US': 'Analyst: clarify requirements and write a usable spec in .ai/specs/tech_spec.md.',
+      'zh-CN': '需求分析：澄清需求并把可执行的规格写入 .ai/specs/tech_spec.md。',
+    },
+  },
+  {
+    id: 'engineer',
+    avatar: '👷',
+    presetAgentType: 'claude',
+    resourceDir: 'assistant/engineer',
+    ruleFiles: {
+      'en-US': 'engineer.md',
+      'zh-CN': 'engineer.md',
+    },
+    nameI18n: {
+      'en-US': 'Engineer',
+      'zh-CN': 'Engineer',
+    },
+    descriptionI18n: {
+      'en-US': 'Engineer: implement changes based on spec and task, and keep progress logged.',
+      'zh-CN': '工程师：按 spec 与任务实施改动，并记录进展。',
+    },
+  },
+  {
     id: 'pptx-generator',
     avatar: '📊',
     presetAgentType: 'claude',

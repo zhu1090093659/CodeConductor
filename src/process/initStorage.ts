@@ -12,7 +12,7 @@ import { app } from 'electron';
 import { application } from '../common/ipcBridge';
 import type { TMessage } from '@/common/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/presets/assistantPresets';
-import type { IChatConversationRefer, IConfigStorageRefer, IEnvStorageRefer, IMcpServer, SkillRepoConfig, TChatConversation } from '../common/storage';
+import type { IChatConversationRefer, IConfigStorageRefer, IEnvStorageRefer, IMcpServer, SkillRepoConfig } from '../common/storage';
 import { ChatMessageStorage, ChatStorage, ConfigStorage, EnvStorage } from '../common/storage';
 import { copyDirectoryRecursively, getCliSafePath, getConfigPath, getDataPath, getTempPath, verifyDirectoryFiles } from './utils';
 import { getDatabase } from './database/export';
@@ -23,6 +23,9 @@ type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
 
 const nodePath = path;
+
+const DEFAULT_ENABLED_ASSISTANT_IDS = new Set(['cowork', 'pm', 'analyst', 'engineer']);
+const ROLE_ASSISTANT_IDS = new Set(['builtin-pm', 'builtin-analyst', 'builtin-engineer']);
 
 const STORAGE_PATH = {
   config: 'aionui-config.txt',
@@ -499,8 +502,8 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
       avatar: preset.avatar,
       // context 不再存储在配置中，而是从文件读取
       // context is no longer stored in config, read from files instead
-      // Cowork 默认启用，其他助手默认关闭 / Cowork enabled by default, others disabled
-      enabled: preset.id === 'cowork',
+      // Cowork + PM/Analyst/Engineer are enabled by default (shown on home page).
+      enabled: DEFAULT_ENABLED_ASSISTANT_IDS.has(preset.id),
       isPreset: true,
       isBuiltin: true,
       presetAgentType: preset.presetAgentType || 'claude',
@@ -619,6 +622,10 @@ const initStorage = async () => {
     const migrationDone = await configFile.get(ASSISTANT_ENABLED_MIGRATION_KEY).catch(() => false);
     const needsMigration = !migrationDone && existingAgents.length > 0;
 
+    // 5.2.2 One-time migration: enable role assistants by default (pm/analyst/engineer)
+    const ROLE_ASSISTANTS_ENABLED_MIGRATION_KEY = 'migration.roleAssistantsEnabledByDefault';
+    const roleMigrationDone = await configFile.get(ROLE_ASSISTANTS_ENABLED_MIGRATION_KEY).catch(() => false);
+
     // 更新或添加内置助手配置
     // Update or add built-in assistant configurations
     const updatedAgents = [...existingAgents];
@@ -645,9 +652,18 @@ const initStorage = async () => {
         // presetAgentType is user-controlled, use builtin default if not set
         const resolvedPresetAgentType = existing.presetAgentType ?? builtin.presetAgentType;
 
-        if (shouldUpdate || needsEnabledFix) {
+        // Force-enable role assistants once so they show up on home page by default.
+        const shouldForceEnableRoleAssistant = !roleMigrationDone && ROLE_ASSISTANT_IDS.has(existing.id);
+        const resolvedEnabledWithRoleDefault = shouldForceEnableRoleAssistant ? true : resolvedEnabled;
+
+        if (shouldUpdate || needsEnabledFix || shouldForceEnableRoleAssistant) {
           // 保留用户已设置的 enabled 和 presetAgentType / Preserve user-set enabled and presetAgentType
-          updatedAgents[index] = { ...existing, ...builtin, enabled: resolvedEnabled, presetAgentType: resolvedPresetAgentType };
+          updatedAgents[index] = {
+            ...existing,
+            ...builtin,
+            enabled: resolvedEnabledWithRoleDefault,
+            presetAgentType: resolvedPresetAgentType,
+          };
           hasChanges = true;
         }
       } else {
@@ -666,6 +682,10 @@ const initStorage = async () => {
     if (needsMigration) {
       await configFile.set(ASSISTANT_ENABLED_MIGRATION_KEY, true);
       console.log('[AionUi] Assistant enabled migration completed');
+    }
+    if (!roleMigrationDone) {
+      await configFile.set(ROLE_ASSISTANTS_ENABLED_MIGRATION_KEY, true);
+      console.log('[AionUi] Role assistants default-enabled migration completed');
     }
   } catch (error) {
     console.error('[AionUi] Failed to initialize builtin assistants:', error);

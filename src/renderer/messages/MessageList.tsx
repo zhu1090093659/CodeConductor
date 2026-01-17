@@ -17,7 +17,6 @@ import MessageAgentStatus from '@renderer/messages/MessageAgentStatus';
 import classNames from 'classnames';
 import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import HOC from '../utils/HOC';
 import { useAddEventListener } from '../utils/emitter';
 import MessageCodexPermission from './codex/MessageCodexPermission';
 import MessageCodexToolCall from './codex/MessageCodexToolCall';
@@ -33,47 +32,11 @@ type TurnDiffContent = Extract<CodexToolCallUpdate, { subtype: 'turn_diff' }>;
 // 图片预览上下文 Image preview context
 export const ImagePreviewContext = createContext<{ inPreviewGroup: boolean }>({ inPreviewGroup: false });
 
-const MessageItem: React.FC<{ message: TMessage }> = HOC((props) => {
-  const { message } = props as { message: TMessage };
-  return (
-    <div
-      className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', message.type, {
-        'justify-center': message.position === 'center',
-        'justify-end': message.position === 'right',
-        'justify-start': message.position === 'left',
-      })}
-    >
-      {props.children}
-    </div>
-  );
-})(({ message }) => {
-  const { t } = useTranslation();
-
-  switch (message.type) {
-    case 'text':
-      return <MessageText message={message}></MessageText>;
-    case 'tips':
-      return <MessageTips message={message}></MessageTips>;
-    case 'tool_call':
-      return <MessageToolCall message={message}></MessageToolCall>;
-    case 'tool_group':
-      return <MessageToolGroup message={message}></MessageToolGroup>;
-    case 'agent_status':
-      return <MessageAgentStatus message={message}></MessageAgentStatus>;
-    case 'acp_permission':
-      return <MessageAcpPermission message={message}></MessageAcpPermission>;
-    case 'acp_tool_call':
-      return <MessageAcpToolCall message={message}></MessageAcpToolCall>;
-    case 'codex_permission':
-      return <MessageCodexPermission message={message}></MessageCodexPermission>;
-    case 'codex_tool_call':
-      return <MessageCodexToolCall message={message}></MessageCodexToolCall>;
-    default:
-      return <div>{t('messages.unknownMessageType', { type: (message as any).type })}</div>;
-  }
-});
-
-const MessageList: React.FC<{ className?: string }> = () => {
+const MessageList: React.FC<{
+  className?: string;
+  /** Optional per-message header renderer (e.g., role tags in merged collab view). */
+  renderMessageHeader?: (message: TMessage) => React.ReactNode;
+}> = ({ renderMessageHeader }) => {
   const list = useMessageList();
   const conversation = useConversationContextSafe();
   const conversationId = conversation?.conversationId;
@@ -85,6 +48,20 @@ const MessageList: React.FC<{ className?: string }> = () => {
   const [thoughtRunning, setThoughtRunning] = useState(false);
   const previousListLengthRef = useRef(list.length);
   const { t } = useTranslation();
+
+  const renderMessageWrapper = (message: TMessage, body: React.ReactNode) => {
+    return (
+      <div
+        className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', message.type, {
+          'justify-center': message.position === 'center',
+          'justify-end': message.position === 'right',
+          'justify-start': message.position === 'left',
+        })}
+      >
+        {body}
+      </div>
+    );
+  };
 
   // 提取所有 Codex turn_diff 消息用于汇总显示 / Extract all Codex turn_diff messages for summary display
   const { turnDiffMessages, firstTurnDiffIndex } = useMemo(() => {
@@ -148,6 +125,7 @@ const MessageList: React.FC<{ className?: string }> = () => {
       const batchKey = `${batch[0]?.id || 'unknown'}-${batch[batch.length - 1]?.id || 'unknown'}`;
       const forceOpen = batch.some((m) => toolGroupNeedsAttention(m));
       const isOpen = forceOpen || Boolean(toolBatchOpenMap[batchKey]);
+      const headerNode = renderMessageHeader?.(batch[0]);
 
       const toggle = () => {
         if (forceOpen) return;
@@ -155,13 +133,11 @@ const MessageList: React.FC<{ className?: string }> = () => {
       };
 
       return (
-        <div
-          key={`tool-batch-${batchKey}`}
-          className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', 'tool_batch')}
-        >
+        <div key={`tool-batch-${batchKey}`} className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', 'tool_batch')}>
           <div className='w-full min-w-0 border border-[var(--bg-3)] rounded-10px bg-1'>
             <div className='flex items-center justify-between px-10px py-8px border-b border-[var(--bg-3)]'>
               <div className='flex items-center gap-8px min-w-0'>
+                {headerNode ? <span className='shrink-0'>{headerNode}</span> : null}
                 <span className='text-sm text-t-primary'>🔧</span>
                 <span className='text-sm text-t-primary truncate'>{`Tools × ${batch.length}`}</span>
                 {forceOpen && <span className='text-xs text-t-secondary'>action required</span>}
@@ -229,12 +205,19 @@ const MessageList: React.FC<{ className?: string }> = () => {
         continue;
       }
 
-      nodes.push(<MessageItem message={message} key={message.id}></MessageItem>);
+      const headerNode = renderMessageHeader?.(message);
+      const body = (
+        <div className='w-full min-w-0'>
+          {headerNode ? <div className='mb-6px'>{headerNode}</div> : null}
+          {renderMessageCore(message)}
+        </div>
+      );
+      nodes.push(<React.Fragment key={message.id}>{renderMessageWrapper(message, body)}</React.Fragment>);
       i += 1;
     }
 
     return nodes;
-  }, [firstTurnDiffIndex, isToolMessage, isTurnDiffMessage, list, renderMessageCore, t, toolBatchOpenMap, turnDiffMessages]);
+  }, [firstTurnDiffIndex, isToolMessage, isTurnDiffMessage, list, renderMessageCore, renderMessageHeader, t, toolBatchOpenMap, turnDiffMessages]);
 
   // 检查是否在底部（允许一定的误差范围）
   const isAtBottom = () => {

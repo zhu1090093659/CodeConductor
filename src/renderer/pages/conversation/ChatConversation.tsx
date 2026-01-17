@@ -15,7 +15,7 @@ import { History } from '@icon-park/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { emitter } from '../../utils/emitter';
 import AcpChat from './acp/AcpChat';
 import ChatLayout from './ChatLayout';
@@ -24,7 +24,17 @@ import CodexChat from './codex/CodexChat';
 import { iconColors } from '@/renderer/theme/colors';
 import addChatIcon from '@/renderer/assets/add-chat.svg';
 import CoworkLogo from '@/renderer/assets/cowork.svg';
+import CollabChat from '@/renderer/pages/conversation/collab/CollabChat';
 // import SkillRuleGenerator from './components/SkillRuleGenerator'; // Temporarily hidden
+
+type CollabRole = 'pm' | 'analyst' | 'engineer';
+type CollabRoleMap = Record<CollabRole, string>;
+
+const COLLAB_ROLES: Array<{ role: CollabRole; assistantId: string; namePrefix: string }> = [
+  { role: 'pm', assistantId: 'builtin-pm', namePrefix: 'PM' },
+  { role: 'analyst', assistantId: 'builtin-analyst', namePrefix: 'Analyst' },
+  { role: 'engineer', assistantId: 'builtin-engineer', namePrefix: 'Engineer' },
+];
 
 const _AssociatedConversation: React.FC<{ conversation_id: string }> = ({ conversation_id }) => {
   const { data } = useSWR(['getAssociateConversation', conversation_id], () => ipcBridge.conversation.getAssociateConversation.invoke({ conversation_id }));
@@ -92,11 +102,27 @@ const ChatConversation: React.FC<{
   conversation?: TChatConversation;
 }> = ({ conversation }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const workspaceEnabled = Boolean(conversation?.extra?.workspace);
   const [agentStatus, setAgentStatus] = useState<IMessageAgentStatus['content'] | null>(null);
 
+  // If user navigates to a hidden collab child, redirect to parent.
+  useEffect(() => {
+    const parentId = (conversation?.extra as { collabParentId?: string } | undefined)?.collabParentId;
+    if (!conversation?.id) return;
+    if (!parentId) return;
+    if (parentId === conversation.id) return;
+    void Promise.resolve(navigate(`/conversation/${parentId}`, { replace: true })).catch((error) => {
+      console.error('Navigation failed:', error);
+    });
+  }, [conversation?.extra, conversation?.id, navigate]);
+
   const conversationNode = useMemo(() => {
     if (!conversation) return null;
+    const isCollabParent = Boolean((conversation.extra as { collab?: unknown } | undefined)?.collab);
+    if (isCollabParent) {
+      return <CollabChat key={conversation.id} parentConversation={conversation} />;
+    }
     switch (conversation.type) {
       case 'acp':
         return <AcpChat key={conversation.id} conversation_id={conversation.id} workspace={conversation.extra?.workspace} backend={conversation.extra?.backend || 'claude'}></AcpChat>;
@@ -118,6 +144,103 @@ const ChatConversation: React.FC<{
       setAgentStatus(message.data as IMessageAgentStatus['content']);
     });
   }, [conversation?.id, conversation?.type]);
+
+  const headerExtra = useMemo(() => {
+    if (!conversation?.id) return null;
+    if (!conversation.extra?.workspace) return null;
+
+    const extra = conversation.extra as { collab?: unknown; collabParentId?: string };
+    if (extra?.collabParentId) return null; // child is hidden/redirected
+    if (extra?.collab) return null; // already enabled
+
+    const enableCollab = async () => {
+      try {
+        const locale = i18n.language || 'en-US';
+        const parentId = conversation.id;
+        const now = Date.now();
+
+        const ruleContents = await Promise.all(
+          COLLAB_ROLES.map(async (r) => {
+            try {
+              const content = await ipcBridge.fs.readAssistantRule.invoke({ assistantId: r.assistantId, locale });
+              return content || '';
+            } catch {
+              return '';
+            }
+          })
+        );
+
+        const created = await Promise.all(
+          COLLAB_ROLES.map(async (r, idx) => {
+            const childId = uuid();
+            const presetContext = ruleContents[idx] || '';
+            const name = `[${r.namePrefix}] ${conversation.name || t('conversation.welcome.newConversation')}`;
+
+            const childConversation: TChatConversation =
+              conversation.type === 'acp'
+                ? {
+                    ...conversation,
+                    type: 'acp',
+                    id: childId,
+                    name,
+                    createTime: now,
+                    modifyTime: now,
+                    extra: {
+                      ...(conversation.extra as Extract<TChatConversation, { type: 'acp' }>['extra']),
+                      presetAssistantId: r.assistantId,
+                      presetContext,
+                      collabParentId: parentId,
+                    },
+                  }
+                : {
+                    ...conversation,
+                    type: 'codex',
+                    id: childId,
+                    name,
+                    createTime: now,
+                    modifyTime: now,
+                    extra: {
+                      ...(conversation.extra as Extract<TChatConversation, { type: 'codex' }>['extra']),
+                      presetAssistantId: r.assistantId,
+                      presetContext,
+                      collabParentId: parentId,
+                    },
+                  };
+            await ipcBridge.conversation.createWithConversation.invoke({ conversation: childConversation });
+            return { role: r.role, id: childId };
+          })
+        );
+
+        const roleMap = created.reduce((acc, item) => {
+          acc[item.role] = item.id;
+          return acc;
+        }, {} as CollabRoleMap);
+
+        await ipcBridge.conversation.update.invoke({
+          id: parentId,
+          updates: {
+            extra: {
+              collab: { roleMap },
+            },
+          } as Partial<TChatConversation>,
+          mergeExtra: true,
+        });
+
+        emitter.emit('chat.history.refresh');
+        await mutate(`conversation/${parentId}`);
+      } catch (error) {
+        console.error('Failed to enable collaboration:', error);
+      }
+    };
+
+    return (
+      <Tooltip content='Enable PM/Analyst/Engineer collaboration'>
+        <Button size='mini' onClick={() => void enableCollab()}>
+          Collab
+        </Button>
+      </Tooltip>
+    );
+  }, [conversation, i18n.language, t]);
 
   // 获取预设助手信息（如果有）/ Get preset assistant info for ACP/Codex conversations
   const presetAssistantInfo = useMemo(() => {
@@ -160,26 +283,29 @@ const ChatConversation: React.FC<{
 
   // 如果有预设助手信息，使用预设助手的 logo 和名称；否则使用 backend 的 logo
   // If preset assistant info exists, use preset logo/name; otherwise use backend logo
-  const chatLayoutProps = presetAssistantInfo
+  const isCollabParent = Boolean((conversation?.extra as { collab?: unknown } | undefined)?.collab);
+  const chatLayoutProps = isCollabParent
     ? {
-        agentName: presetAssistantInfo.name,
-        agentLogo: presetAssistantInfo.logo,
-        agentLogoIsEmoji: presetAssistantInfo.isEmoji,
+        agentName: 'Collab',
+        agentLogo: '🤝',
+        agentLogoIsEmoji: true,
+        headerExtra,
       }
-    : {
-        backend: conversation?.type === 'acp' ? conversation?.extra?.backend : conversation?.type === 'codex' ? 'codex' : undefined,
-        agentName: (conversation?.extra as { agentName?: string })?.agentName,
-      };
+    : presetAssistantInfo
+      ? {
+          agentName: presetAssistantInfo.name,
+          agentLogo: presetAssistantInfo.logo,
+          agentLogoIsEmoji: presetAssistantInfo.isEmoji,
+          headerExtra,
+        }
+      : {
+          backend: conversation?.type === 'acp' ? conversation?.extra?.backend : conversation?.type === 'codex' ? 'codex' : undefined,
+          agentName: (conversation?.extra as { agentName?: string })?.agentName,
+          headerExtra,
+        };
 
   return (
-    <ChatLayout
-      title={conversation?.name}
-      {...chatLayoutProps}
-      agentStatus={agentStatus}
-      siderTitle={sliderTitle}
-      sider={<ChatSider conversation={conversation} />}
-      workspaceEnabled={workspaceEnabled}
-    >
+    <ChatLayout title={conversation?.name} {...chatLayoutProps} agentStatus={agentStatus} siderTitle={sliderTitle} sider={<ChatSider conversation={conversation} />} workspaceEnabled={workspaceEnabled}>
       {conversationNode}
     </ChatLayout>
   );

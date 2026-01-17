@@ -87,7 +87,9 @@ const ChatHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }
         .invoke({ page: 0, pageSize: 10000 })
         .then((history) => {
           if (history && Array.isArray(history) && history.length > 0) {
-            const sortedHistory = history.sort((a, b) => getActivityTime(b) - getActivityTime(a));
+            // Hide collab children (internal implementation details)
+            const visibleHistory = history.filter((conv) => !(conv.extra as { collabParentId?: string } | undefined)?.collabParentId);
+            const sortedHistory = visibleHistory.sort((a, b) => getActivityTime(b) - getActivityTime(a));
             setChatHistory(sortedHistory);
           } else {
             setChatHistory([]);

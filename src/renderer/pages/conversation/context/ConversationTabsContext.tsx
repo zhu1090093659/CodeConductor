@@ -97,6 +97,14 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
   const activeTab = openTabs.find((tab) => tab.id === activeTabId) || null;
 
   const openTab = useCallback((conversation: TChatConversation) => {
+    // Hide collab children from tabs (they are internal implementation details).
+    const isCollabChild = Boolean((conversation.extra as { collabParentId?: string } | undefined)?.collabParentId);
+    if (isCollabChild) {
+      // Keep activeTabId in sync so ConversationTabs can decide to hide itself.
+      setActiveTabId(conversation.id);
+      return;
+    }
+
     // 只有用户指定的工作空间才显示在 tabs 中，临时工作空间不显示
     // Only show tabs for user-specified workspaces, not temporary workspaces
     const customWorkspace = conversation.extra?.customWorkspace;

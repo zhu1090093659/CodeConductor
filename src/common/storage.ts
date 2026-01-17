@@ -57,6 +57,8 @@ export interface IConfigStorageRefer {
   'guid.lastSelectedAgent'?: string;
   // 迁移标记：修复老版本中助手 enabled 默认值问题 / Migration flag: fix assistant enabled default value issue
   'migration.assistantEnabledFixed'?: boolean;
+  // Migration flag: enable role assistants by default (pm/analyst/engineer)
+  'migration.roleAssistantsEnabledByDefault'?: boolean;
 }
 
 export interface CustomCommandConfig {
@@ -137,6 +139,19 @@ export type TChatConversation =
           enabledSkills?: string[];
           /** 预设助手 ID，用于在会话面板显示助手名称和头像 / Preset assistant ID for displaying name and avatar in conversation panel */
           presetAssistantId?: string;
+          /**
+           * Collaboration metadata for merged multi-role chat.
+           * Collab parent stores roleMap; children store collabParentId to be hidden in UI.
+           */
+          collab?: {
+            roleMap: {
+              pm: string;
+              analyst: string;
+              engineer: string;
+            };
+          };
+          /** Parent conversation id for collab children (used for UI filtering) */
+          collabParentId?: string;
         }
       >,
       'model'
@@ -155,6 +170,19 @@ export type TChatConversation =
           enabledSkills?: string[];
           /** 预设助手 ID，用于在会话面板显示助手名称和头像 / Preset assistant ID for displaying name and avatar in conversation panel */
           presetAssistantId?: string;
+          /**
+           * Collaboration metadata for merged multi-role chat.
+           * Collab parent stores roleMap; children store collabParentId to be hidden in UI.
+           */
+          collab?: {
+            roleMap: {
+              pm: string;
+              analyst: string;
+              engineer: string;
+            };
+          };
+          /** Parent conversation id for collab children (used for UI filtering) */
+          collabParentId?: string;
         }
       >,
       'model'
