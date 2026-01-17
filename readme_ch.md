@@ -349,15 +349,9 @@ _自己写 CSS 代码自定义，让你的交互界面符合你的心意_
 
 **💡 你的想法很重要！** 我们非常重视每一位用户的建议和反馈。无论是功能想法、使用体验，还是遇到的问题，都欢迎随时联系我们！
 
-<p align="center">
-  <a href="https://x.com/CodeConductor" target="_blank">
-    <img src="./resources/contactus-x.png" alt="在 X 联系我们" width="600">
-  </a>
-</p>
-
-- [💬 GitHub Discussions](https://github.com/iOfficeAI/CodeConductor/discussions) - **分享想法、提出建议、交流使用心得**
-- [🐛 报告问题](https://github.com/iOfficeAI/CodeConductor/issues) - 反馈 Bug 或功能请求
-- [📦 发布更新](https://github.com/iOfficeAI/CodeConductor/releases) - 获取最新版本
+- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeProductor/discussions) - **分享想法、提出建议、交流使用心得**
+- [🐛 报告问题](https://github.com/zhu1090093659/CodeProductor/issues) - 反馈 Bug 或功能请求
+- [📦 发布更新](https://github.com/zhu1090093659/CodeProductor/releases) - 获取最新版本
 
 ### 🤝 贡献代码
 

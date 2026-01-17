@@ -352,15 +352,9 @@ _Customize with your own CSS code, make your interface match your preferences_
 
 **💡 Your ideas matter!** We highly value every user's suggestions and feedback. Whether it's feature ideas, user experience, or issues you encounter, feel free to contact us anytime!
 
-<p align="center">
-  <a href="https://x.com/CodeConductor" target="_blank">
-    <img src="./resources/contactus-x.png" alt="Contact Us on X" width="600">
-  </a>
-</p>
-
-- [💬 GitHub Discussions](https://github.com/iOfficeAI/CodeConductor/discussions) - **Share ideas, make suggestions, exchange usage tips**
-- [🐛 Report Issues](https://github.com/iOfficeAI/CodeConductor/issues) - Report bugs or feature requests
-- [📦 Release Updates](https://github.com/iOfficeAI/CodeConductor/releases) - Get the latest version
+- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeProductor/discussions) - **Share ideas, make suggestions, exchange usage tips**
+- [🐛 Report Issues](https://github.com/zhu1090093659/CodeProductor/issues) - Report bugs or feature requests
+- [📦 Release Updates](https://github.com/zhu1090093659/CodeProductor/releases) - Get the latest version
 
 ### 🤝 Contributing
 

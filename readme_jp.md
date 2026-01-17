@@ -308,19 +308,9 @@ _独自のCSSコードでカスタマイズし、インターフェースを好�
 
 ## 🤝 コミュニティとサポート
 
-### 💬 コミュニティ
-
-**💡 あなたのアイデアが重要です！** すべてのユーザーの提案とフィードバックを非常に重視しています。機能のアイデア、使用体験、または遭遇した問題について、いつでもお気軽にお問い合わせください！
-
-<p align="center">
-  <a href="https://x.com/CodeConductor" target="_blank">
-    <img src="./resources/contactus-x.png" alt="Xでお問い合わせ" width="600">
-  </a>
-</p>
-
 - [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeProductor/discussions) - **アイデアを共有、提案、使用のヒントを交換**
 - [🐛 問題を報告](https://github.com/zhu1090093659/CodeProductor/issues) - バグや機能リクエストを報告
-- [📦 リリース更新](https://github.com/iOfficeAI/CodeConductor/releases) - 最新版を取得
+- [📦 リリース更新](https://github.com/zhu1090093659/CodeProductor/releases) - 最新版を取得
 
 ### 🤝 コード貢献
 
