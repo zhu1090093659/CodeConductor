@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -75,7 +75,7 @@ function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
     }
   }
 
-  const extraOrigins = (process.env.AIONUI_ALLOWED_ORIGINS || '')
+  const extraOrigins = (process.env.CodeConductor_ALLOWED_ORIGINS || '')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean)
@@ -85,7 +85,7 @@ function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
   extraOrigins.forEach((origin) => baseOrigins.add(origin));
 
   if (allowRemote && baseOrigins.size === 2 && extraOrigins.length === 0) {
-    console.warn('[security] Remote access enabled but no additional CORS origins configured. Requests from other origins will be blocked. Set AIONUI_ALLOWED_ORIGINS to a comma-separated list if cross-origin access is required.');
+    console.warn('[security] Remote access enabled but no additional CORS origins configured. Requests from other origins will be blocked. Set CodeConductor_ALLOWED_ORIGINS to a comma-separated list if cross-origin access is required.');
   }
 
   return baseOrigins;

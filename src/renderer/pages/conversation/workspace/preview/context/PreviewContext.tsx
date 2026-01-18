@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -72,7 +72,7 @@ export interface PreviewContextValue {
 const PreviewContext = createContext<PreviewContextValue | null>(null);
 
 // 持久化 key / Persistence key
-const PREVIEW_STATE_KEY = 'aionui_preview_state';
+const PREVIEW_STATE_KEY = 'CodeConductor_preview_state';
 const normalizePath = (value: string) => value.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
 
 // 从 localStorage 恢复状态 / Restore state from localStorage

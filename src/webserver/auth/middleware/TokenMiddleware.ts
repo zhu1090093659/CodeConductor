@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,12 +27,12 @@ class TokenExtractor {
   /**
    * 从请求中提取 token，支持多种来源：
    * 1. Authorization header (Bearer token)
-   * 2. Cookie (aionui-session)
+   * 2. Cookie (CodeConductor-session)
    * 3. Query parameter (token)
    *
    * Extract token from request, supporting multiple sources:
    * 1. Authorization header (Bearer token)
-   * 2. Cookie (aionui-session)
+   * 2. Cookie (CodeConductor-session)
    * 3. Query parameter (token)
    *
    * @param req - Express 请求对象 / Express request object

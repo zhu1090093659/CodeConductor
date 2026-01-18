@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,16 +15,16 @@ import { conversationToRow, messageToRow, rowToConversation, rowToMessage } from
 import { ensureDirectory, getDataPath } from '@process/utils';
 
 /**
- * Main database class for AionUi
+ * Main database class for CodeConductor
  * Uses better-sqlite3 for fast, synchronous SQLite operations
  */
-export class AionUIDatabase {
+export class CodeConductorDatabase {
   private db: Database.Database;
   private readonly defaultUserId = 'system_default_user';
   private readonly systemPasswordPlaceholder = '';
 
   constructor() {
-    const finalPath = path.join(getDataPath(), 'aionui.db');
+    const finalPath = path.join(getDataPath(), 'CodeConductor.db');
     console.log(`[Database] Initializing database at: ${finalPath}`);
 
     const dir = path.dirname(finalPath);
@@ -691,11 +691,11 @@ export class AionUIDatabase {
 }
 
 // Export singleton instance
-let dbInstance: AionUIDatabase | null = null;
+let dbInstance: CodeConductorDatabase | null = null;
 
-export function getDatabase(): AionUIDatabase {
+export function getDatabase(): CodeConductorDatabase {
   if (!dbInstance) {
-    dbInstance = new AionUIDatabase();
+    dbInstance = new CodeConductorDatabase();
   }
   return dbInstance;
 }

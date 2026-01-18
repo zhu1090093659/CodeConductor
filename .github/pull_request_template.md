@@ -36,4 +36,4 @@
 
 ---
 
-**Thank you for contributing to AionUi! 🎉**
+**Thank you for contributing to CodeConductor! 🎉**

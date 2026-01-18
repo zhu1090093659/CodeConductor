@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resources/aionui-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
+  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="./readme.md">English</a> | <a href="./readme_ch.md">简体中文</a> | <strong>日本語</strong> | <a href="https://www.aionui.com" target="_blank">公式サイト</a> | <a href="https://twitter.com/AionUI" target="_blank">Twitter</a>
+  <a href="./readme.md">English</a> | <a href="./readme_ch.md">简体中文</a> | <strong>日本語</strong> | <a href="https://www.CodeConductor.com" target="_blank">公式サイト</a> | <a href="https://twitter.com/CodeConductor" target="_blank">Twitter</a>
 </p>
 
 ---
@@ -77,7 +77,7 @@ _一括リネーム、自动整理、スマート分类、ファイルマージ_
 - **効率的な一括处理**：ワンクリックでリネームや结合を行い、烦雑な手作业から解放されます。
 
 <p align="center">
-  <img src="./resources/aionui sort file.gif" alt="スマートファイル管理デモ" width="800">
+  <img src="./resources/CodeConductor sort file.gif" alt="スマートファイル管理デモ" width="800">
 </p>
 
 ---

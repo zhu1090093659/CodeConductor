@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -119,7 +119,7 @@ const resolveWebUIPort = (config: WebUIUserConfig): number => {
   const cliPort = parsePortValue(getSwitchValue('port') ?? getSwitchValue('webui-port'), 'CLI (--port)');
   if (cliPort) return cliPort;
 
-  const envPort = parsePortValue(process.env.AIONUI_PORT ?? process.env.PORT, 'environment variable (AIONUI_PORT/PORT)');
+  const envPort = parsePortValue(process.env.CodeConductor_PORT ?? process.env.PORT, 'environment variable (CodeConductor_PORT/PORT)');
   if (envPort) return envPort;
 
   const configPort = parsePortValue(config.port, 'webui.config.json');
@@ -137,8 +137,8 @@ const parseBooleanEnv = (value?: string): boolean | null => {
 };
 
 const resolveRemoteAccess = (config: WebUIUserConfig): boolean => {
-  const envRemote = parseBooleanEnv(process.env.AIONUI_ALLOW_REMOTE || process.env.AIONUI_REMOTE);
-  const hostHint = process.env.AIONUI_HOST?.trim();
+  const envRemote = parseBooleanEnv(process.env.CodeConductor_ALLOW_REMOTE || process.env.CodeConductor_REMOTE);
+  const hostHint = process.env.CodeConductor_HOST?.trim();
   const hostRequestsRemote = hostHint ? ['0.0.0.0', '::', '::0'].includes(hostHint) : false;
   const configRemote = config.allowRemote === true;
 

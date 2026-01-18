@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -154,7 +154,7 @@ async function initializeDefaultAdmin(): Promise<{ username: string; password: s
  */
 function displayInitialCredentials(credentials: { username: string; password: string }, localUrl: string, allowRemote: boolean, networkUrl?: string): void {
   console.log('\n' + '='.repeat(70));
-  console.log('🎉 AionUI Web Server Started Successfully! / AionUI Web 服务器启动成功！');
+  console.log('🎉 CodeConductor Web Server Started Successfully! / CodeConductor Web 服务器启动成功！');
   console.log('='.repeat(70));
   console.log(`\n📍 Local URL / 本地地址:    ${localUrl}`);
 

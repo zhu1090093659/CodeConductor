@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -146,7 +146,7 @@ const groupConversationsByTimelineAndWorkspace = (conversations: TChatConversati
   return sections;
 };
 
-const EXPANSION_STORAGE_KEY = 'aionui_workspace_expansion';
+const EXPANSION_STORAGE_KEY = 'CodeConductor_workspace_expansion';
 
 const WorkspaceGroupedHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }> = ({ onSessionClick, collapsed = false }) => {
   const [conversations, setConversations] = useState<TChatConversation[]>([]);

@@ -17,8 +17,8 @@ import packageJson from './package.json';
 // 允许开发者通过环境变量修改 dev server / 日志端口，无需改代码
 const DEFAULT_DEV_SERVER_PORT = 3000;
 const DEFAULT_LOGGER_PORT = 9000;
-const DEV_PORT_ENV_KEYS = ['AIONUI_DEV_PORT', 'DEV_SERVER_PORT', 'PORT'] as const;
-const LOGGER_PORT_ENV_KEYS = ['AIONUI_LOGGER_PORT', 'DEV_LOGGER_PORT', 'LOGGER_PORT'] as const;
+const DEV_PORT_ENV_KEYS = ['CodeConductor_DEV_PORT', 'DEV_SERVER_PORT', 'PORT'] as const;
+const LOGGER_PORT_ENV_KEYS = ['CodeConductor_LOGGER_PORT', 'DEV_LOGGER_PORT', 'LOGGER_PORT'] as const;
 
 const parsePort = (value?: string | null): number | null => {
   if (!value) return null;
@@ -66,7 +66,7 @@ const resolveLoggerPort = (devPort: number, devPortOverridden: boolean): number 
 const { port: devServerPort, overridden: isDevPortOverridden } = resolveDevServerPort();
 const loggerPort = resolveLoggerPort(devServerPort, isDevPortOverridden);
 
-const apkName = 'AionUi_' + packageJson.version + '_' + (process.env.arch || process.arch);
+const apkName = 'CodeConductor_' + packageJson.version + '_' + (process.env.arch || process.arch);
 const skipNativeRebuild = process.env.FORGE_SKIP_NATIVE_REBUILD === 'true';
 
 // Use target arch from build script, not host arch
@@ -85,16 +85,16 @@ module.exports = {
     asar: {
       unpack: '**/node_modules/{node-pty,bcrypt,better-sqlite3,@mapbox,detect-libc,prebuild-install,node-gyp-build,bindings,web-tree-sitter,tree-sitter-bash}/**/*',
     }, // Enable asar with native modules and their dependencies unpacking
-    executableName: 'AionUi',
+    executableName: 'CodeConductor',
     out: path.resolve(__dirname, 'out'),
-    tmpdir: path.resolve(__dirname, '../AionUi-tmp'),
+    tmpdir: path.resolve(__dirname, '../CodeConductor-tmp'),
     extraResource: [path.resolve(__dirname, 'public')],
     win32metadata: {
-      CompanyName: 'aionui',
+      CompanyName: 'CodeConductor',
       FileDescription: 'AI Agent Desktop Interface',
-      OriginalFilename: 'AionUi.exe', // 简化文件名
-      ProductName: 'AionUi',
-      InternalName: 'AionUi',
+      OriginalFilename: 'CodeConductor.exe', // 简化文件名
+      ProductName: 'CodeConductor',
+      InternalName: 'CodeConductor',
       FileVersion: packageJson.version,
       ProductVersion: packageJson.version,
     },
@@ -125,8 +125,8 @@ module.exports = {
       ? [
           new MakerSquirrel(
             {
-              name: 'AionUi', // 必须与 package.json 的 name 一致
-              authors: 'aionui', // 任意名称
+              name: 'CodeConductor', // 必须与 package.json 的 name 一致
+              authors: 'CodeConductor', // 任意名称
               setupExe: apkName + '.exe',
               // 禁用自动更新
               remoteReleases: '',
@@ -148,10 +148,10 @@ module.exports = {
     // Windows MSI installer (WiX) - alternative to Squirrel
     new MakerWix(
       {
-        name: 'AionUi',
+        name: 'CodeConductor',
         description: 'AI Agent Desktop Interface',
-        exe: 'AionUi',
-        manufacturer: 'aionui',
+        exe: 'CodeConductor',
+        manufacturer: 'CodeConductor',
         version: packageJson.version,
         ui: {
           chooseDirectory: true,
@@ -181,7 +181,7 @@ module.exports = {
       platforms: ['linux'],
       config: {
         options: {
-          name: 'aionui',
+          name: 'CodeConductor',
           description: packageJson.description,
         },
       },
@@ -191,7 +191,7 @@ module.exports = {
       platforms: ['linux'],
       config: {
         options: {
-          maintainer: 'aionui',
+          maintainer: 'CodeConductor',
           description: packageJson.description,
         },
       },

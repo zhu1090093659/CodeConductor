@@ -127,7 +127,7 @@ linux:
     entry:
       Name: CodeConductor
       Comment: ${description}
-      Icon: aionui
+      Icon: CodeConductor
       Categories: Office;Utility;
 
 npmRebuild: false

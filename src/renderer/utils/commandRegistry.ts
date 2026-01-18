@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -69,7 +69,7 @@ export const parseCommandMarkdown = (content: string): ParsedCommandMarkdown => 
 };
 
 export const expandCommandTemplate = (body: string, rawArgs: string) => {
-  const escapedToken = '__AIONUI_ESCAPED_DOLLAR__';
+  const escapedToken = '__CodeConductor_ESCAPED_DOLLAR__';
   const normalizedBody = body.replace(/\$\$/g, escapedToken);
   const args = parseCommandArgs(rawArgs);
   let expanded = normalizedBody.replace(/\$ARGUMENTS/g, rawArgs.trim());

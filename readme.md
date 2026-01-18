@@ -1,7 +1,7 @@
 # cc is all you need
 
 <p align="center">
-  <img src="./resources/aionui-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
+  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 </p>
 
 <p align="center">
-  <strong>English</strong> | <a href="./readme_ch.md">简体中文</a> | <a href="./readme_jp.md">日本語</a> | <a href="https://www.aionui.com" target="_blank">Official Website</a> | <a href="https://twitter.com/AionUI" target="_blank">Twitter</a>
+  <strong>English</strong> | <a href="./readme_ch.md">简体中文</a> | <a href="./readme_jp.md">日本語</a> | <a href="https://www.CodeConductor.com" target="_blank">Official Website</a> | <a href="https://twitter.com/CodeConductor" target="_blank">Twitter</a>
 </p>
 
 ---
@@ -43,7 +43,7 @@
 
 [✨ What Can CodeConductor Do?](#✨-what-can-codeconductor-do) ·
 [🤔 Why Choose CodeConductor?](#🤔-why-choose-codeconductor) ·
-[What’s New vs AionUI](#whats-new-in-codeconductor-compared-to-aionui) ·
+[What’s New vs CodeConductor](#whats-new-in-codeconductor-compared-to-CodeConductor) ·
 [✨ Core Features](#✨-core-features) ·
 [🚀 Quick Start](#🚀-quick-start) ·
 [📖 Detailed Usage Guide](#📖-detailed-usage-guide) ·
@@ -80,7 +80,7 @@ _Batch renaming, automatic organization, smart classification, file merging_
 - **Efficient Batch**: One-click rename, merge files, say goodbye to tedious manual tasks.
 
 <p align="center">
-  <img src="./resources/aionui sort file.gif" alt="Smart File Management Demo" width="800">
+  <img src="./resources/CodeConductor sort file.gif" alt="Smart File Management Demo" width="800">
 </p>
 
 ---
@@ -205,11 +205,11 @@ You can also run multiple AI Agents simultaneously (such as Claude Code, Qwen Co
 A: All conversation data is stored in a local SQLite database and will not be uploaded to any server.
 </details>
 
-## What's New in CodeConductor (Compared to AionUI)
+## What's New in CodeConductor (Compared to CodeConductor)
 
-CodeConductor is a secondary development based on AionUI. While AionUI already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
+CodeConductor is a secondary development based on CodeConductor. While CodeConductor already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
 
-CodeConductor 基于 AionUI 二次开发。AionUI 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
+CodeConductor 基于 CodeConductor 二次开发。CodeConductor 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
 
 ### Multi-role collaboration view (PM/Analyst/Engineer)
 

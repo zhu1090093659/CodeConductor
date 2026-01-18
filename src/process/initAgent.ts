@@ -1,10 +1,10 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AIONUI_TIMESTAMP_REGEX } from '@/common/constants';
+import { CodeConductor_TIMESTAMP_REGEX } from '@/common/constants';
 import type { ICreateConversationParams } from '@/common/ipcBridge';
 import type { TChatConversation } from '@/common/storage';
 import { uuid } from '@/common/utils';
@@ -74,7 +74,7 @@ const buildWorkspaceWidthFiles = async (defaultWorkspaceName: string, workspace?
   try {
     await copySkillsToAiWorkspace(workspace, enabledSkills);
   } catch (error) {
-    console.warn('[AionUi] Failed to sync skills into .ai workspace:', error);
+    console.warn('[CodeConductor] Failed to sync skills into .ai workspace:', error);
   }
 
   if (defaultFiles) {
@@ -86,19 +86,19 @@ const buildWorkspaceWidthFiles = async (defaultWorkspaceName: string, workspace?
       try {
         await fs.access(absoluteFilePath);
       } catch (error) {
-        console.warn(`[AionUi] Source file does not exist, skipping: ${absoluteFilePath}`);
-        console.warn(`[AionUi] Original path: ${file}`);
+        console.warn(`[CodeConductor] Source file does not exist, skipping: ${absoluteFilePath}`);
+        console.warn(`[CodeConductor] Original path: ${file}`);
         // 跳过不存在的文件，而不是抛出错误
         continue;
       }
 
       let fileName = path.basename(absoluteFilePath);
 
-      // 如果是临时文件，去掉 AionUI 时间戳后缀
+      // 如果是临时文件，去掉 CodeConductor 时间戳后缀
       const { cacheDir } = getSystemDir();
       const tempDir = path.join(cacheDir, 'temp');
       if (absoluteFilePath.startsWith(tempDir)) {
-        fileName = fileName.replace(AIONUI_TIMESTAMP_REGEX, '$1');
+        fileName = fileName.replace(CodeConductor_TIMESTAMP_REGEX, '$1');
       }
 
       const destPath = path.join(workspace, fileName);
@@ -106,7 +106,7 @@ const buildWorkspaceWidthFiles = async (defaultWorkspaceName: string, workspace?
       try {
         await fs.copyFile(absoluteFilePath, destPath);
       } catch (error) {
-        console.error(`[AionUi] Failed to copy file from ${absoluteFilePath} to ${destPath}:`, error);
+        console.error(`[CodeConductor] Failed to copy file from ${absoluteFilePath} to ${destPath}:`, error);
         // 继续处理其他文件，而不是完全失败
       }
     }

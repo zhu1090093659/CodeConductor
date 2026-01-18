@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resources/aionui-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
+  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="./readme.md">English</a> | <strong>简体中文</strong> | <a href="./readme_jp.md">日本語</a> | <a href="https://www.aionui.com" target="_blank">官网</a> | <a href="https://twitter.com/AionUI" target="_blank">Twitter</a>
+  <a href="./readme.md">English</a> | <strong>简体中文</strong> | <a href="./readme_jp.md">日本語</a> | <a href="https://www.CodeConductor.com" target="_blank">官网</a> | <a href="https://twitter.com/CodeConductor" target="_blank">Twitter</a>
 </p>
 
 ---
@@ -39,9 +39,9 @@
 
 <p align="center">
 
-[✨ 看看能做什么](#✨-看看-aionui-能做什么) ·
+[✨ 看看能做什么](#✨-看看-CodeConductor-能做什么) ·
 [🤔 为什么选择 CodeConductor](#🤔-为什么选择-codeconductor) ·
-[（对比 AionUI）新增与增强](#codeconductor-相比-aionui-的新增与增强) ·
+[（对比 CodeConductor）新增与增强](#codeconductor-相比-CodeConductor-的新增与增强) ·
 [✨ 核心功能](#✨-核心功能) ·
 [🚀 快速开始](#🚀-快速开始) ·
 [📖 详细使用说明](#📖-详细使用说明) ·
@@ -78,7 +78,7 @@ _批量重命名、自动整理、智能分类、文件合并_
 - **高效批量**：一键重命名、合并文件，彻底告别繁琐手动。
 
 <p align="center">
-  <img src="./resources/aionui sort file.gif" alt="智能文件管理演示" width="800">
+  <img src="./resources/CodeConductor sort file.gif" alt="智能文件管理演示" width="800">
 </p>
 
 ---
@@ -203,11 +203,11 @@ A: 支持 Gemini、OpenAI、Claude、Qwen 等主流模型，以及 Ollama、LM S
 A: 所有对话数据存储在本地 SQLite 数据库，不会上传到任何服务器。
 </details>
 
-## CodeConductor 相比 AionUI 的新增与增强
+## CodeConductor 相比 CodeConductor 的新增与增强
 
-CodeConductor 基于 AionUI 二次开发。AionUI 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
+CodeConductor 基于 CodeConductor 二次开发。CodeConductor 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
 
-CodeConductor is a secondary development based on AionUI. While AionUI already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
+CodeConductor is a secondary development based on CodeConductor. While CodeConductor already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
 
 ### Multi-role collaboration view (PM/Analyst/Engineer)
 

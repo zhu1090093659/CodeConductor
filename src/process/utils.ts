@@ -1,10 +1,10 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AIONUI_TIMESTAMP_REGEX } from '@/common/constants';
+import { CodeConductor_TIMESTAMP_REGEX } from '@/common/constants';
 import type { IDirOrFile } from '@/common/ipcBridge';
 import { app } from 'electron';
 import { existsSync, lstatSync, mkdirSync, readlinkSync, symlinkSync, unlinkSync } from 'fs';
@@ -13,21 +13,21 @@ import path from 'path';
 import { getSystemDir } from './initStorage';
 export const getTempPath = () => {
   const rootPath = app.getPath('temp');
-  return path.join(rootPath, 'aionui');
+  return path.join(rootPath, 'CodeConductor');
 };
 
 export const getDataPath = () => {
   const rootPath = app.getPath('userData');
-  return path.join(rootPath, 'aionui');
+  return path.join(rootPath, 'CodeConductor');
 };
 
 /**
  * Get symlink path for CLI tools that don't handle spaces in paths.
- * Creates ~/.aionui symlink pointing to ~/Library/Application Support/AionUi/aionui/
+ * Creates ~/.CodeConductor symlink pointing to ~/Library/Application Support/CodeConductor/CodeConductor/
  * This allows CLI tools like Qwen to work with paths that don't contain spaces.
  *
  * 获取用于 CLI 工具的符号链接路径。
- * 创建 ~/.aionui 符号链接指向 ~/Library/Application Support/AionUi/aionui/
+ * 创建 ~/.CodeConductor 符号链接指向 ~/Library/Application Support/CodeConductor/CodeConductor/
  * 这允许像 Qwen 这样不能正确处理路径中空格的 CLI 工具正常工作。
  *
  * @returns The symlink path on macOS, or original path on other platforms
@@ -41,7 +41,7 @@ export const getCliSafePath = (): string => {
   }
 
   const homePath = app.getPath('home');
-  const symlinkPath = path.join(homePath, '.aionui');
+  const symlinkPath = path.join(homePath, '.CodeConductor');
 
   // Ensure symlink exists
   try {
@@ -289,7 +289,7 @@ export async function verifyDirectoryFiles(dir1: string, dir2: string): Promise<
 
     return true;
   } catch (error) {
-    console.warn('[AionUi] Error verifying directory files:', error);
+    console.warn('[CodeConductor] Error verifying directory files:', error);
     return false;
   }
 }
@@ -308,18 +308,18 @@ export const copyFilesToDirectory = async (dir: string, files?: string[]) => {
     try {
       await fs.access(absoluteFilePath);
     } catch (error) {
-      console.warn(`[AionUi] Source file does not exist, skipping: ${absoluteFilePath}`);
-      console.warn(`[AionUi] Original path: ${file}`);
+      console.warn(`[CodeConductor] Source file does not exist, skipping: ${absoluteFilePath}`);
+      console.warn(`[CodeConductor] Original path: ${file}`);
       // 跳过不存在的文件，而不是抛出错误
       continue;
     }
 
     let fileName = path.basename(absoluteFilePath);
 
-    // 如果是临时文件，去掉 AionUI 时间戳后缀
+    // 如果是临时文件，去掉 CodeConductor 时间戳后缀
     if (absoluteFilePath.startsWith(tempDir)) {
-      // 去掉 AionUI 时间戳后缀 (例如: package_aionui_1758016286689.json -> package.json)
-      fileName = fileName.replace(AIONUI_TIMESTAMP_REGEX, '$1');
+      // 去掉 CodeConductor 时间戳后缀 (例如: package_CodeConductor_1758016286689.json -> package.json)
+      fileName = fileName.replace(CodeConductor_TIMESTAMP_REGEX, '$1');
     }
 
     const destPath = path.join(dir, fileName);
@@ -327,7 +327,7 @@ export const copyFilesToDirectory = async (dir: string, files?: string[]) => {
     try {
       await fs.copyFile(absoluteFilePath, destPath);
     } catch (error) {
-      console.error(`[AionUi] Failed to copy file from ${absoluteFilePath} to ${destPath}:`, error);
+      console.error(`[CodeConductor] Failed to copy file from ${absoluteFilePath} to ${destPath}:`, error);
       // 继续处理其他文件，而不是完全失败
     }
 

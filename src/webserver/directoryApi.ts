@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -97,7 +97,7 @@ function validatePath(userPath: string, allowedBasePaths = DEFAULT_ALLOWED_DIREC
 // 为目录浏览接口增加限流，避免暴力扫描
 router.get('/browse', fileOperationLimiter, (req, res) => {
   try {
-    // 默认打开 AionUi 运行目录，而不是用户 home 目录
+    // 默认打开 CodeConductor 运行目录，而不是用户 home 目录
     const rawPath = (req.query.path as string) || process.cwd();
 
     // Validate path to prevent directory traversal / 验证路径以防止目录遍历
@@ -261,7 +261,7 @@ router.get('/shortcuts', fileOperationLimiter, (_req, res) => {
   try {
     const shortcuts = [
       {
-        name: 'AionUi Directory',
+        name: 'CodeConductor Directory',
         path: process.cwd(),
         icon: '🤖',
       },

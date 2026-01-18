@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -137,7 +137,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
         for (const server of mcpServers) {
           if (server.transport.type === 'stdio') {
             // 使用Claude Code CLI添加MCP服务器到user scope（全局配置）
-            // AionUi是全局工具，MCP配置应该对所有项目可用
+            // CodeConductor是全局工具，MCP配置应该对所有项目可用
             // 格式: claude mcp add -s user <name> <command> -- [args...] [env_options]
             const envArgs = Object.entries(server.transport.env || {})
               .map(([key, value]) => `-e ${key}=${value}`)
@@ -191,8 +191,8 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
     const removeOperation = async () => {
       try {
         // 使用Claude CLI命令删除MCP服务器（尝试不同作用域）
-        // 按顺序尝试: user (AionUi默认) -> local -> project
-        // user scope优先，因为AionUi安装时使用user scope
+        // 按顺序尝试: user (CodeConductor默认) -> local -> project
+        // user scope优先，因为CodeConductor安装时使用user scope
         const scopes = ['user', 'local', 'project'] as const;
 
         for (const scope of scopes) {

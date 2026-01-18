@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Simplified build script for AionUi
+ * Simplified build script for CodeConductor
  * Coordinates Electron Forge (webpack) and electron-builder (packaging)
  */
 

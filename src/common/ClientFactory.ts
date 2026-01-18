@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -31,7 +31,7 @@ export class ClientFactory {
           baseURL: provider.baseUrl,
           timeout: options.timeout,
           defaultHeaders: {
-            'HTTP-Referer': 'https://aionui.com',
+            'HTTP-Referer': 'https://CodeConductor.com',
             'X-Title': 'CodeConductor',
           },
           ...(options.baseConfig as OpenAIClientConfig),
@@ -72,7 +72,7 @@ export class ClientFactory {
           baseURL: provider.baseUrl,
           timeout: options.timeout,
           defaultHeaders: {
-            'HTTP-Referer': 'https://aionui.com',
+            'HTTP-Referer': 'https://CodeConductor.com',
             'X-Title': 'CodeConductor',
           },
           ...(options.baseConfig as OpenAIClientConfig),

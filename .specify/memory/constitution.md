@@ -1,9 +1,9 @@
-# AionUi Constitution
+# CodeConductor Constitution
 
 ## Core Principles
 
 ### I. Multi-Agent AI Integration
-AionUi serves as a unified desktop interface for multiple AI terminal agents (Gemini CLI, Claude Code, Qwen Code, etc.). Each AI agent integration must be:
+CodeConductor serves as a unified desktop interface for multiple AI terminal agents (Gemini CLI, Claude Code, Qwen Code, etc.). Each AI agent integration must be:
 - Protocol-agnostic with standardized adapters
 - Independently manageable and configurable
 - Cross-platform compatible (macOS, Windows, Linux)

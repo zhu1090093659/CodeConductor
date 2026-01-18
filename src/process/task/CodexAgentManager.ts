@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,7 +10,7 @@ import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chatLib';
 import { transformMessage } from '@/common/chatLib';
 import type { IResponseMessage } from '@/common/ipcBridge';
-import { AIONUI_FILES_MARKER } from '@/common/constants';
+import { CodeConductor_FILES_MARKER } from '@/common/constants';
 import { uuid } from '@/common/utils';
 import { addMessage } from '@process/message';
 import { loadSkillsContent } from '@process/initStorage';
@@ -161,7 +161,7 @@ class CodexAgentManager extends BaseAgentManager<CodexAgentManagerData> implemen
   async sendMessage(data: { content: string; files?: string[]; msg_id?: string }) {
     try {
       await this.bootstrap;
-      const contentToSend = data.content?.includes(AIONUI_FILES_MARKER) ? data.content.split(AIONUI_FILES_MARKER)[0].trimEnd() : data.content;
+      const contentToSend = data.content?.includes(CodeConductor_FILES_MARKER) ? data.content.split(CodeConductor_FILES_MARKER)[0].trimEnd() : data.content;
 
       // Save user message to chat history only (renderer already inserts right-hand bubble)
       if (data.msg_id && data.content) {

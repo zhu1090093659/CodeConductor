@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@
  * Use this file to import database functionality throughout the app
  */
 
-export { AionUIDatabase, getDatabase, closeDatabase } from './index';
+export { CodeConductorDatabase, getDatabase, closeDatabase } from './index';
 export { runMigrations, rollbackMigrations, getMigrationHistory, isMigrationApplied, type IMigration } from './migrations';
 
 export type {

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -49,7 +49,7 @@ const AboutModalContent: React.FC = () => {
     },
     {
       title: t('settings.officialWebsite'),
-      url: 'https://www.aionui.com',
+      url: 'https://www.CodeConductor.com',
       icon: <Right theme='outline' size='16' />,
     },
   ];

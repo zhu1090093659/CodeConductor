@@ -1,4 +1,4 @@
-import { AIONUI_FILES_MARKER, AIONUI_TIMESTAMP_REGEX } from '@/common/constants';
+import { CodeConductor_FILES_MARKER, CodeConductor_TIMESTAMP_REGEX } from '@/common/constants';
 import type { FileOrFolderItem } from '@/renderer/types/files';
 
 export const collectSelectedFiles = (uploadFile: string[], atPath: Array<string | FileOrFolderItem>): string[] => {
@@ -14,10 +14,10 @@ export const buildDisplayMessage = (input: string, files: string[], workspacePat
     if (isAbsolute) {
       const parts = filePath.split(/[\\/]/);
       let fileName = parts[parts.length - 1] || filePath;
-      fileName = fileName.replace(AIONUI_TIMESTAMP_REGEX, '$1');
+      fileName = fileName.replace(CodeConductor_TIMESTAMP_REGEX, '$1');
       return `${workspacePath}/${fileName}`;
     }
     return `${workspacePath}/${filePath}`;
   });
-  return `${input}\n\n${AIONUI_FILES_MARKER}\n${displayPaths.join('\n')}`;
+  return `${input}\n\n${CodeConductor_FILES_MARKER}\n${displayPaths.join('\n')}`;
 };

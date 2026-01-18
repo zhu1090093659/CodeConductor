@@ -1,10 +1,10 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AIONUI_TIMESTAMP_SEPARATOR } from '@/common/constants';
+import { CodeConductor_TIMESTAMP_SEPARATOR } from '@/common/constants';
 import fs from 'fs/promises';
 import path from 'path';
 import https from 'node:https';
@@ -222,8 +222,8 @@ export function initFsBridge(): void {
           targetUrl,
           {
             headers: {
-              'User-Agent': 'AionUI-Preview',
-              Referer: 'https://github.com/iOfficeAI/AionUi',
+              'User-Agent': 'CodeConductor-Preview',
+              Referer: 'https://github.com/iOfficeAI/CodeConductor',
             },
           },
           (response) => {
@@ -303,7 +303,7 @@ export function initFsBridge(): void {
         const timestamp = Date.now();
         const ext = path.extname(safeFileName);
         const name = path.basename(safeFileName, ext);
-        const tempFileName = `${name}${AIONUI_TIMESTAMP_SEPARATOR}${timestamp}${ext}`;
+        const tempFileName = `${name}${CodeConductor_TIMESTAMP_SEPARATOR}${timestamp}${ext}`;
         tempFilePath = path.join(tempDir, tempFileName);
       }
 
@@ -460,7 +460,7 @@ export function initFsBridge(): void {
             const name = path.basename(targetPath, ext);
             // Construct new path in the same directory / 在同一目录下构建新路径
             const dir = path.dirname(targetPath);
-            const newFileName = `${name}${AIONUI_TIMESTAMP_SEPARATOR}${timestamp}${ext}`;
+            const newFileName = `${name}${CodeConductor_TIMESTAMP_SEPARATOR}${timestamp}${ext}`;
             finalTargetPath = path.join(dir, newFileName);
           }
 

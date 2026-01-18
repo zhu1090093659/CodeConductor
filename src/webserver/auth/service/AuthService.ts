@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -141,8 +141,8 @@ export class AuthService {
 
     return jwt.sign(payload, this.getJwtSecret(), {
       expiresIn: this.TOKEN_EXPIRY,
-      issuer: 'aionui',
-      audience: 'aionui-webui',
+      issuer: 'CodeConductor',
+      audience: 'CodeConductor-webui',
     });
   }
 
@@ -166,8 +166,8 @@ export class AuthService {
   public static verifyToken(token: string): TokenPayload | null {
     try {
       const decoded = jwt.verify(token, this.getJwtSecret(), {
-        issuer: 'aionui',
-        audience: 'aionui-webui',
+        issuer: 'CodeConductor',
+        audience: 'CodeConductor-webui',
       }) as RawTokenPayload;
 
       return {
@@ -187,7 +187,7 @@ export class AuthService {
    * 验证 WebSocket Token
    * Verify WebSocket token
    *
-   * 复用 Web 登录 token (audience: aionui-webui)
+   * 复用 Web 登录 token (audience: CodeConductor-webui)
    *
    * @param token - JWT token string
    * @returns Token payload if valid, null otherwise
@@ -195,8 +195,8 @@ export class AuthService {
   public static verifyWebSocketToken(token: string): TokenPayload | null {
     try {
       const decoded = jwt.verify(token, this.getJwtSecret(), {
-        issuer: 'aionui',
-        audience: 'aionui-webui', // 使用与 Web 登录相同的 audience
+        issuer: 'CodeConductor',
+        audience: 'CodeConductor-webui', // 使用与 Web 登录相同的 audience
       }) as RawTokenPayload;
 
       return {

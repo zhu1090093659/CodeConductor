@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,25 +15,31 @@
  */
 export const STORAGE_KEYS = {
   /** Workspace tree collapse state / 工作空间目录树折叠状态 */
-  WORKSPACE_TREE_COLLAPSE: 'aionui_workspace_collapse_state',
+  WORKSPACE_TREE_COLLAPSE: 'CodeConductor_workspace_collapse_state',
 
   /** Workspace tree expanded keys (per-workspace) / 工作空间目录树展开 keys（按 workspace 区分） */
-  WORKSPACE_TREE_EXPANDED_KEYS_PREFIX: 'aionui_workspace_tree_expanded_keys:',
+  WORKSPACE_TREE_EXPANDED_KEYS_PREFIX: 'CodeConductor_workspace_tree_expanded_keys:',
 
   /** Workspace panel collapse state / 工作空间面板折叠状态 */
-  WORKSPACE_PANEL_COLLAPSE: 'aionui_workspace_panel_collapsed',
+  WORKSPACE_PANEL_COLLAPSE: 'CodeConductor_workspace_panel_collapsed',
 
   /** Conversation tabs state / 会话 tabs 状态 */
-  CONVERSATION_TABS: 'aionui_conversation_tabs',
+  CONVERSATION_TABS: 'CodeConductor_conversation_tabs',
 
   /** Sidebar collapse state / 侧边栏折叠状态 */
-  SIDEBAR_COLLAPSE: 'aionui_sider_collapsed',
+  SIDEBAR_COLLAPSE: 'CodeConductor_sider_collapsed',
+
+  /** Project list collapse state / 项目列表折叠状态 */
+  PROJECT_LIST_COLLAPSE: 'CodeConductor_project_list_collapsed',
+
+  /** Project workspace tree collapse state / 项目工作区树折叠状态 */
+  PROJECT_TREE_COLLAPSE: 'CodeConductor_project_tree_collapsed',
 
   /** Theme preference / 主题偏好 */
-  THEME: 'aionui_theme',
+  THEME: 'CodeConductor_theme',
 
   /** Language preference / 语言偏好 */
-  LANGUAGE: 'aionui_language',
+  LANGUAGE: 'CodeConductor_language',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

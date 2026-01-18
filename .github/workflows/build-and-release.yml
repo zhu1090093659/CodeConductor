@@ -412,8 +412,8 @@ jobs:
             out/*.dmg
             out/*.deb
             out/*.AppImage
-            out/AionUi-*-win32-*.zip
-            out/AionUi-*-mac-*.zip
+            out/CodeConductor-*-win32-*.zip
+            out/CodeConductor-*-mac-*.zip
           if-no-files-found: warn
           retention-days: 7
 

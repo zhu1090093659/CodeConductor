@@ -1,11 +1,11 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /**
- * AionUi 基础组件库统一导出 / AionUi base components unified exports
+ * CodeConductor 基础组件库统一导出 / CodeConductor base components unified exports
  *
  * 提供所有基础组件和类型的统一导出入口
  * Provides unified export entry for all base components and types

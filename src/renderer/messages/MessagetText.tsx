@@ -1,10 +1,10 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 CodeConductor (CodeConductor.com)
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AIONUI_FILES_MARKER } from '@/common/constants';
+import { CodeConductor_FILES_MARKER } from '@/common/constants';
 import type { IMessageText } from '@/common/chatLib';
 import classNames from 'classnames';
 import React, { useMemo, useState } from 'react';
@@ -18,12 +18,12 @@ import FilePreview from '../components/FilePreview';
 import HorizontalFileList from '../components/HorizontalFileList';
 
 const parseFileMarker = (content: string) => {
-  const markerIndex = content.indexOf(AIONUI_FILES_MARKER);
+  const markerIndex = content.indexOf(CodeConductor_FILES_MARKER);
   if (markerIndex === -1) {
     return { text: content, files: [] as string[] };
   }
   const text = content.slice(0, markerIndex).trimEnd();
-  const afterMarker = content.slice(markerIndex + AIONUI_FILES_MARKER.length).trim();
+  const afterMarker = content.slice(markerIndex + CodeConductor_FILES_MARKER.length).trim();
   const files = afterMarker
     ? afterMarker
         .split('\n')
