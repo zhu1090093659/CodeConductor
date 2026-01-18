@@ -349,9 +349,9 @@ _自己写 CSS 代码自定义，让你的交互界面符合你的心意_
 
 **💡 你的想法很重要！** 我们非常重视每一位用户的建议和反馈。无论是功能想法、使用体验，还是遇到的问题，都欢迎随时联系我们！
 
-- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeProductor/discussions) - **分享想法、提出建议、交流使用心得**
-- [🐛 报告问题](https://github.com/zhu1090093659/CodeProductor/issues) - 反馈 Bug 或功能请求
-- [📦 发布更新](https://github.com/zhu1090093659/CodeProductor/releases) - 获取最新版本
+- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeConductor/discussions) - **分享想法、提出建议、交流使用心得**
+- [🐛 报告问题](https://github.com/zhu1090093659/CodeConductor/issues) - 反馈 Bug 或功能请求
+- [📦 发布更新](https://github.com/zhu1090093659/CodeConductor/releases) - 获取最新版本
 
 ### 🤝 贡献代码
 
@@ -376,16 +376,16 @@ _自己写 CSS 代码自定义，让你的交互界面符合你的心意_
 感谢所有为 CodeConductor 做出贡献的开发者们！
 
 <p align="center">
-  <a href="https://github.com/zhu1090093659/CodeProductor/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=zhu1090093659/CodeProductor&max=20" alt="Contributors" />
+  <a href="https://github.com/zhu1090093659/CodeConductor/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=zhu1090093659/CodeConductor&max=20" alt="Contributors" />
   </a>
 </p>
 
 ## 📊 Star 历史
 
 <p align="center">
-  <a href="https://www.star-history.com/#zhu1090093659/CodeProductor&Date" target="_blank">
-    <img src="https://api.star-history.com/svg?repos=zhu1090093659/CodeProductor&type=Date" alt="GitHub 星星趋势" width="600">
+  <a href="https://www.star-history.com/#zhu1090093659/CodeConductor&Date" target="_blank">
+    <img src="https://api.star-history.com/svg?repos=zhu1090093659/CodeConductor&type=Date" alt="GitHub 星星趋势" width="600">
   </a>
 </p>
 
@@ -393,6 +393,6 @@ _自己写 CSS 代码自定义，让你的交互界面符合你的心意_
 
 **⭐ 如果喜欢就给我们一个星吧**
 
-[报告 Bug](https://github.com/zhu1090093659/CodeProductor/issues) · [创建功能请求](https://github.com/zhu1090093659/CodeProductor/issues)
+[报告 Bug](https://github.com/zhu1090093659/CodeConductor/issues) · [创建功能请求](https://github.com/zhu1090093659/CodeConductor/issues)
 
 </div>

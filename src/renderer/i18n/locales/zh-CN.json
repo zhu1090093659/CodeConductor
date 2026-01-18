@@ -846,6 +846,10 @@
       "displayName": "网页搜索",
       "description": "搜索网页内容"
     },
+    "agentBrowser": {
+      "displayName": "浏览器自动化",
+      "description": "通过 agent-browser 执行浏览器自动化"
+    },
     "mcp": {
       "generic": {
         "displayName": "MCP工具: {{toolName}}",

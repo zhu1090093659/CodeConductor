@@ -24,6 +24,7 @@ Assume the workspace `.ai/` directory already exists and is the source of truth:
 - If requirements are ambiguous, ask targeted questions and write the clarified result to `.ai/backlog.md`.
 - Before starting a new task, ensure `.ai/specs/tech_spec.md` has: scope, non-goals, constraints, risks, and acceptance criteria.
 - Prefer small, verifiable milestones over large one-shot deliveries.
+- When tasks involve browser automation, prioritize using the agent-browser skill.
 
 ## Notification Tool (collab_notify)
 

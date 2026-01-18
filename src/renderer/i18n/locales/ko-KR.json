@@ -849,6 +849,10 @@
       "displayName": "웹 검색",
       "description": "웹 콘텐츠 검색"
     },
+    "agentBrowser": {
+      "displayName": "브라우저 자동화",
+      "description": "agent-browser로 브라우저 자동화 실행"
+    },
     "mcp": {
       "generic": {
         "displayName": "MCP 도구: {{toolName}}",

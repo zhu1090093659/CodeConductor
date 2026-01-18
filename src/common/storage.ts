@@ -51,6 +51,7 @@ export interface IConfigStorageRefer {
   'tools.imageGenerationModel': TProviderWithModel & {
     switch: boolean;
   };
+  'tools.agentBrowser'?: AgentBrowserConfig;
   // 是否在粘贴文件到工作区时询问确认（true = 不再询问）
   'workspace.pasteConfirm'?: boolean;
   // guid 页面上次选择的 agent 类型 / Last selected agent type on guid page
@@ -72,6 +73,12 @@ export interface CustomCommandConfig {
 }
 
 export type CliProviderTarget = 'claude' | 'codex';
+
+export interface AgentBrowserConfig {
+  cliPath?: string;
+  timeoutMs?: number;
+  env?: Record<string, string>;
+}
 
 export interface CliProviderConfig {
   presetName?: string;

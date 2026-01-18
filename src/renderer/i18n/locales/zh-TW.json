@@ -764,6 +764,10 @@
       "displayName": "網頁搜尋",
       "description": "搜尋網頁內容"
     },
+    "agentBrowser": {
+      "displayName": "瀏覽器自動化",
+      "description": "透過 agent-browser 執行瀏覽器自動化"
+    },
     "mcp": {
       "generic": {
         "displayName": "MCP工具：{{toolName}}",

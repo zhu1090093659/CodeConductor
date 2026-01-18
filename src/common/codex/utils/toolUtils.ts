@@ -52,6 +52,31 @@ export class ToolRegistry {
       descriptionKey: 'tools.shell.description',
     });
 
+    this.registerBuiltinTool({
+      id: 'agent_browser',
+      name: 'AgentBrowser',
+      displayNameKey: 'tools.agentBrowser.displayName',
+      category: ToolCategory.EXECUTION,
+      priority: 15,
+      availability: {
+        platforms: ['darwin', 'linux', 'win32'],
+      },
+      capabilities: {
+        supportsStreaming: false,
+        supportsImages: false,
+        supportsCharts: false,
+        supportsMarkdown: true,
+        supportsInteraction: false,
+        outputFormats: [OutputFormat.TEXT, OutputFormat.MARKDOWN],
+      },
+      renderer: {
+        type: RendererType.STANDARD,
+        config: { showTimestamp: true },
+      },
+      icon: '🌐',
+      descriptionKey: 'tools.agentBrowser.description',
+    });
+
     // 文件操作工具
     this.registerBuiltinTool({
       id: 'file_operations',

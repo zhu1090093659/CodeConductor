@@ -23,3 +23,4 @@ Use the workspace `.ai/` directory as the source of truth:
   - What changed (high level)
   - Files touched
   - Verification steps and results
+- When tasks involve browser automation, prioritize using the agent-browser skill.

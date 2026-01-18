@@ -352,9 +352,9 @@ _Customize with your own CSS code, make your interface match your preferences_
 
 **💡 Your ideas matter!** We highly value every user's suggestions and feedback. Whether it's feature ideas, user experience, or issues you encounter, feel free to contact us anytime!
 
-- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeProductor/discussions) - **Share ideas, make suggestions, exchange usage tips**
-- [🐛 Report Issues](https://github.com/zhu1090093659/CodeProductor/issues) - Report bugs or feature requests
-- [📦 Release Updates](https://github.com/zhu1090093659/CodeProductor/releases) - Get the latest version
+- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeConductor/discussions) - **Share ideas, make suggestions, exchange usage tips**
+- [🐛 Report Issues](https://github.com/zhu1090093659/CodeConductor/issues) - Report bugs or feature requests
+- [📦 Release Updates](https://github.com/zhu1090093659/CodeConductor/releases) - Get the latest version
 
 ### 🤝 Contributing
 
@@ -379,16 +379,16 @@ This project is licensed under [Apache-2.0](LICENSE).
 Thanks to all developers who have contributed to CodeConductor!
 
 <p align="center">
-  <a href="https://github.com/zhu1090093659/CodeProductor/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=zhu1090093659/CodeProductor&max=20" alt="Contributors" />
+  <a href="https://github.com/zhu1090093659/CodeConductor/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=zhu1090093659/CodeConductor&max=20" alt="Contributors" />
   </a>
 </p>
 
 ## 📊 Star History
 
 <p align="center">
-  <a href="https://www.star-history.com/#zhu1090093659/CodeProductor&Date" target="_blank">
-    <img src="https://api.star-history.com/svg?repos=zhu1090093659/CodeProductor&type=Date" alt="GitHub Star Trends" width="600">
+  <a href="https://www.star-history.com/#zhu1090093659/CodeConductor&Date" target="_blank">
+    <img src="https://api.star-history.com/svg?repos=zhu1090093659/CodeConductor&type=Date" alt="GitHub Star Trends" width="600">
   </a>
 </p>
 

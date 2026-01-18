@@ -105,6 +105,10 @@ export const terminal = {
   exit: bridge.buildEmitter<{ id: string; exitCode: number | null; signal?: number }>('terminal:exit'),
 };
 
+export const agentBrowser = {
+  run: bridge.buildProvider<IBridgeResponse<AgentBrowserRunResult>, AgentBrowserRunParams>('agent-browser.run'),
+};
+
 export const mode = {
   fetchModelList: bridge.buildProvider<IBridgeResponse<{ mode: Array<string>; fix_base_url?: string }>, { base_url?: string; api_key: string; try_fix?: boolean; platform?: string }>('mode.get-model-list'),
   saveModelConfig: bridge.buildProvider<IBridgeResponse, IProvider[]>('mode.save-model-config'),
@@ -268,6 +272,23 @@ export interface ITerminalSpawnParams {
 }
 export interface ITerminalDisposeByCwdParams {
   cwd: string;
+}
+export interface AgentBrowserRunParams {
+  args: string[];
+  cwd?: string;
+  cliPath?: string;
+  timeoutMs?: number;
+  env?: Record<string, string>;
+}
+
+export interface AgentBrowserRunResult {
+  command: string;
+  args: string[];
+  cwd: string;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  durationMs: number;
 }
 interface IResetConversationParams {
   id?: string;

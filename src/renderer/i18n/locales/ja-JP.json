@@ -796,6 +796,10 @@
       "displayName": "ウェブ検索",
       "description": "ウェブコンテンツを検索"
     },
+    "agentBrowser": {
+      "displayName": "ブラウザ自動化",
+      "description": "agent-browser でブラウザ操作を自動化"
+    },
     "mcp": {
       "generic": {
         "displayName": "MCPツール：{{toolName}}",

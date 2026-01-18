@@ -36,6 +36,13 @@ const appendBacklog = async (workspace: string, content: string) => {
   await ipcBridge.fs.writeFile.invoke({ path: backlogPath, data: next });
 };
 
+const formatAgentBrowserOutput = (stdout: string, stderr: string, limit = 1200) => {
+  const combined = [stdout, stderr].filter(Boolean).join('\n');
+  if (!combined) return '';
+  if (combined.length <= limit) return combined;
+  return `${combined.slice(0, limit)}\n... (truncated)`;
+};
+
 const generatePlan = async (workspace: string) => {
   const backlogPath = joinPath(workspace, '.ai', 'backlog.md');
   const specPath = joinPath(workspace, '.ai', 'specs', 'tech_spec.md');
@@ -97,6 +104,31 @@ export const handleSlashCommand = async (
       const summary = typeof toolResult.data?.result === 'string' ? toolResult.data?.result : JSON.stringify(toolResult.data?.result, null, 2);
       await appendBacklog(workspace, summary);
       return { handled: true, message: `Synced ${jiraKey} to .ai/backlog.md.` };
+    }
+    case '/browser': {
+      const args = [subcommand, ...rest].filter(Boolean);
+      if (!args.length) {
+        return { handled: true, error: 'Missing agent-browser arguments. Example: /browser open https://example.com' };
+      }
+      const config = await ConfigStorage.get('tools.agentBrowser').catch(() => undefined);
+      const runResult = await ipcBridge.agentBrowser.run.invoke({
+        args,
+        cwd: workspace,
+        cliPath: config?.cliPath,
+        timeoutMs: config?.timeoutMs,
+        env: config?.env,
+      });
+      const data = runResult?.data;
+      const output = formatAgentBrowserOutput(data?.stdout || '', data?.stderr || '');
+      const exitCode = data?.exitCode;
+      if (!runResult?.success) {
+        const errorText = runResult?.msg || 'agent-browser execution failed';
+        const combined = output ? `${errorText}\n${output}` : errorText;
+        return { handled: true, error: combined };
+      }
+      const summary = typeof exitCode === 'number' ? `agent-browser completed (exit ${exitCode}).` : 'agent-browser completed.';
+      const message = output ? `${summary}\n${output}` : summary;
+      return { handled: true, message };
     }
     default:
       break;

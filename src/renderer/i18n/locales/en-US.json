@@ -849,6 +849,10 @@
       "displayName": "Web Search",
       "description": "Search web content"
     },
+    "agentBrowser": {
+      "displayName": "Agent Browser",
+      "description": "Automate browser actions via agent-browser"
+    },
     "mcp": {
       "generic": {
         "displayName": "MCP Tool: {{toolName}}",

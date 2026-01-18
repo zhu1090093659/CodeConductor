@@ -34,6 +34,14 @@ const BUILTIN_COMMANDS: SlashCommandItem[] = [
     body: '',
     source: 'builtin',
   },
+  {
+    id: 'builtin:/browser',
+    name: 'browser',
+    trigger: 'browser',
+    description: 'Run agent-browser commands',
+    body: '',
+    source: 'builtin',
+  },
 ];
 
 const SOURCE_PRIORITY: CommandSource[] = ['builtin', 'custom', 'cursor', 'claude', 'codex'];
