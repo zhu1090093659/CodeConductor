@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <strong><a href="https://github.com/AionUI/AionUI">AionUI</a> をベースにした <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> のオープンソース強化版</strong><br>
+  <strong><a href="https://github.com/iOfficeAI/AionUi">AionUI</a> をベースにした <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> のオープンソース強化版</strong><br>
   <sub>CodeConductor は AionUI の優れた基盤の上に、実際のプロジェクトでのコーディングエージェント体験を向上させます。</sub>
 </p>
 

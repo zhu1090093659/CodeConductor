@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <strong>基于 <a href="https://github.com/AionUI/AionUI">AionUI</a> 二次开发，<a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> 的开源增强版</strong><br>
+  <strong>基于 <a href="https://github.com/iOfficeAI/AionUi">AionUI</a> 二次开发，<a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> 的开源增强版</strong><br>
   <sub>CodeConductor 在 AionUI 的优秀基础上，专注于提升命令行编程 Agent 在真实项目中的协作体验。</sub>
 </p>
 

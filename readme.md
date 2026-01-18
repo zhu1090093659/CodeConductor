@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <strong>Open-source enhanced fork of <a href="https://github.com/AionUI/AionUI">AionUI</a> / <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a></strong><br>
+  <strong>Open-source enhanced fork of <a href="https://github.com/iOfficeAI/AionUi">AionUI</a> / <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a></strong><br>
   <sub>CodeConductor builds upon the excellent AionUI foundation, adding workflow enhancements for real-world coding agent usage.</sub>
 </p>
 
