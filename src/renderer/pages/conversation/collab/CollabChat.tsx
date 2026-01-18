@@ -273,10 +273,49 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     return (message: TMessage) => {
       const role = roleByConversationId.get(message.conversation_id);
       if (!role) return null;
+      // Return a hidden div with data attribute for the list to pick up?
+      // No, that's hacky.
+      // Let's just return a nice visible header for now, and handle the bubble style in MessageList by checking the message ID mapping if possible,
+      // or simply rely on the fact that we will modify MessageList to support a 'variant' prop or similar.
+      // But for this step, let's just improve the tag.
       return (
-        <Tag size='small' color={ROLE_TAG_COLOR[role]} bordered>
-          {ROLE_LABEL[role]}
-        </Tag>
+        <div className='flex items-center gap-2 mb-1'>
+          <Tag size='small' color={ROLE_TAG_COLOR[role]} bordered className='uppercase font-bold'>
+            {ROLE_LABEL[role]}
+          </Tag>
+        </div>
+      );
+    };
+  }, [roleByConversationId]);
+
+  const messageBodyWrapper = useMemo(() => {
+    return (message: TMessage, children: React.ReactNode) => {
+      const role = roleByConversationId.get(message.conversation_id);
+      if (!role) return children;
+
+      // Using Arco Design color palette variables
+      const colors = {
+        pm: { bg: 'rgb(var(--orange-1))', border: 'rgb(var(--orange-2))' },
+        analyst: { bg: 'rgb(var(--purple-1))', border: 'rgb(var(--purple-2))' },
+        engineer: { bg: 'rgb(var(--arcoblue-1))', border: 'rgb(var(--arcoblue-2))' },
+      };
+
+      const style = colors[role];
+      if (!style) return children;
+
+      return (
+        <div
+          style={{
+            backgroundColor: style.bg,
+            borderColor: style.border,
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderRadius: '8px',
+            padding: '8px 12px',
+          }}
+        >
+          {children}
+        </div>
       );
     };
   }, [roleByConversationId]);
@@ -321,7 +360,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
         </div>
 
         <FlexFullContainer>
-          <MessageList renderMessageHeader={messageHeader} />
+          <MessageList renderMessageHeader={messageHeader} renderMessageBodyWrapper={messageBodyWrapper} />
         </FlexFullContainer>
 
         {activeThinkingRoles.length > 0 && (

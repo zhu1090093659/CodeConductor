@@ -36,7 +36,9 @@ const MessageList: React.FC<{
   className?: string;
   /** Optional per-message header renderer (e.g., role tags in merged collab view). */
   renderMessageHeader?: (message: TMessage) => React.ReactNode;
-}> = ({ renderMessageHeader }) => {
+  /** Optional wrapper for the message body (below the header). Used for custom styling like bubbles. */
+  renderMessageBodyWrapper?: (message: TMessage, children: React.ReactNode) => React.ReactNode;
+}> = ({ renderMessageHeader, renderMessageBodyWrapper }) => {
   const list = useMessageList();
   const conversation = useConversationContextSafe();
   const conversationId = conversation?.conversationId;
@@ -206,12 +208,14 @@ const MessageList: React.FC<{
       }
 
       const headerNode = renderMessageHeader?.(message);
-      const body = (
+      const contentNode = (
         <div className='w-full min-w-0'>
           {headerNode ? <div className='mb-6px'>{headerNode}</div> : null}
           {renderMessageCore(message)}
         </div>
       );
+
+      const body = renderMessageBodyWrapper ? renderMessageBodyWrapper(message, contentNode) : contentNode;
       nodes.push(<React.Fragment key={message.id}>{renderMessageWrapper(message, body)}</React.Fragment>);
       i += 1;
     }

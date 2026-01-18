@@ -6,7 +6,8 @@
 
 import type { IMessageAcpPermission } from '@/common/chatLib';
 import { conversation } from '@/common/ipcBridge';
-import { Button, Card, Radio, Typography } from '@arco-design/web-react';
+import { Button, Card, Radio, Tooltip, Typography } from '@arco-design/web-react';
+import { Copy } from '@icon-park/react';
 import { useConversationContextSafe } from '@/renderer/context/ConversationContext';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -136,17 +137,35 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
   }
 
   return (
-    <Card className='mb-4' bordered={false} style={{ background: 'var(--bg-1)' }}>
+    <Card className='mb-4 permission-card' bordered={true} style={{ background: 'var(--bg-2)', borderColor: 'var(--color-border-2)' }}>
       <div className='space-y-4'>
         {/* Header with icon and title */}
-        <div className='flex items-center space-x-2'>
-          <span className='text-2xl'>{icon}</span>
-          <Text className='block'>{title}</Text>
+        <div className='flex items-center space-x-3 pb-3 border-b border-[var(--color-border-1)]'>
+          <span className='text-3xl'>{icon}</span>
+          <div className='flex flex-col'>
+            <Text className='block font-medium text-lg'>{title}</Text>
+            <Text className='text-xs text-t-secondary'>{t('messages.permissionRequested')}</Text>
+          </div>
         </div>
         {(toolCall.rawInput?.command || toolCall.title) && (
-          <div>
-            <Text className='text-xs text-t-secondary mb-1'>{t('messages.command')}</Text>
-            <code className='text-xs bg-1 p-2 rounded block text-t-primary break-all'>{toolCall.rawInput?.command || toolCall.title}</code>
+          <div className='bg-[var(--bg-1)] border border-[var(--color-border-2)] rounded-lg overflow-hidden'>
+            <div className='flex items-center justify-between px-3 py-2 bg-[var(--bg-3)] border-b border-[var(--color-border-2)]'>
+              <Text className='text-xs text-t-secondary font-mono'>{t('messages.command')}</Text>
+              <Tooltip content={t('common.copy', { defaultValue: 'Copy' })}>
+                <div
+                  className='cursor-pointer hover:bg-[var(--bg-4)] p-1 rounded transition-colors text-t-secondary hover:text-t-primary'
+                  onClick={() => {
+                    const cmd = toolCall.rawInput?.command || toolCall.title;
+                    if (cmd) void navigator.clipboard.writeText(cmd);
+                  }}
+                >
+                  <Copy theme='outline' size='14' fill='currentColor' />
+                </div>
+              </Tooltip>
+            </div>
+            <div className='p-3 relative group'>
+              <code className='text-sm font-mono text-t-primary break-all block whitespace-pre-wrap'>{toolCall.rawInput?.command || toolCall.title}</code>
+            </div>
           </div>
         )}
         {!hasResponded && (
