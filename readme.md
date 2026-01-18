@@ -1,33 +1,27 @@
-# cc is all you need
+# CodeConductor
 
 <p align="center">
-  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="100%">
+  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor banner" width="100%">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/iOfficeAI/CodeConductor?style=flat-square&color=32CD32" alt="Version">
+  <img src="https://img.shields.io/github/v/release/zhu1090093659/CodeConductor?style=flat-square&color=32CD32" alt="Version">
   &nbsp;
   <img src="https://img.shields.io/badge/license-Apache--2.0-32CD32?style=flat-square&logo=apache&logoColor=white" alt="License">
   &nbsp;
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-6C757D?style=flat-square&logo=linux&logoColor=white" alt="Platform">
 </p>
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/15423" target="_blank">
-    <img src="https://trendshift.io/api/badge/repositories/15423" alt="GitHub Trending" height="80">
-  </a>
-</p>
-
 ---
 
 <p align="center">
-  <strong>🚀 Cowork with Your AI, Claude Code, Codex, Qwen Code, Goose CLI, and more</strong><br>
-  <em>User-friendly | Visual graphical interface | Multi-model support | Local data security</em>
+  <strong>A modern Desktop/Web UI for command-line AI agents</strong><br>
+  <em>User-friendly | Visual interface | Multi-model support | Local-first data</em>
 </p>
 
 <p align="center">
-  <a href="https://github.com/iOfficeAI/CodeConductor/releases">
-    <img src="https://img.shields.io/badge/⬇️%20Download%20Now-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download Latest Release" height="50">
+  <a href="https://github.com/zhu1090093659/CodeConductor/releases">
+    <img src="https://img.shields.io/badge/Download-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download Latest Release" height="50">
   </a>
 </p>
 
@@ -37,17 +31,17 @@
 
 ---
 
-## 📋 Quick Navigation
+## Quick navigation
 
 <p align="center">
 
-[✨ What Can CodeConductor Do?](#✨-what-can-codeconductor-do) ·
-[🤔 Why Choose CodeConductor?](#🤔-why-choose-codeconductor) ·
-[What’s New vs CodeConductor](#whats-new-in-codeconductor-compared-to-CodeConductor) ·
-[✨ Core Features](#✨-core-features) ·
-[🚀 Quick Start](#🚀-quick-start) ·
-[📖 Detailed Usage Guide](#📖-detailed-usage-guide) ·
-[💬 Community](#🤝-community--support)
+[Positioning](#positioning) ·
+[What CodeConductor can do](#what-codeconductor-can-do) ·
+[Enhancements in this fork](#enhancements-in-this-fork) ·
+[Core features](#core-features) ·
+[Quick start](#quick-start) ·
+[Documentation](#documentation) ·
+[Community and support](#community-and-support)
 
 </p>
 
@@ -62,18 +56,22 @@
 - Enhance browser automation capabilities via agent-browser (IPC support and slash command entry).
 - Update build/docs/config templates and collaboration role guidelines.
 
-## ✨ What Can CodeConductor Do?
+## Positioning
+
+This repository is an enhanced fork of CodeConductor. It keeps the original goal (a modern UI for command-line AI agents) and focuses on improving day-to-day “coding agent in real projects” workflows.
+
+## What CodeConductor can do
 
 <p align="center">
-  <img src="./resources/offica-ai BANNER-function copy.png" alt="CodeConductor - Cowork with Your CLI AI Agent" width="800">
+  <img src="./resources/offica-ai BANNER-function copy.png" alt="CodeConductor feature banner" width="800">
 </p>
 
-### 🤖 **Multi-Agent Mode - Cowork for Your Command-Line AI Tools, Unified Graphical Interface**
+### Multi-agent mode (unified UI for CLI tools)
 
-_If you have installed command-line tools like Claude Code, CodeX, Qwen Code, Goose AI, CodeConductor can automatically detect them and provide a unified graphical interface_
+If you have installed command-line tools like Claude Code, Codex, Qwen Code, Goose CLI, CodeConductor can detect them and provide a unified graphical interface.
 
-- ✅ **Auto Detection + Unified Interface** - Automatically recognizes local CLI tools, provides a unified graphical interface, say goodbye to command line
-- ✅ **Local Storage + Multi-Session** - Conversations saved locally, supports multiple parallel sessions, each session with independent context
+- **Auto detection and unified UI** - Recognize local CLI tools and bring them into one interface.
+- **Local storage and multi-session** - Save conversations locally and run multiple sessions with independent context.
 
 <p align="center">
   <img src="./resources/acp home page.gif" alt="Multi-Agent Mode Demo" width="800">
@@ -81,7 +79,7 @@ _If you have installed command-line tools like Claude Code, CodeX, Qwen Code, Go
 
 ---
 
-### 📁 **Smart File Management (AI Cowork)**
+### Smart file management
 
 _Batch renaming, automatic organization, smart classification, file merging_
 
@@ -94,13 +92,13 @@ _Batch renaming, automatic organization, smart classification, file merging_
 
 ---
 
-### 📄 **Preview Panel - Quickly View AI-Generated Results**
+### Preview panel
 
 _Supports 9+ formats of visual preview (PDF, Word, Excel, PPT, code, Markdown, images, HTML, Diff, etc.)_
 
-- ✅ **View Results Instantly** - After AI generates files, view preview immediately without switching apps
+- **View results instantly** - After AI generates files, view preview immediately without switching apps
 - **Integrated in Workspace** - Preview is rendered inside the Workspace panel (right side), no separate middle panel
-- ✅ **Real-time Tracking + Editable** - Automatically tracks file changes, editor and preview sync intelligently; supports real-time editing of Markdown, code, HTML, WYSIWYG
+- **Real-time tracking and editing** - Automatically tracks file changes; supports real-time editing of Markdown, code, and HTML
 
 <p align="center">
   <img src="./resources/preview.gif" alt="Preview Panel Demo" width="800">
@@ -108,7 +106,7 @@ _Supports 9+ formats of visual preview (PDF, Word, Excel, PPT, code, Markdown, i
 
 ---
 
-### 🎨 **AI Image Generation & Editing**
+### Image generation and editing
 
 _Intelligent image generation, editing, and recognition, powered by Gemini_
 
@@ -118,7 +116,7 @@ _Intelligent image generation, editing, and recognition, powered by Gemini_
 
 ---
 
-### 💬 **Multi-Task Parallel Processing**
+### Multi-task parallel processing
 
 _Open multiple conversations, tasks don't get mixed up, independent memory, double efficiency_
 
@@ -128,7 +126,7 @@ _Open multiple conversations, tasks don't get mixed up, independent memory, doub
 
 ---
 
-### 🌐 **Access Anywhere - WebUI Mode**
+### WebUI mode
 
 _Remotely control your AI tools - Access CodeConductor from any device on the network! Securely control local Claude Code, Codex, and other tools, data never leaves your device_
 
@@ -140,7 +138,7 @@ CodeConductor --webui
 CodeConductor --webui --remote
 ```
 
-> 💡 **Need detailed configuration guide?** Check out the [WebUI Configuration Tutorial](https://github.com/iOfficeAI/CodeConductor/wiki/WebUI-Configuration-Guide) - includes complete startup commands for all platforms
+For full startup instructions on all platforms, see [`WEBUI_GUIDE.md`](./WEBUI_GUIDE.md).
 
 <p align="center">
   <img src="./resources/webui banner.png" alt="WebUI Remote Access Demo" width="800">
@@ -148,144 +146,52 @@ CodeConductor --webui --remote
 
 ---
 
-## 🤔 Why Choose CodeConductor?
+## Enhancements in this fork
 
-**Just like Claude Cowork makes Claude Code easier to use, CodeConductor is the Cowork platform for all your command-line AI tools**
+This fork focuses on making command-line coding agents easier to use in real projects and daily work:
 
-Claude Code, Codex, Qwen Code are powerful, but share common pain points: conversations can't be saved, single-session limitations, cumbersome file operations, and only support a single model.
-
-CodeConductor provides unified **Cowork capabilities** for these command-line tools:
-
-- 🎯 **Unified Platform** - One interface to manage all command-line AI tools, no switching needed
-- 🚀 **Multi-Tool Support** - Not only supports Claude Code, but also Codex, Qwen Code, and more
-- 🌐 **Cross-Platform** - Full platform support for macOS, Windows, Linux (Claude Cowork currently only macOS)
-- 🔄 **Multi-Model Switching** - Flexibly switch between different models in the same interface, meeting different task requirements
-- 📄 **Real-time Preview** - Visual preview for 9+ formats, immediately view the effects of AI-generated files
-- 💾 **Local Data Security** - All conversations and files saved locally, data never leaves your device
+- **Multi-role collaboration view (PM/Analyst/Engineer)** - Enable structured collaboration inside one project conversation.
+- **Safer high-impact actions with explicit approvals** - Clearer confirmation and visual cues for actions like executing commands or applying changes.
+- **Slash commands for faster project workflows** - Discoverable and reusable shortcuts for common actions in project chats.
+- **Project-first conversations with workspace context** - Task-driven, artifact-oriented project sessions with workspace context.
+- **Review-friendly workflow** - Preview and diff are treated as first-class citizens to reduce review friction.
 
 ---
 
-### ❓ Quick Q&A
+## Core features
 
-<details>
-<summary><strong>Q: Why is CodeConductor a great replacement for Claude Cowork?</strong></summary>
-A: CodeConductor is a **free and open-source** **Multi-AI Agent Desktop**. Compared to the official Cowork which only runs on macOS and is locked to Claude, CodeConductor is its **full-model, cross-platform enhanced version**, deeply covering **AI Office Automation** scenarios.
-
-| Dimension     | Claude Cowork        | CodeConductor (This Project)                |
-| :------------ | :------------------- | :------------------------------------------ |
-| OS            | macOS Only           | 🍏 macOS / 🪟 Windows / 🐧 Linux            |
-| Model Support | Claude Only          | 🤖 Gemini, Claude, DeepSeek, OpenAI, Ollama |
-| Interaction   | GUI                  | 🖥️ Full GUI + WebUI Remote Access           |
-| Cost          | Subscription $100/mo | 🆓 Completely Free & Open Source            |
-
-**Deep AI Office Scenario Support:**
-
-- **File Management**: Intelligently organize messy local folders and batch rename with one click.
-- **Data Processing**: Deeply analyze and automatically beautify Excel reports.
-- **Document Generation**: Automatically write and format PPT, Word, and Markdown documents.
-- **Instant Preview**: Built-in 9+ format preview panels, making AI office collaboration results instantly visible.
-</details>
-
-<details>
-<summary><strong>Q: What can I do with CodeConductor?</strong></summary>
-A: It can be your **private Cowork workspace**. You can let it help you batch organize folders, deeply beautify Excel, and preview web code in real-time. It's your best graphical choice for exploring office automation workflows and enhancing your experience with Claude Code.
-</details>
-
-<details>
-<summary><strong>Q: Is CodeConductor ready to use out of the box?</strong></summary>
-A: Yes! After installation, complete the basic configuration to start using.
-</details>
-
-<details>
-<summary><strong>Q: Is it free?</strong></summary>
-A: CodeConductor is completely free and open source, but using AI models requires corresponding API Keys.
-</details>
-
-<details>
-<summary><strong>Q: Which AI models are supported?</strong></summary>
-A: Supports mainstream models like Gemini, OpenAI, Claude, Qwen, as well as local models like Ollama, LM Studio.
-
-You can also run multiple AI Agents simultaneously (such as Claude Code, Qwen Code, etc.), see the configuration guide for details.
-
-</details>
-
-<details>
-<summary><strong>Q: Is my data secure?</strong></summary>
-A: All conversation data is stored in a local SQLite database and will not be uploaded to any server.
-</details>
-
-## What's New in CodeConductor (Compared to CodeConductor)
-
-CodeConductor is a secondary development based on CodeConductor. While CodeConductor already provides a modern GUI/WebUI, multi-agent integrations, file/workspace management, and rich previews, this fork focuses on making “CLI coding agents” easier to use in real projects and daily work.
-
-CodeConductor 基于 CodeConductor 二次开发。CodeConductor 本身已经具备现代 GUI/WebUI、多代理接入、工作区文件管理与多格式预览等能力；本分支更聚焦“命令行编程 Agent”的真实项目使用体验与日常效率。
-
-### Multi-role collaboration view (PM/Analyst/Engineer)
-
-在同一个项目会话里启用多角色协作，让 PM/Analyst/Engineer 分工对话，并在一个视图中集中查看与同步信息，减少来回切换与上下文丢失。
-
-Enable PM/Analyst/Engineer collaboration inside one project conversation, then view and coordinate the three roles in one place to reduce context switching.
-
-### Safer “high-impact” actions with explicit approvals
-
-对“执行命令 / 应用改动”这类高影响动作提供更明确的确认与可视化提示，让你在使用编程 Agent 时更可控、更安心。
-
-Add clearer approval prompts and visual cues for high-impact actions (like executing commands or applying changes), so you stay in control when working with coding agents.
-
-### Slash commands for faster project workflows
-
-为项目对话提供斜杠命令入口，把常见操作变成“可发现、可复用”的快捷流程，提升输入效率与一致性。
-
-Provide slash commands in project chats to make common actions discoverable and reusable, improving speed and consistency.
-
-### Project-first conversations with workspace context
-
-更强调“项目会话 + 工作区上下文”的组织方式，让对话更接近真实项目协作：以工作区为中心，围绕任务推进与产物交付展开。
-
-Emphasize project-first conversations with workspace context, so chats behave more like real project work: task-driven, artifact-oriented, and easier to navigate.
-
-### Review-friendly changes with preview and diff as first-class citizens
-
-把预览与对比放到更核心的位置：更顺畅地查看生成结果、对照修改、确认差异，减少“生成后还得自己拼凑验证”的成本。
-
-Make preview and diff more central to the workflow, so you can review outputs and changes with less friction before you accept or apply them.
-
----
-
-## ✨ Core Features
-
-### 💬 **Multi-Session Chat**
+### Multi-session chat
 
 - **Multi-Session + Independent Context** - Open multiple chats simultaneously, each session has independent context memory, no confusion
 - **Local Storage** - All conversations are saved locally and will not be lost
 
-### 🤖 **Multi-Model Support**
+### Multi-model support
 
 - **Multi-Platform Support** - Supports mainstream models like Gemini, OpenAI, Claude, Qwen, flexible switching
 - **Local Model Support** - Supports local model deployment like Ollama, LM Studio, select Custom platform and set local API address (e.g., `http://localhost:11434/v1`) to connect
 - **Gemini 3 Subscription Optimization** - Automatically identifies subscribed users, recommends advanced models
 
-### 🗂️ **File Management**
+### File management
 
 - **File Tree Browsing + Drag & Drop Upload** - Browse files like folders, support drag and drop files or folders for one-click import
 - **Smart Organization** - You can let AI help organize folders, automatic classification
 
-### 📄 **Preview Panel - Give AI Agent a Display**
+### Preview panel
 
 - **9+ Format Preview** - Supports PDF, Word, Excel, PPT, code, Markdown, images, etc., view results immediately after AI generation
 - **Real-time Tracking + Editable** - Automatically tracks file changes, supports real-time editing and debugging of Markdown, code, HTML
 
-### 🎨 **AI Image Generation & Editing**
+### Image generation and editing
 
 - **Intelligent Image Generation** - Supports multiple image generation models like Gemini 2.5 Flash Image Preview, Nano, Banana
 - **Image Recognition & Editing** - AI-driven image analysis and editing features
 
-### 🌐 **WebUI Remote Access**
+### WebUI remote access
 
 - **Cross-Device Access** - Access from any device on the network via browser, supports mobile devices
 - **Local Data Security** - All data stored locally in SQLite database, suitable for server deployment
 
-### 🎨 **Personalized Interface Customization**
+### Personalized interface customization
 
 _Customize with your own CSS code, make your interface match your preferences_
 
@@ -297,39 +203,17 @@ _Customize with your own CSS code, make your interface match your preferences_
 
 ---
 
-## 📖 Detailed Usage Guide
+## Documentation
 
-<details>
-<summary><strong>📖 Expand to View Complete Usage Guide</strong></summary>
-
-### 🚀 Quick Start
-
-- [📖 Complete Installation Guide](https://github.com/iOfficeAI/CodeConductor/wiki/Getting-Started) - Detailed steps from download to configuration
-- [⚙️ LLM Configuration Guide](https://github.com/iOfficeAI/CodeConductor/wiki/LLM-Configuration) - Multi-platform AI model configuration
-- [🤖 Multi-Agent Mode Setup](https://github.com/iOfficeAI/CodeConductor/wiki/ACP-Setup) - Integrate terminal AI agents
-- [🔌 MCP Tool Configuration](https://github.com/iOfficeAI/CodeConductor/wiki/MCP-Configuration-Guide) - Model Context Protocol server setup
-- [🎨 Image Generation Configuration](https://github.com/iOfficeAI/CodeConductor/wiki/CodeConductor-Image-Generation-Tool-Model-Configuration-Guide) - AI image generation setup tutorial
-- [🌐 WebUI Configuration Guide](https://github.com/iOfficeAI/CodeConductor/wiki/WebUI-Configuration-Guide) - Complete WebUI setup and configuration tutorial
-
-### 🎯 Use Cases
-
-- [📁 File Management](https://github.com/iOfficeAI/CodeConductor/wiki/file-management) - Smart file organization
-- [📊 Excel Processing](https://github.com/iOfficeAI/CodeConductor/wiki/excel-processing) - AI-driven data processing
-- [🎨 Image Generation](https://github.com/iOfficeAI/CodeConductor/wiki/CodeConductor-Image-Generation-Tool-Model-Configuration-Guide) - AI image creation
-- [📚 More Use Cases](https://github.com/iOfficeAI/CodeConductor/wiki/Use-Cases-Overview)
-
-### ❓ Support & Help
-
-- [❓ FAQ](https://github.com/iOfficeAI/CodeConductor/wiki/FAQ) - Questions and troubleshooting
-- [🔧 Configuration & Usage Tutorials](https://github.com/iOfficeAI/CodeConductor/wiki/Configuration-Guides) - Complete configuration documentation
-
-</details>
+- WebUI startup guide: [`WEBUI_GUIDE.md`](./WEBUI_GUIDE.md)
+- Project overview and architecture notes: [`CLAUDE.md`](./CLAUDE.md)
+- Code style and conventions: [`CODE_STYLE.md`](./CODE_STYLE.md)
 
 ---
 
-## 🚀 Quick Start
+## Quick start
 
-### 💻 System Requirements
+### System requirements
 
 - **macOS**: 10.15 or higher
 - **Windows**: Windows 10 or higher
@@ -337,35 +221,47 @@ _Customize with your own CSS code, make your interface match your preferences_
 - **Memory**: Recommended 4GB or more
 - **Storage**: At least 500MB available space
 
-### 📥 Download
+### Download
 
 <p>
-  <a href="https://github.com/iOfficeAI/CodeConductor/releases">
+  <a href="https://github.com/zhu1090093659/CodeConductor/releases">
     <img src="https://img.shields.io/badge/Download-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download Latest Release" height="50">
   </a>
 </p>
 
-### 🔧 Simple Installation
+### Installation (desktop app)
 
-1. **Download and install** CodeConductor application
-2. **Configure AI service** - Support Google account login or API Key authentication
-3. **Start using** - Immediately experience modern AI chat interface
+1. Download and install the CodeConductor application
+2. Configure your AI provider in Settings (Google account login or API Key, depending on provider)
+3. Start a conversation and work in a project workspace
 
-> 💡 **Need detailed configuration guide?** Check out our [Complete Installation Tutorial](https://github.com/iOfficeAI/CodeConductor/wiki/Getting-Started)
+### Run from source (developers)
+
+```bash
+npm install
+npm start
+```
+
+### WebUI mode (developers or headless)
+
+```bash
+npm run webui
+npm run webui:remote
+```
 
 ---
 
-## 🤝 Community & Support
+## Community and support
 
-### 💬 Community
+### Community
 
-**💡 Your ideas matter!** We highly value every user's suggestions and feedback. Whether it's feature ideas, user experience, or issues you encounter, feel free to contact us anytime!
+Your ideas and feedback are welcome. Use Discussions for ideas and issues for bugs or feature requests.
 
-- [💬 GitHub Discussions](https://github.com/zhu1090093659/CodeConductor/discussions) - **Share ideas, make suggestions, exchange usage tips**
-- [🐛 Report Issues](https://github.com/zhu1090093659/CodeConductor/issues) - Report bugs or feature requests
-- [📦 Release Updates](https://github.com/zhu1090093659/CodeConductor/releases) - Get the latest version
+- GitHub Discussions: https://github.com/zhu1090093659/CodeConductor/discussions
+- Issues: https://github.com/zhu1090093659/CodeConductor/issues
+- Releases: https://github.com/zhu1090093659/CodeConductor/releases
 
-### 🤝 Contributing
+### Contributing
 
 Welcome to submit Issues and Pull Requests!
 
@@ -377,13 +273,13 @@ Welcome to submit Issues and Pull Requests!
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under [Apache-2.0](LICENSE).
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 Thanks to all developers who have contributed to CodeConductor!
 
@@ -393,7 +289,7 @@ Thanks to all developers who have contributed to CodeConductor!
   </a>
 </p>
 
-## 📊 Star History
+## Star history
 
 <p align="center">
   <a href="https://www.star-history.com/#zhu1090093659/CodeConductor&Date" target="_blank">
@@ -403,8 +299,8 @@ Thanks to all developers who have contributed to CodeConductor!
 
 <div align="center">
 
-**⭐ If you like it, give us a star**
+If you find it useful, a star helps.
 
-[Report Bug](https://github.com/iOfficeAI/CodeConductor/issues) · [Request Feature](https://github.com/iOfficeAI/CodeConductor/issues)
+[Report Bug](https://github.com/zhu1090093659/CodeConductor/issues) · [Request Feature](https://github.com/zhu1090093659/CodeConductor/issues)
 
 </div>

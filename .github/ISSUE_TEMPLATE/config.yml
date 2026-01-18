@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 💬 Community Discussions
-    url: https://github.com/iOfficeAI/CodeConductor/discussions
+  - name: Community Discussions
+    url: https://github.com/zhu1090093659/CodeConductor/discussions
     about: Ask questions, share ideas, and discuss CodeConductor with the community
-  - name: 📖 Documentation
-    url: https://github.com/iOfficeAI/CodeConductor/wiki
-    about: Check our documentation for setup guides, configuration, and troubleshooting
-  - name: 🔒 Security Issues
+  - name: Documentation
+    url: https://github.com/zhu1090093659/CodeConductor
+    about: Check repository docs and guides for setup, configuration, and troubleshooting
+  - name: Security Issues
     url: mailto:security@CodeConductor.com
     about: Report security vulnerabilities privately (DO NOT create public issues)

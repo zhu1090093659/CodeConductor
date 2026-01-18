@@ -220,11 +220,11 @@ sudo systemctl status CodeConductor-webui.service
 
 **Important Note**: Electron desktop mode is **not supported** on Android. However, you can run CodeConductor in WebUI mode using Termux with a prooted Linux environment.
 
-> **Community Contribution**: This guide is contributed by [@Manamama](https://github.com/Manamama). Special thanks for making CodeConductor accessible on Android devices! 🙏
+> **Community Contribution**: This guide is contributed by [@Manamama](https://github.com/Manamama). Special thanks for making CodeConductor accessible on Android devices.
 >
 > **Original Tutorial**: [Running CodeConductor WebUI on Android via Termux + Proot Ubuntu](https://gist.github.com/Manamama/b4f903c279b5e73bdad4c2c0a58d5ddd)
 >
-> **Related Issues**: [#217 - Android Support Discussion](https://github.com/iOfficeAI/CodeConductor/issues/217)
+> **Related Issues**: https://github.com/zhu1090093659/CodeConductor/issues
 
 ### Prerequisites
 
@@ -285,11 +285,11 @@ apt install -y \
 
 ```bash
 # Download the ARM64 .deb package (replace VERSION with the actual version)
-# Check latest version at: https://github.com/iOfficeAI/CodeConductor/releases
-wget https://github.com/iOfficeAI/CodeConductor/releases/download/vVERSION/CodeConductor_VERSION_arm64.deb
+# Check latest version at: https://github.com/zhu1090093659/CodeConductor/releases
+wget https://github.com/zhu1090093659/CodeConductor/releases/download/vVERSION/CodeConductor_VERSION_arm64.deb
 
 # Example (replace VERSION with the release tag, e.g. v1.5.2):
-wget https://github.com/iOfficeAI/CodeConductor/releases/download/vVERSION/CodeConductor_VERSION_arm64.deb
+wget https://github.com/zhu1090093659/CodeConductor/releases/download/vVERSION/CodeConductor_VERSION_arm64.deb
 
 # Install the package
 apt install -y ./CodeConductor_*.deb
@@ -418,7 +418,7 @@ proot-distro login ubuntu -- bash -c "CodeConductor --no-sandbox --webui --remot
 If you encounter issues or have suggestions for improving Android support:
 
 1. Check the [original community guide](https://gist.github.com/Manamama/b4f903c279b5e73bdad4c2c0a58d5ddd)
-2. Report issues at [GitHub Issues #217](https://github.com/iOfficeAI/CodeConductor/issues/217)
+2. Report issues at https://github.com/zhu1090093659/CodeConductor/issues
 3. Share your experience to help other Android users!
 
 ---
@@ -573,8 +573,8 @@ CodeConductor --webui --port 8080
 
 From v1.5.0+, you can store persistent WebUI preferences in `webui.config.json` located in your Electron user-data folder:
 
-| Platform | Location                                                 |
-| -------- | -------------------------------------------------------- |
+| Platform | Location                                                        |
+| -------- | --------------------------------------------------------------- |
 | Windows  | `%APPDATA%/CodeConductor/webui.config.json`                     |
 | macOS    | `~/Library/Application Support/CodeConductor/webui.config.json` |
 | Linux    | `~/.config/CodeConductor/webui.config.json`                     |
@@ -678,7 +678,7 @@ npm run --resetpass username
 - [Main README](./readme.md)
 - [中文说明](./readme_ch.md)
 - [日本語ドキュメント](./readme_jp.md)
-- [GitHub Issues](https://github.com/iOfficeAI/CodeConductor/issues)
+- [GitHub Issues](https://github.com/zhu1090093659/CodeConductor/issues)
 
 ---
 
@@ -687,8 +687,8 @@ npm run --resetpass username
 If you encounter any issues:
 
 1. Check the [Troubleshooting](#troubleshooting) section
-2. Search [existing issues](https://github.com/iOfficeAI/CodeConductor/issues)
-3. Create a [new issue](https://github.com/iOfficeAI/CodeConductor/issues/new) with:
+2. Search [existing issues](https://github.com/zhu1090093659/CodeConductor/issues)
+3. Create a [new issue](https://github.com/zhu1090093659/CodeConductor/issues/new) with:
    - Your OS and version
    - CodeConductor version
    - Steps to reproduce
@@ -696,4 +696,4 @@ If you encounter any issues:
 
 ---
 
-**Happy using CodeConductor in WebUI mode!** 🚀
+Happy using CodeConductor in WebUI mode.
