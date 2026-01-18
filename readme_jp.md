@@ -18,6 +18,11 @@
 </p>
 
 <p align="center">
+  <strong><a href="https://github.com/AionUI/AionUI">AionUI</a> をベースにした <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> のオープンソース強化版</strong><br>
+  <sub>CodeConductor は AionUI の優れた基盤の上に、実際のプロジェクトでのコーディングエージェント体験を向上させます。</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/zhu1090093659/CodeConductor/releases">
     <img src="https://img.shields.io/badge/Download-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download Latest Release" height="50">
   </a>

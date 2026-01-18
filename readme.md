@@ -20,6 +20,11 @@
 </p>
 
 <p align="center">
+  <strong>Open-source enhanced fork of <a href="https://github.com/AionUI/AionUI">AionUI</a> / <a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a></strong><br>
+  <sub>CodeConductor builds upon the excellent AionUI foundation, adding workflow enhancements for real-world coding agent usage.</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/zhu1090093659/CodeConductor/releases">
     <img src="https://img.shields.io/badge/Download-Latest%20Release-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="Download Latest Release" height="50">
   </a>

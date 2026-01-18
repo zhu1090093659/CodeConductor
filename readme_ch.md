@@ -18,6 +18,11 @@
 </p>
 
 <p align="center">
+  <strong>基于 <a href="https://github.com/AionUI/AionUI">AionUI</a> 二次开发，<a href="https://claude.com/blog/cowork-research-preview">Anthropic Cowork</a> 的开源增强版</strong><br>
+  <sub>CodeConductor 在 AionUI 的优秀基础上，专注于提升命令行编程 Agent 在真实项目中的协作体验。</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/zhu1090093659/CodeConductor/releases">
     <img src="https://img.shields.io/badge/下载-最新版本-32CD32?style=for-the-badge&logo=github&logoColor=white" alt="下载最新版本" height="50">
   </a>
