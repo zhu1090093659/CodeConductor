@@ -233,6 +233,14 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     };
   }, [roleByConversationId]);
 
+  const mentionOptions = useMemo(() => {
+    const roles: CollabRole[] = ['pm', 'analyst', 'engineer'];
+    return roles.map((role) => ({
+      key: role,
+      label: ROLE_LABEL[role],
+    }));
+  }, []);
+
   if (!roleMap || !activeConversationId || !workspace) {
     return (
       <div className='flex-1 flex flex-col px-20px'>
@@ -264,7 +272,16 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
           <MessageList renderMessageHeader={messageHeader} />
         </FlexFullContainer>
 
-        {parentConversation.type === 'acp' ? <AcpSendBox conversation_id={activeConversationId} backend={(parentConversation.extra as any)?.backend || ('claude' as AcpBackend)} /> : <CodexSendBox conversation_id={activeConversationId} />}
+        {parentConversation.type === 'acp' ? (
+          <AcpSendBox
+            conversation_id={activeConversationId}
+            backend={(parentConversation.extra as any)?.backend || ('claude' as AcpBackend)}
+            mentionOptions={mentionOptions}
+            onMentionSelect={(key) => setActiveRole(key as CollabRole)}
+          />
+        ) : (
+          <CodexSendBox conversation_id={activeConversationId} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} />
+        )}
       </div>
     </ConversationProvider>
   );

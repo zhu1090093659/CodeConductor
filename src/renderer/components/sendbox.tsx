@@ -40,6 +40,8 @@ const SendBox: React.FC<{
   lockMultiLine?: boolean;
   sendButtonPrefix?: React.ReactNode;
   slashCommands?: SlashCommandItem[];
+  mentionOptions?: Array<{ key: string; label: string }>;
+  onMentionSelect?: (key: string) => void;
 }> = ({
   onSend,
   onStop,
@@ -57,6 +59,8 @@ const SendBox: React.FC<{
   lockMultiLine = false,
   sendButtonPrefix,
   slashCommands = [],
+  mentionOptions,
+  onMentionSelect,
 }) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +69,9 @@ const SendBox: React.FC<{
   const [cursorIndex, setCursorIndex] = useState(0);
   const [activeCommandIndex, setActiveCommandIndex] = useState(0);
   const [commandMenuHidden, setCommandMenuHidden] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionActiveIndex, setMentionActiveIndex] = useState(0);
   const isInputActive = isInputFocused;
   const { activeBorderColor, inactiveBorderColor, activeShadow } = useInputFocusRing();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,6 +79,8 @@ const SendBox: React.FC<{
   const measurementCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const latestInputRef = useLatestRef(input);
   const setInputRef = useLatestRef(setInput);
+  const mentionMatchRegex = useMemo(() => /(^|\s)@([^\s@]*)$/, []);
+  const mentionEnabled = Boolean(mentionOptions && mentionOptions.length > 0);
 
   // 集成预览面板的"添加到聊天"功能 / Integrate preview panel's "Add to chat" functionality
   const { setSendBoxHandler, domSnippets, removeDomSnippet, clearDomSnippets } = usePreviewContext();
@@ -221,6 +230,26 @@ const SendBox: React.FC<{
     setActiveCommandIndex(0);
   }, [commandQuery?.query, filteredCommands.length]);
 
+  const filteredMentionOptions = useMemo(() => {
+    if (!mentionEnabled) return [];
+    if (!mentionQuery) return mentionOptions;
+    const keyword = mentionQuery.toLowerCase();
+    return mentionOptions.filter((option) => option.label.toLowerCase().startsWith(keyword) || option.key.toLowerCase().startsWith(keyword));
+  }, [mentionEnabled, mentionOptions, mentionQuery]);
+
+  const isMentionMenuOpen = mentionOpen && filteredMentionOptions.length > 0;
+
+  useEffect(() => {
+    setMentionActiveIndex(0);
+  }, [mentionQuery, filteredMentionOptions.length]);
+
+  useEffect(() => {
+    if (!mentionEnabled) {
+      setMentionQuery(null);
+      setMentionOpen(false);
+    }
+  }, [mentionEnabled]);
+
 
   // 使用共享的PasteService集成
   const { onPaste, onFocus: handlePasteFocus } = usePasteService({
@@ -254,15 +283,34 @@ const SendBox: React.FC<{
     setIsInputFocused(false);
   }, []);
 
-  const syncCursorIndex = useCallback((target?: HTMLTextAreaElement | null) => {
+  const updateMentionState = useCallback(
+    (value: string, cursor: number) => {
+      if (!mentionEnabled) return;
+      const beforeCursor = value.slice(0, cursor);
+      const match = beforeCursor.match(mentionMatchRegex);
+      if (match) {
+        setMentionQuery(match[2] ?? '');
+        setMentionOpen(true);
+      } else {
+        setMentionQuery(null);
+        setMentionOpen(false);
+      }
+    },
+    [mentionEnabled, mentionMatchRegex]
+  );
+
+  const syncCursorIndex = useCallback((target?: HTMLTextAreaElement | null, value?: string) => {
     const element =
       target ||
       (document.activeElement && (document.activeElement as HTMLTextAreaElement)) ||
       (containerRef.current?.querySelector('textarea') as HTMLTextAreaElement | null);
     if (element && typeof element.selectionStart === 'number') {
-      setCursorIndex(element.selectionStart);
+      const cursor = element.selectionStart;
+      setCursorIndex(cursor);
+      const resolvedValue = value ?? latestInputRef.current;
+      updateMentionState(resolvedValue, cursor);
     }
-  }, []);
+  }, [latestInputRef, updateMentionState]);
 
   const sendMessageHandler = () => {
     const currentInput = latestInputRef.current;
@@ -286,6 +334,9 @@ const SendBox: React.FC<{
       .then(() => {
         setInput('');
         clearDomSnippets(); // 发送后清除 DOM 片段 / Clear DOM snippets after sending
+        setMentionOpen(false);
+        setMentionQuery(null);
+        setMentionActiveIndex(0);
       })
       .catch(() => {})
       .finally(() => {
@@ -313,9 +364,67 @@ const SendBox: React.FC<{
 
   const baseKeyDownHandler = useMemo(() => createKeyDownHandler(sendMessageHandler), [createKeyDownHandler, sendMessageHandler]);
 
+  const stripMentionToken = useCallback(
+    (value: string) => {
+      if (!mentionMatchRegex.test(value)) return value;
+      return value.replace(mentionMatchRegex, (_match, leadingSpace) => (leadingSpace ? leadingSpace : ''));
+    },
+    [mentionMatchRegex]
+  );
+
+  const applyMentionSelection = useCallback(
+    (key: string) => {
+      const beforeCursor = input.slice(0, cursorIndex);
+      const afterCursor = input.slice(cursorIndex);
+      const nextValue = `${stripMentionToken(beforeCursor)}${afterCursor}`;
+      setInput(nextValue);
+      setMentionOpen(false);
+      setMentionQuery(null);
+      setMentionActiveIndex(0);
+      if (onMentionSelect) {
+        onMentionSelect(key);
+      }
+      setTimeout(() => syncCursorIndex(), 0);
+    },
+    [cursorIndex, input, onMentionSelect, setInput, stripMentionToken, syncCursorIndex]
+  );
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (isComposing.current) return;
+      if (isMentionMenuOpen) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setMentionOpen(false);
+          setMentionQuery(null);
+          setMentionActiveIndex(0);
+          return;
+        }
+        if (filteredMentionOptions.length > 0) {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setMentionActiveIndex((prev) => (prev + 1) % filteredMentionOptions.length);
+            return;
+          }
+          if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setMentionActiveIndex((prev) => (prev - 1 + filteredMentionOptions.length) % filteredMentionOptions.length);
+            return;
+          }
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const selected = filteredMentionOptions[mentionActiveIndex] || filteredMentionOptions[0];
+            if (selected) {
+              applyMentionSelection(selected.key);
+            } else {
+              setMentionOpen(false);
+              setMentionQuery(null);
+              setMentionActiveIndex(0);
+            }
+            return;
+          }
+        }
+      }
       if (isCommandMenuOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -345,7 +454,18 @@ const SendBox: React.FC<{
       }
       baseKeyDownHandler(e);
     },
-    [activeCommandIndex, applyCommandSelection, baseKeyDownHandler, filteredCommands, isCommandMenuOpen, isComposing]
+    [
+      activeCommandIndex,
+      applyCommandSelection,
+      applyMentionSelection,
+      baseKeyDownHandler,
+      filteredCommands,
+      filteredMentionOptions,
+      isCommandMenuOpen,
+      isComposing,
+      isMentionMenuOpen,
+      mentionActiveIndex,
+    ]
   );
 
   const stopHandler = async () => {
@@ -420,7 +540,7 @@ const SendBox: React.FC<{
             onChange={(v) => {
               setInput(v);
               setCommandMenuHidden(false);
-              setTimeout(() => syncCursorIndex(), 0);
+              setTimeout(() => syncCursorIndex(undefined, v), 0);
             }}
             onPaste={onPaste}
             onFocus={handleInputFocus}
@@ -488,6 +608,28 @@ const SendBox: React.FC<{
                   );
                 })
               )}
+            </div>
+          </div>
+        )}
+        {isMentionMenuOpen && (
+          <div className='mt-8px border border-border-2 bg-bg-1 rd-12px overflow-hidden shadow-sm'>
+            <div className='max-h-200px overflow-y-auto'>
+              {filteredMentionOptions.map((option, index) => {
+                const isActive = index === mentionActiveIndex;
+                return (
+                  <div
+                    key={option.key}
+                    className={`px-12px py-8px cursor-pointer ${isActive ? 'bg-aou-2' : 'hover:bg-aou-1'}`}
+                    onMouseEnter={() => setMentionActiveIndex(index)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      applyMentionSelection(option.key);
+                    }}
+                  >
+                    <div className='text-13px text-t-primary truncate'>{option.label}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

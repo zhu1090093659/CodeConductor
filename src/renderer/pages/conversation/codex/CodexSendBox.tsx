@@ -37,7 +37,11 @@ const useCodexSendBoxDraft = getSendBoxDraftHook('codex', {
   uploadFile: [],
 });
 
-const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }) => {
+const CodexSendBox: React.FC<{
+  conversation_id: string;
+  mentionOptions?: Array<{ key: string; label: string }>;
+  onMentionSelect?: (key: string) => void;
+}> = ({ conversation_id, mentionOptions, onMentionSelect }) => {
   const [workspacePath, setWorkspacePath] = useState('');
   const { t } = useTranslation();
   const { checkAndUpdateTitle } = useAutoTitle();
@@ -357,6 +361,8 @@ const CodexSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id }
         onFilesAdded={handleFilesAdded}
         supportedExts={allSupportedExts}
         slashCommands={slashCommands}
+        mentionOptions={mentionOptions}
+        onMentionSelect={onMentionSelect}
         tools={
           <Button
             type='secondary'

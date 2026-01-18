@@ -173,7 +173,9 @@ const useSendBoxDraft = (conversation_id: string) => {
 const AcpSendBox: React.FC<{
   conversation_id: string;
   backend: AcpBackend;
-}> = ({ conversation_id, backend }) => {
+  mentionOptions?: Array<{ key: string; label: string }>;
+  onMentionSelect?: (key: string) => void;
+}> = ({ conversation_id, backend, mentionOptions, onMentionSelect }) => {
   const [workspacePath, setWorkspacePath] = useState('');
   const { running, acpStatus, aiProcessing, setAiProcessing } = useAcpMessage(conversation_id);
   const { t } = useTranslation();
@@ -404,6 +406,8 @@ const AcpSendBox: React.FC<{
         onFilesAdded={handleFilesAdded}
         supportedExts={allSupportedExts}
         slashCommands={slashCommands}
+        mentionOptions={mentionOptions}
+        onMentionSelect={onMentionSelect}
         tools={
           <Button
             type='secondary'
