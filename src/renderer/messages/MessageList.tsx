@@ -50,6 +50,37 @@ const MessageList: React.FC<{
   const [thoughtRunning, setThoughtRunning] = useState(false);
   const previousListLengthRef = useRef(list.length);
   const { t } = useTranslation();
+  const shouldShowThought = thoughtRunning || Boolean(thought?.subject) || Boolean(thought?.description);
+
+  const thoughtNode = useMemo(() => {
+    if (!conversationId) return null;
+    if (!shouldShowThought) return null;
+    return (
+      <div key='thought-display' className='w-full message-item px-8px m-t-10px max-w-full md:max-w-780px mx-auto'>
+        <div className='w-full min-w-0'>
+          <ThoughtDisplay
+            thought={thought}
+            running={thoughtRunning}
+            style='compact'
+            onStop={() => {
+              return ipcBridge.conversation.stop.invoke({ conversation_id: conversationId }).then(() => {});
+            }}
+          />
+        </div>
+      </div>
+    );
+  }, [conversationId, shouldShowThought, thought, thoughtRunning]);
+
+  const thoughtInsertBeforeId = useMemo(() => {
+    if (!shouldShowThought) return null;
+    for (let i = list.length - 1; i >= 0; i -= 1) {
+      const message = list[i];
+      if (message.position === 'left' && message.type === 'text') {
+        return message.id;
+      }
+    }
+    return null;
+  }, [list, shouldShowThought]);
 
   const renderMessageWrapper = (message: TMessage, body: React.ReactNode) => {
     return (
@@ -116,12 +147,13 @@ const MessageList: React.FC<{
       case 'codex_tool_call':
         return <MessageCodexToolCall message={message}></MessageCodexToolCall>;
       default:
-        return <div>{t('messages.unknownMessageType', { type: (message as any).type })}</div>;
+        return <div>{t('messages.unknownMessageType', { type: (message as { type?: string }).type })}</div>;
     }
   };
 
   const renderListNodes = useMemo(() => {
     const nodes: React.ReactNode[] = [];
+    let thoughtInserted = false;
 
     const renderToolBatch = (batch: TMessage[]) => {
       const batchKey = `${batch[0]?.id || 'unknown'}-${batch[batch.length - 1]?.id || 'unknown'}`;
@@ -171,6 +203,10 @@ const MessageList: React.FC<{
     let i = 0;
     while (i < list.length) {
       const message = list[i];
+      if (!thoughtInserted && thoughtNode && thoughtInsertBeforeId && message.id === thoughtInsertBeforeId) {
+        nodes.push(thoughtNode);
+        thoughtInserted = true;
+      }
 
       // Hide agent status messages in the message stream (status is shown in header instead).
       if (message.type === 'agent_status') {
@@ -220,8 +256,12 @@ const MessageList: React.FC<{
       i += 1;
     }
 
+    if (!thoughtInserted && thoughtNode) {
+      nodes.push(thoughtNode);
+    }
+
     return nodes;
-  }, [firstTurnDiffIndex, isToolMessage, isTurnDiffMessage, list, renderMessageCore, renderMessageHeader, t, toolBatchOpenMap, turnDiffMessages]);
+  }, [firstTurnDiffIndex, isToolMessage, isTurnDiffMessage, list, renderMessageCore, renderMessageHeader, t, thoughtInsertBeforeId, thoughtNode, toolBatchOpenMap, turnDiffMessages]);
 
   // 检查是否在底部（允许一定的误差范围）
   const isAtBottom = () => {
@@ -298,7 +338,7 @@ const MessageList: React.FC<{
     [conversationId]
   );
 
-  // Keep thought visible at bottom while running (unless user is reading history).
+  // Keep latest content visible while running (unless user is reading history).
   useEffect(() => {
     if (!thoughtRunning) return;
     if (isUserScrolling) return;
@@ -307,34 +347,12 @@ const MessageList: React.FC<{
     return () => clearTimeout(timer);
   }, [isUserScrolling, thoughtRunning, thought.description]);
 
-  const thoughtNode = useMemo(() => {
-    if (!conversationId) return null;
-    if (!thoughtRunning && !thought?.subject && !thought?.description) return null;
-    return (
-      <div className='w-full message-item px-8px m-t-10px max-w-full md:max-w-780px mx-auto'>
-        <div className='w-full min-w-0'>
-          <ThoughtDisplay
-            thought={thought}
-            running={thoughtRunning}
-            style='compact'
-            onStop={() => {
-              return ipcBridge.conversation.stop.invoke({ conversation_id: conversationId }).then(() => {});
-            }}
-          />
-        </div>
-      </div>
-    );
-  }, [conversationId, thought, thoughtRunning]);
-
   return (
     <div className='relative flex-1 h-full'>
       <div className='flex-1 overflow-auto h-full pb-10px box-border' ref={ref} onScroll={handleScroll}>
         {/* 使用 PreviewGroup 包裹所有消息，实现跨消息预览图片 Use PreviewGroup to wrap all messages for cross-message image preview */}
         <Image.PreviewGroup actionsLayout={['zoomIn', 'zoomOut', 'originalSize', 'rotateLeft', 'rotateRight']}>
-          <ImagePreviewContext.Provider value={{ inPreviewGroup: true }}>
-            {renderListNodes}
-            {thoughtNode}
-          </ImagePreviewContext.Provider>
+          <ImagePreviewContext.Provider value={{ inPreviewGroup: true }}>{renderListNodes}</ImagePreviewContext.Provider>
         </Image.PreviewGroup>
       </div>
       {showScrollButton && (

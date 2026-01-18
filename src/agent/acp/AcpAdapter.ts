@@ -17,6 +17,7 @@ export class AcpAdapter {
   private activeToolCalls: Map<string, IMessageAcpToolCall> = new Map();
   private currentMessageId: string | null = uuid(); // Track current message for streaming chunks
   private suppressedMsgId: string | null = null;
+  private currentThought: string = '';
 
   constructor(conversationId: string, backend: AcpBackend) {
     this.conversationId = conversationId;
@@ -39,6 +40,10 @@ export class AcpAdapter {
   resetMessageTracking() {
     this.currentMessageId = uuid();
     this.suppressedMsgId = null;
+  }
+
+  resetThoughtTracking() {
+    this.currentThought = '';
   }
 
   /**
@@ -136,7 +141,12 @@ export class AcpAdapter {
     };
 
     if (update.content && update.content.text) {
-      if (this.shouldSuppressAvailableCommands(update.content.text)) {
+      const parsed = this.parseJsonContentBlocks(update.content.text);
+      if (parsed?.kind === 'thought') {
+        return this.createThoughtMessage(parsed.text);
+      }
+      const messageText = parsed?.text ?? update.content.text;
+      if (this.shouldSuppressAvailableCommands(messageText)) {
         // Suppress the whole streaming message to avoid partial leftovers across chunks.
         this.suppressedMsgId = msgId;
         return null;
@@ -145,7 +155,7 @@ export class AcpAdapter {
         ...baseMessage,
         type: 'text',
         content: {
-          content: update.content.text,
+          content: messageText,
         },
       } as IMessageText;
     }
@@ -157,24 +167,229 @@ export class AcpAdapter {
    * Convert ACP thought chunk to CodeConductor message
    */
   private convertThoughtChunk(update: AgentThoughtChunkUpdate['update']): TMessage | null {
+    if (!update.content?.text) {
+      return null;
+    }
+    return this.createThoughtMessage(update.content.text);
+  }
+
+  private createThoughtMessage(content: string): TMessage | null {
+    if (!content) return null;
     const baseMessage = {
       id: uuid(),
       conversation_id: this.conversationId,
       createdAt: Date.now(),
       position: 'center' as const,
     };
+    const mergedThought = this.mergeThoughtChunk(content);
+    return {
+      ...baseMessage,
+      type: 'tips',
+      content: {
+        content: mergedThought,
+        type: 'warning',
+      },
+    };
+  }
 
-    if (update.content && update.content.text) {
-      return {
-        ...baseMessage,
-        type: 'tips',
-        content: {
-          content: update.content.text,
-          type: 'warning',
-        },
-      };
+  private mergeThoughtChunk(chunk: string): string {
+    if (!chunk) {
+      return this.currentThought;
+    }
+    if (!this.currentThought) {
+      this.currentThought = chunk;
+      return this.currentThought;
+    }
+    if (chunk.startsWith(this.currentThought)) {
+      this.currentThought = chunk;
+      return this.currentThought;
+    }
+    if (this.currentThought.endsWith(chunk)) {
+      return this.currentThought;
+    }
+    this.currentThought += chunk;
+    return this.currentThought;
+  }
+
+  private parseJsonContentBlocks(raw: string): { text: string; kind: 'thought' | 'text' } | null {
+    const trimmed = raw.trim();
+    if (!trimmed || (!trimmed.startsWith('{') && !trimmed.startsWith('['))) {
+      return null;
     }
 
+    const blocks = this.collectJsonBlocks(trimmed);
+    if (!blocks.length) {
+      return null;
+    }
+
+    let text = '';
+    let hasExplicitKind = false;
+    let sawThoughtKind = false;
+    let sawTextKind = false;
+    let contentOnlyBlocks = true;
+
+    for (const block of blocks) {
+      const blockText = this.extractBlockText(block);
+      if (blockText) {
+        text += blockText;
+      }
+      if (!this.isContentOnlyBlock(block)) {
+        contentOnlyBlocks = false;
+      }
+      const kind = this.extractBlockKind(block);
+      if (kind) {
+        hasExplicitKind = true;
+        if (kind === 'thought') {
+          sawThoughtKind = true;
+        }
+        if (kind === 'text') {
+          sawTextKind = true;
+        }
+      }
+    }
+
+    if (!text) {
+      return null;
+    }
+
+    let kind: 'thought' | 'text' = 'text';
+    if (sawThoughtKind && !sawTextKind) {
+      kind = 'thought';
+    } else if (sawTextKind && !sawThoughtKind) {
+      kind = 'text';
+    } else if (!hasExplicitKind && this.backend === 'claude' && contentOnlyBlocks) {
+      // Claude ACP sometimes streams JSON content blocks for thinking; default to thought.
+      kind = 'thought';
+    }
+
+    return { text, kind };
+  }
+
+  private collectJsonBlocks(raw: string): Array<Record<string, unknown>> {
+    const parsed = this.tryParseJson(raw);
+    if (parsed) {
+      return this.normalizeJsonBlocks(parsed);
+    }
+
+    const segments = this.splitJsonObjects(raw);
+    const blocks: Array<Record<string, unknown>> = [];
+    for (const segment of segments) {
+      const parsedSegment = this.tryParseJson(segment);
+      if (!parsedSegment) continue;
+      blocks.push(...this.normalizeJsonBlocks(parsedSegment));
+    }
+    return blocks;
+  }
+
+  private tryParseJson(value: string): unknown | null {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
+  private normalizeJsonBlocks(parsed: unknown): Array<Record<string, unknown>> {
+    if (!parsed) return [];
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item) => item && typeof item === 'object') as Array<Record<string, unknown>>;
+    }
+    if (typeof parsed === 'object') {
+      return [parsed as Record<string, unknown>];
+    }
+    return [];
+  }
+
+  private splitJsonObjects(raw: string): string[] {
+    const segments: string[] = [];
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    let startIndex = -1;
+
+    for (let i = 0; i < raw.length; i += 1) {
+      const char = raw[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (char === '\\') {
+        if (inString) {
+          escape = true;
+        }
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+      if (char === '{') {
+        if (depth === 0) {
+          startIndex = i;
+        }
+        depth += 1;
+      } else if (char === '}') {
+        depth -= 1;
+        if (depth === 0 && startIndex >= 0) {
+          segments.push(raw.slice(startIndex, i + 1));
+          startIndex = -1;
+        }
+      }
+    }
+
+    return segments;
+  }
+
+  private extractBlockText(block: Record<string, unknown>): string {
+    const directText = this.extractTextValue(block);
+    if (directText) return directText;
+
+    const content = block.content;
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (Array.isArray(content)) {
+      return content.map((item) => (item && typeof item === 'object' ? this.extractTextValue(item as Record<string, unknown>) : '')).join('');
+    }
+    if (content && typeof content === 'object') {
+      return this.extractTextValue(content as Record<string, unknown>);
+    }
+    return '';
+  }
+
+  private isContentOnlyBlock(block: Record<string, unknown>): boolean {
+    if (typeof block.content !== 'string') return false;
+    const allowedKeys = new Set(['content', 'type', 'index', 'role', 'kind']);
+    return Object.keys(block).every((key) => allowedKeys.has(key));
+  }
+
+  private extractTextValue(obj: Record<string, unknown>): string {
+    if (typeof obj.content === 'string') return obj.content;
+    if (typeof obj.text === 'string') return obj.text;
+    if (typeof obj.delta === 'string') return obj.delta;
+    if (typeof (obj as { thinking?: unknown }).thinking === 'string') return (obj as { thinking: string }).thinking;
+    return '';
+  }
+
+  private extractBlockKind(block: Record<string, unknown>): 'thought' | 'text' | null {
+    const marker = this.extractKindMarker(block);
+    if (!marker) return null;
+    const normalized = marker.toLowerCase();
+    if (normalized.includes('thought') || normalized.includes('thinking') || normalized.includes('analysis') || normalized.includes('reason')) {
+      return 'thought';
+    }
+    if (normalized.includes('text') || normalized.includes('final') || normalized.includes('message')) {
+      return 'text';
+    }
+    return null;
+  }
+
+  private extractKindMarker(block: Record<string, unknown>): string | null {
+    if (typeof block.type === 'string') return block.type;
+    if (typeof block.role === 'string') return block.role;
+    if (typeof block.kind === 'string') return block.kind;
+    if (typeof (block as { status?: unknown }).status === 'string') return (block as { status: string }).status;
     return null;
   }
 

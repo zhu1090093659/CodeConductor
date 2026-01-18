@@ -193,6 +193,7 @@ export class AcpAgent {
         };
       }
       this.adapter.resetMessageTracking();
+      this.adapter.resetThoughtTracking();
       let processedContent = data.content;
 
       // Process @ file references in the message
