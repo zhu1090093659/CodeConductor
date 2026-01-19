@@ -29,16 +29,20 @@ export function generateThirdPartyAuth(apiKey: string): Record<string, unknown> 
   };
 }
 
-export function generateThirdPartyConfig(providerName: string, baseUrl: string, modelName = 'gpt-5.1-codex'): string {
+export function generateThirdPartyConfig(providerName: string, baseUrl: string, modelName = 'gpt-5.1-codex', reasoningEffort?: string): string {
   const cleanProviderName =
     providerName
       .toLowerCase()
       .replace(/[^a-z0-9_]/g, '_')
       .replace(/^_+|_+$/g, '') || 'custom';
 
+  // Default reasoning effort: xhigh for gpt-5.2-codex and gpt-5.2, medium for others
+  const defaultReasoningEffort = modelName === 'gpt-5.2-codex' || modelName === 'gpt-5.2' ? 'xhigh' : 'medium';
+  const effectiveReasoningEffort = reasoningEffort || defaultReasoningEffort;
+
   return `model_provider = "${cleanProviderName}"
 model = "${modelName}"
-model_reasoning_effort = "high"
+model_reasoning_effort = "${effectiveReasoningEffort}"
 disable_response_storage = true
 
 [model_providers.${cleanProviderName}]

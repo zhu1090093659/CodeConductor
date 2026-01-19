@@ -70,14 +70,14 @@ const buildClaudeEnv = (preset: ProviderPreset, config: CliProviderConfig) => {
   return env;
 };
 
-const patchCodexConfig = (baseConfig: string, baseUrl?: string, model?: string) => {
+const patchCodexConfig = (baseConfig: string, baseUrl?: string, model?: string, reasoningEffort?: string) => {
   let next = baseConfig || '';
   if (!next) {
     const resolvedModel = model || '';
     if (!resolvedModel) return next;
     // For Official mode, allow writing only the model by generating a minimal OpenAI provider block.
     const resolvedBaseUrl = baseUrl || 'https://api.openai.com/v1';
-    next = generateThirdPartyConfig('openai', resolvedBaseUrl, resolvedModel);
+    next = generateThirdPartyConfig('openai', resolvedBaseUrl, resolvedModel, reasoningEffort);
     return next;
   }
   if (baseUrl) {
@@ -85,6 +85,15 @@ const patchCodexConfig = (baseConfig: string, baseUrl?: string, model?: string) 
   }
   if (model) {
     next = next.replace(/model\s*=\s*".*?"/g, `model = "${model}"`);
+  }
+  if (reasoningEffort) {
+    // Check if model_reasoning_effort already exists
+    if (/model_reasoning_effort\s*=\s*".*?"/g.test(next)) {
+      next = next.replace(/model_reasoning_effort\s*=\s*".*?"/g, `model_reasoning_effort = "${reasoningEffort}"`);
+    } else {
+      // Add after model line
+      next = next.replace(/model\s*=\s*".*?"/g, (match) => `${match}\nmodel_reasoning_effort = "${reasoningEffort}"`);
+    }
   }
   return next;
 };
@@ -153,7 +162,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
         const selectedModel = config.model || config.enabledModels?.[0];
         const authPatch = config.apiKey ? ({ OPENAI_API_KEY: config.apiKey } as Record<string, unknown>) : undefined;
         const clearAuthKeys = shouldUseOfficial ? (['OPENAI_API_KEY'] as string[]) : undefined;
-        const configToml = patchCodexConfig(preset.config, config.baseUrl, selectedModel);
+        const configToml = patchCodexConfig(preset.config, config.baseUrl, selectedModel, config.reasoningEffort);
         const result = await applyProvider({
           target,
           authPatch,
@@ -320,6 +329,29 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                     </div>
                   )}
                 </div>
+              )}
+
+              {target === 'codex' && isOfficial && (
+                <Form.Item label='Reasoning Effort'>
+                  <Select
+                    value={
+                      config.reasoningEffort ||
+                      (() => {
+                        const model = config.model || config.enabledModels?.[0];
+                        return model === 'gpt-5.2-codex' || model === 'gpt-5.2' ? 'xhigh' : 'medium';
+                      })()
+                    }
+                    placeholder='Select reasoning effort'
+                    onChange={(value) => void saveConfigs({ ...configs, [target]: { ...configs[target], reasoningEffort: value as 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' } })}
+                  >
+                    <Select.Option value='minimal'>Minimal</Select.Option>
+                    <Select.Option value='low'>Low</Select.Option>
+                    <Select.Option value='medium'>Medium</Select.Option>
+                    <Select.Option value='high'>High</Select.Option>
+                    <Select.Option value='xhigh'>XHigh</Select.Option>
+                  </Select>
+                  <div className='text-12px text-t-secondary mt-6px'>Controls model_reasoning_effort in Codex config (default: medium; xhigh on gpt-5.2-codex and gpt-5.2)</div>
+                </Form.Item>
               )}
 
               {showClaudeThinking && (

@@ -91,6 +91,8 @@ export interface CliProviderConfig {
   alwaysThinkingEnabled?: boolean;
   /** Claude Code: env MAX_THINKING_TOKENS (string to preserve user input) */
   maxThinkingTokens?: string;
+  /** Codex: model reasoning effort level */
+  reasoningEffort?: 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
 }
 
 export type CliProvidersStorage = Record<CliProviderTarget, CliProviderConfig | undefined>;
