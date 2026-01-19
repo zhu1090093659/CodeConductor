@@ -36,6 +36,36 @@
   margin-left: auto;
 }
 
+.collabToggleBtn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--fill-0) !important;
+  box-shadow: var(--shadow-inset);
+  backdrop-filter: saturate(180%) blur(14px);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.collabToggleBtn:hover {
+  border-color: var(--border-base) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.collabToggleBtn:active {
+  transform: translateY(1px);
+}
+
+.collabToggleBtnActive {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border-base)) !important;
+  background: color-mix(in srgb, var(--primary) 14%, var(--fill-0)) !important;
+  box-shadow: var(--shadow-sm);
+}
+
 .lightPlaceholder::placeholder {
   color: var(--color-text-3);
   opacity: 0.6;

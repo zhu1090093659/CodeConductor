@@ -1422,7 +1422,7 @@ const Guid: React.FC = () => {
                   </Button>
                 </Dropdown>
                 <Tooltip content={localeKey.startsWith('zh') ? '协作模式 (PM/Analyst/Engineer)' : 'Collaboration mode (PM/Analyst/Engineer)'}>
-                  <Button shape='round' type={collabMode ? 'primary' : 'secondary'} onClick={toggleCollabMode} className='ml-8px'>
+                  <Button shape='round' type='secondary' aria-pressed={collabMode} onClick={toggleCollabMode} className={`ml-8px ${styles.collabToggleBtn} ${collabMode ? styles.collabToggleBtnActive : ''}`}>
                     {localeKey.startsWith('zh') ? '协作' : 'Collab'}
                   </Button>
                 </Tooltip>

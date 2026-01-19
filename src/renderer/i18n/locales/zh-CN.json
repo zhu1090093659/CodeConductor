@@ -216,6 +216,11 @@
       "closeRight": "关闭右侧",
       "closeOthers": "关闭其他"
     },
+    "collab": {
+      "mergedViewTitle": "协作 · 合并视图",
+      "activeRole": "当前角色",
+      "notInitialized": "此会话尚未初始化协作模式。"
+    },
     "workspace": {
       "title": "工作空间",
       "pasteConfirm_title": "粘贴文件",

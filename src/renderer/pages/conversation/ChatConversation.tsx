@@ -292,7 +292,7 @@ const ChatConversation: React.FC<{
 
     return (
       <Tooltip content='Enable PM/Analyst/Engineer collaboration'>
-        <Button size='mini' onClick={() => void enableCollab()}>
+        <Button size='mini' shape='round' className='collab-enable-btn' onClick={() => void enableCollab()}>
           Collab
         </Button>
       </Tooltip>
@@ -361,11 +361,22 @@ const ChatConversation: React.FC<{
           headerExtra,
         };
 
-  return (
-    <ChatLayout title={conversation?.name} {...chatLayoutProps} agentStatus={agentStatus} siderTitle={sliderTitle} sider={<ChatSider conversation={conversation} />} workspaceEnabled={workspaceEnabled}>
-      {conversationNode}
-    </ChatLayout>
-  );
+  const sider = useMemo(() => {
+    return <ChatSider conversation={conversation} />;
+  }, [conversation]);
+
+  const layoutProps = useMemo(() => {
+    return {
+      ...chatLayoutProps,
+      title: conversation?.name,
+      agentStatus,
+      siderTitle: sliderTitle,
+      sider,
+      workspaceEnabled,
+    };
+  }, [agentStatus, chatLayoutProps, conversation?.name, sider, sliderTitle, workspaceEnabled]);
+
+  return <ChatLayout {...layoutProps}>{conversationNode}</ChatLayout>;
 };
 
 export default ChatConversation;

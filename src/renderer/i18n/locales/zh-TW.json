@@ -315,6 +315,11 @@
       "closeRight": "關閉右側",
       "closeOthers": "關閉其他"
     },
+    "collab": {
+      "mergedViewTitle": "協作 · 合併視圖",
+      "activeRole": "目前角色",
+      "notInitialized": "此對話尚未初始化協作模式。"
+    },
     "workspace": {
       "title": "工作空間",
       "pasteConfirm_title": "貼上檔案",

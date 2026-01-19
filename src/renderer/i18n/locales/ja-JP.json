@@ -344,6 +344,11 @@
       "closeRight": "右側を閉じる",
       "closeOthers": "他を閉じる"
     },
+    "collab": {
+      "mergedViewTitle": "コラボ · 統合ビュー",
+      "activeRole": "現在のロール",
+      "notInitialized": "この会話ではコラボレーションがまだ初期化されていません。"
+    },
     "workspace": {
       "title": "ワークスペース",
       "pasteConfirm_title": "ファイルを貼り付け",

@@ -276,6 +276,278 @@ body,
   box-shadow: var(--shadow-sm);
 }
 
+/* Collab merged view */
+.collab-shell {
+  min-width: 0;
+}
+
+.collab-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 -20px 10px;
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-base);
+  background: color-mix(in srgb, var(--bg-base) 70%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+}
+
+[data-theme='dark'] .collab-topbar {
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+}
+
+.collab-topbar__title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--text-secondary);
+}
+
+.collab-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.collab-topbar__meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.collab-enable-btn {
+  border-radius: 999px !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--fill-0) !important;
+  box-shadow: var(--shadow-inset);
+  backdrop-filter: saturate(180%) blur(14px);
+}
+
+.collab-enable-btn:hover {
+  border-color: var(--border-base) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.collab-enable-btn:active {
+  transform: translateY(1px);
+}
+
+.collab-role-switch {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: var(--bg-1);
+  background: color-mix(in srgb, var(--bg-1) 78%, transparent);
+  box-shadow: var(--shadow-inset);
+}
+
+.collab-role-switch__btn {
+  --collab-accent-rgb: 10, 132, 255;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.1px;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.collab-role-switch__btn:hover {
+  background: var(--bg-hover);
+  background: color-mix(in srgb, var(--bg-hover) 60%, transparent);
+  color: var(--text-primary);
+}
+
+.collab-role-switch__btn[data-active='1'] {
+  background: var(--fill-0);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.collab-role-switch__btn:active {
+  transform: translateY(0.5px);
+}
+
+.collab-role-switch__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus), var(--shadow-sm);
+}
+
+.collab-role-switch__btn[data-role='pm'] {
+  --collab-accent-rgb: 255, 149, 0;
+}
+
+.collab-role-switch__btn[data-role='analyst'] {
+  --collab-accent-rgb: 175, 82, 222;
+}
+
+.collab-role-switch__btn[data-role='engineer'] {
+  --collab-accent-rgb: 10, 132, 255;
+}
+
+.collab-role-switch__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: rgb(var(--collab-accent-rgb));
+  box-shadow: 0 0 0 2px rgba(var(--collab-accent-rgb), 0.14);
+}
+
+[data-theme='dark'] .collab-role-switch__dot {
+  box-shadow: 0 0 0 2px rgba(var(--collab-accent-rgb), 0.22);
+}
+
+.collab-role-switch__label {
+  white-space: nowrap;
+}
+
+.collab-role-switch__thinking {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  margin-left: 2px;
+  background: rgba(var(--collab-accent-rgb), 0.65);
+  animation: collab-role-thinking 1.1s infinite ease-in-out;
+}
+
+@keyframes collab-role-thinking {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.collab-message-header {
+  display: flex;
+  align-items: center;
+  margin: 0 0 6px;
+}
+
+.collab-role-pill {
+  --collab-accent-rgb: 10, 132, 255;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--collab-accent-rgb), 0.22);
+  background: rgba(var(--collab-accent-rgb), 0.1);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .collab-role-pill {
+  border-color: rgba(var(--collab-accent-rgb), 0.28);
+  background: rgba(var(--collab-accent-rgb), 0.16);
+}
+
+.collab-role-pill[data-role='pm'] {
+  --collab-accent-rgb: 255, 149, 0;
+}
+
+.collab-role-pill[data-role='analyst'] {
+  --collab-accent-rgb: 175, 82, 222;
+}
+
+.collab-role-pill[data-role='engineer'] {
+  --collab-accent-rgb: 10, 132, 255;
+}
+
+.collab-role-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: rgb(var(--collab-accent-rgb));
+  box-shadow: 0 0 0 2px rgba(var(--collab-accent-rgb), 0.14);
+}
+
+[data-theme='dark'] .collab-role-pill__dot {
+  box-shadow: 0 0 0 2px rgba(var(--collab-accent-rgb), 0.22);
+}
+
+.collab-message-bubble {
+  --collab-accent-rgb: 10, 132, 255;
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 10px 12px 10px 14px;
+  box-shadow: var(--shadow-sm);
+  background: var(--fill-0);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@supports (background: color-mix(in srgb, #000 50%, #fff)) {
+  .collab-message-bubble {
+    background: color-mix(in srgb, var(--fill-0) 88%, rgba(var(--collab-accent-rgb), 0.1));
+  }
+}
+
+.collab-message-bubble :where(pre) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.collab-message-bubble :where(img, video, canvas, svg, iframe) {
+  max-width: 100%;
+}
+
+.collab-message-bubble[data-role='pm'] {
+  --collab-accent-rgb: 255, 149, 0;
+}
+
+.collab-message-bubble[data-role='analyst'] {
+  --collab-accent-rgb: 175, 82, 222;
+}
+
+.collab-message-bubble[data-role='engineer'] {
+  --collab-accent-rgb: 10, 132, 255;
+}
+
+.collab-message-bubble__accent {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(var(--collab-accent-rgb), 0.85);
+}
+
+[data-theme='dark'] .collab-message-bubble__accent {
+  background: rgba(var(--collab-accent-rgb), 0.9);
+}
+
 /* Collab thinking indicator */
 .collab-thinking-indicator {
   display: flex;
@@ -285,9 +557,11 @@ body,
   margin: 8px 0 12px;
   padding: 8px 12px;
   border: 1px solid var(--border-light);
-  background-color: var(--bg-1);
-  border-radius: 10px;
+  background: var(--bg-base);
+  background: color-mix(in srgb, var(--bg-base) 70%, transparent);
+  border-radius: 14px;
   box-shadow: var(--shadow-sm);
+  backdrop-filter: saturate(180%) blur(18px);
 }
 
 .collab-thinking-indicator__title {

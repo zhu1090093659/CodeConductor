@@ -5,11 +5,11 @@
  */
 
 import { ipcBridge } from '@/common';
+import type { IResponseMessage } from '@/common/ipcBridge';
 import type { TMessage } from '@/common/chatLib';
 import type { TChatConversation } from '@/common/storage';
 import { transformMessage } from '@/common/chatLib';
 import { uuid } from '@/common/utils';
-import { Select, Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MessageListProvider, useAddOrUpdateMessage, useUpdateMessageList } from '@/renderer/messages/hooks';
 import MessageList from '@/renderer/messages/MessageList';
@@ -22,6 +22,12 @@ import { useAddEventListener } from '@/renderer/utils/emitter';
 import { useTranslation } from 'react-i18next';
 
 type CollabRole = 'pm' | 'analyst' | 'engineer';
+type CollabRoleMap = Record<CollabRole, string>;
+type CollabParentExtra = {
+  collab?: {
+    roleMap?: Partial<CollabRoleMap>;
+  };
+};
 
 type CollabNotifyDirective = {
   to: CollabRole;
@@ -110,17 +116,16 @@ const ROLE_LABEL: Record<CollabRole, string> = {
   engineer: 'Engineer',
 };
 
-const ROLE_TAG_COLOR: Record<CollabRole, React.ComponentProps<typeof Tag>['color']> = {
-  pm: 'orangered',
-  analyst: 'purple',
-  engineer: 'blue',
-};
-
 const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ parentConversation }) => {
   const { t } = useTranslation();
   const updateList = useUpdateMessageList();
   const addOrUpdateMessage = useAddOrUpdateMessage();
-  const roleMap = (parentConversation.extra as any)?.collab?.roleMap as { pm: string; analyst: string; engineer: string } | undefined;
+  const roleMap = useMemo<CollabRoleMap | undefined>(() => {
+    const extra = parentConversation.extra as unknown as CollabParentExtra | undefined;
+    const map = extra?.collab?.roleMap;
+    if (!map?.pm || !map?.analyst || !map?.engineer) return undefined;
+    return { pm: map.pm, analyst: map.analyst, engineer: map.engineer };
+  }, [parentConversation.extra]);
   const [activeRole, setActiveRole] = useState<CollabRole>(() => {
     const v = sessionStorage.getItem(`collab_active_role_${parentConversation.id}`);
     return v === 'pm' || v === 'analyst' || v === 'engineer' ? v : 'engineer';
@@ -166,7 +171,11 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
   useEffect(() => {
     if (!roleMap) return;
     let cancelled = false;
-    void Promise.all([ipcBridge.database.getConversationMessages.invoke({ conversation_id: roleMap.pm, page: 0, pageSize: 10000 }), ipcBridge.database.getConversationMessages.invoke({ conversation_id: roleMap.analyst, page: 0, pageSize: 10000 }), ipcBridge.database.getConversationMessages.invoke({ conversation_id: roleMap.engineer, page: 0, pageSize: 10000 })])
+    const loadAll = (conversation_id: string) => {
+      return ipcBridge.database.getConversationMessages.invoke({ conversation_id, page: 0, pageSize: 10000 });
+    };
+
+    void Promise.all([loadAll(roleMap.pm), loadAll(roleMap.analyst), loadAll(roleMap.engineer)])
       .then(([pm, analyst, engineer]) => {
         if (cancelled) return;
         const merged = ([] as TMessage[])
@@ -247,7 +256,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
       }
     };
 
-    const handle = (message: { type: string; conversation_id: string; msg_id: string; data: unknown }) => {
+    const handle = (message: IResponseMessage) => {
       if (!children.has(message.conversation_id)) return;
       updateThinkingFromMessage(message);
       if (message.type === 'finish') {
@@ -256,13 +265,13 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
       }
       // Active role is already handled by the active SendBox stream handler.
       if (activeConversationId && message.conversation_id === activeConversationId) return;
-      const transformed = transformMessage(message as any);
+      const transformed = transformMessage(message);
       if (!transformed) return;
       addOrUpdateMessage(transformed);
     };
 
-    const unsubAcp = ipcBridge.acpConversation.responseStream.on(handle as any);
-    const unsubCodex = ipcBridge.codexConversation.responseStream.on(handle as any);
+    const unsubAcp = ipcBridge.acpConversation.responseStream.on(handle);
+    const unsubCodex = ipcBridge.codexConversation.responseStream.on(handle);
     return () => {
       unsubAcp?.();
       unsubCodex?.();
@@ -273,16 +282,13 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     return (message: TMessage) => {
       const role = roleByConversationId.get(message.conversation_id);
       if (!role) return null;
-      // Return a hidden div with data attribute for the list to pick up?
-      // No, that's hacky.
-      // Let's just return a nice visible header for now, and handle the bubble style in MessageList by checking the message ID mapping if possible,
-      // or simply rely on the fact that we will modify MessageList to support a 'variant' prop or similar.
-      // But for this step, let's just improve the tag.
+      if (message.position !== 'left') return null;
       return (
-        <div className='flex items-center gap-2 mb-1'>
-          <Tag size='small' color={ROLE_TAG_COLOR[role]} bordered className='uppercase font-bold'>
-            {ROLE_LABEL[role]}
-          </Tag>
+        <div className='collab-message-header'>
+          <span className='collab-role-pill' data-role={role}>
+            <span className='collab-role-pill__dot' aria-hidden='true' />
+            <span className='collab-role-pill__label'>{ROLE_LABEL[role]}</span>
+          </span>
         </div>
       );
     };
@@ -292,28 +298,12 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     return (message: TMessage, children: React.ReactNode) => {
       const role = roleByConversationId.get(message.conversation_id);
       if (!role) return children;
-
-      // Using Arco Design color palette variables
-      const colors = {
-        pm: { bg: 'rgb(var(--orange-1))', border: 'rgb(var(--orange-2))' },
-        analyst: { bg: 'rgb(var(--purple-1))', border: 'rgb(var(--purple-2))' },
-        engineer: { bg: 'rgb(var(--arcoblue-1))', border: 'rgb(var(--arcoblue-2))' },
-      };
-
-      const style = colors[role];
-      if (!style) return children;
+      if (message.position !== 'left') return children;
+      if (message.type !== 'text') return children;
 
       return (
-        <div
-          style={{
-            backgroundColor: style.bg,
-            borderColor: style.border,
-            borderWidth: 1,
-            borderStyle: 'solid',
-            borderRadius: '8px',
-            padding: '8px 12px',
-          }}
-        >
+        <div className='collab-message-bubble' data-role={role}>
+          <span className='collab-message-bubble__accent' aria-hidden='true' />
           {children}
         </div>
       );
@@ -332,10 +322,19 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     return (['pm', 'analyst', 'engineer'] as CollabRole[]).filter((role) => roleThinking[role]);
   }, [roleThinking]);
 
+  const sendBox = useMemo(() => {
+    if (parentConversation.type === 'acp') {
+      const backend = (parentConversation.extra?.backend as AcpBackend | undefined) ?? ('claude' as AcpBackend);
+      return <AcpSendBox conversation_id={activeConversationId} backend={backend} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} optimisticUserMessage />;
+    }
+
+    return <CodexSendBox conversation_id={activeConversationId} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} />;
+  }, [activeConversationId, mentionOptions, parentConversation.extra?.backend, parentConversation.type]);
+
   if (!roleMap || !activeConversationId || !workspace) {
     return (
       <div className='flex-1 flex flex-col px-20px'>
-        <div className='text-t-secondary text-sm'>Collaboration is not initialized for this conversation.</div>
+        <div className='text-t-secondary text-sm'>{t('conversation.collab.notInitialized')}</div>
       </div>
     );
   }
@@ -346,17 +345,40 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
         conversationId: activeConversationId,
         workspace,
         type: parentConversation.type,
-        backend: parentConversation.type === 'acp' ? ((parentConversation.extra as any)?.backend as AcpBackend) : undefined,
+        backend: parentConversation.type === 'acp' ? (parentConversation.extra?.backend as AcpBackend | undefined) : undefined,
       }}
     >
-      <div className='flex-1 min-h-0 flex flex-col px-20px'>
-        <div className='flex items-center justify-between mb-10px'>
-          <div className='text-sm text-t-secondary'>Merged roles</div>
-          <Select size='mini' value={activeRole} onChange={(v) => setActiveRole(v as CollabRole)} style={{ width: 140 }}>
-            <Select.Option value='pm'>PM</Select.Option>
-            <Select.Option value='analyst'>Analyst</Select.Option>
-            <Select.Option value='engineer'>Engineer</Select.Option>
-          </Select>
+      <div className='collab-shell flex-1 min-h-0 flex flex-col px-20px'>
+        <div className='collab-topbar'>
+          <div className='collab-topbar__left min-w-0'>
+            <div className='collab-topbar__title truncate'>{t('conversation.collab.mergedViewTitle')}</div>
+          </div>
+          <div className='collab-topbar__right'>
+            <div className='collab-topbar__meta'>{t('conversation.collab.activeRole')}</div>
+            <div className='collab-role-switch' role='tablist' aria-label={t('conversation.collab.activeRole')}>
+              {(['pm', 'analyst', 'engineer'] as CollabRole[]).map((role) => {
+                const active = role === activeRole;
+                const thinking = Boolean(roleThinking[role]);
+                const roleButtonProps = {
+                  type: 'button' as const,
+                  role: 'tab' as const,
+                  'aria-selected': active,
+                  className: 'collab-role-switch__btn',
+                  'data-role': role,
+                  'data-active': active ? '1' : '0',
+                  onClick: () => setActiveRole(role),
+                  title: ROLE_LABEL[role],
+                };
+                return (
+                  <button key={role} {...roleButtonProps}>
+                    <span className='collab-role-switch__dot' aria-hidden='true' />
+                    <span className='collab-role-switch__label'>{ROLE_LABEL[role]}</span>
+                    {thinking && <span className='collab-role-switch__thinking' aria-hidden='true' />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <FlexFullContainer>
@@ -369,9 +391,10 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
             <div className='collab-thinking-indicator__roles'>
               {activeThinkingRoles.map((role) => (
                 <div key={role} className='collab-thinking-indicator__item'>
-                  <Tag size='small' color={ROLE_TAG_COLOR[role]} bordered>
-                    {ROLE_LABEL[role]}
-                  </Tag>
+                  <span className='collab-role-pill' data-role={role}>
+                    <span className='collab-role-pill__dot' aria-hidden='true' />
+                    <span className='collab-role-pill__label'>{ROLE_LABEL[role]}</span>
+                  </span>
                   <span className='collab-thinking-indicator__dots' aria-hidden='true'>
                     <span className='collab-thinking-indicator__dot' />
                     <span className='collab-thinking-indicator__dot' />
@@ -383,7 +406,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
           </div>
         )}
 
-        {parentConversation.type === 'acp' ? <AcpSendBox conversation_id={activeConversationId} backend={(parentConversation.extra as any)?.backend || ('claude' as AcpBackend)} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} optimisticUserMessage /> : <CodexSendBox conversation_id={activeConversationId} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} />}
+        {sendBox}
       </div>
     </ConversationProvider>
   );

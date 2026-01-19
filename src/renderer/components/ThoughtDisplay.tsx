@@ -42,6 +42,7 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   const [elapsedTime, setElapsedTime] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
   const [isExpanded, setIsExpanded] = useState(false);
+  const prevRunningRef = useRef<boolean>(running);
 
   // 计时器 Timer for elapsed time
   useEffect(() => {
@@ -62,12 +63,20 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
     return () => clearInterval(timer);
   }, [running, thought?.subject]);
 
-  // Auto expand while running; do NOT auto-collapse when finished so user can still read the thought.
+  // Auto expand while running.
   useEffect(() => {
     if (running) {
       setIsExpanded(true);
     }
-    // Removed auto-collapse logic: prevRunningRef is no longer needed
+  }, [running]);
+
+  // Auto-collapse when finished (user can expand manually if needed).
+  useEffect(() => {
+    const prevRunning = prevRunningRef.current;
+    prevRunningRef.current = running;
+    if (prevRunning && !running) {
+      setIsExpanded(false);
+    }
   }, [running]);
 
   // 处理 ESC 键取消 Handle ESC key to cancel

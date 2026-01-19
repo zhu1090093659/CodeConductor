@@ -219,6 +219,11 @@
       "closeRight": "오른쪽 닫기",
       "closeOthers": "다른 탭 닫기"
     },
+    "collab": {
+      "mergedViewTitle": "협업 · 병합 보기",
+      "activeRole": "현재 역할",
+      "notInitialized": "이 대화에 협업이 아직 초기화되지 않았습니다."
+    },
     "workspace": {
       "title": "워크스페이스",
       "pasteConfirm_title": "파일 붙여넣기",
