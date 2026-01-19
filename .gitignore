@@ -156,3 +156,4 @@ specs/**/work-*
 node_modules/
 .ace-tool/
 ${env.ELECTRON_CACHE}/electron-v37.7.1-win32-x64.zip
+.ai/

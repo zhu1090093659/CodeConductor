@@ -155,6 +155,6 @@ electronDownload:
 
 publish:
   provider: github
-  owner: ${env.GITHUB_REPOSITORY_OWNER:-codeconductor}
-  repo: ${env.GITHUB_REPOSITORY_NAME:-CodeConductor}
+  owner: zhu1090093659
+  repo: CodeConductor
   publishAutoUpdate: true  # Enable auto-update metadata generation
