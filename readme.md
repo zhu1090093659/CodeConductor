@@ -54,6 +54,16 @@
 
 ## Changelog
 
+### 1.7.3
+
+- Enhance ACP adapter to better convert agent thoughts into displayable chat messages.
+- Implement CLI provider settings with presets and storage for Codex and Claude.
+- Improve collaboration features with multi-role communication and notification mechanism.
+- Optimize process management and orphaned process cleanup for better resource handling.
+- Enhance IPC communication mechanisms for improved stability.
+- Add electron-updater integration for automatic incremental updates.
+- Improve build and release pipeline with GitHub Actions automation.
+
 ### 1.7.2
 
 - Add a settings page for configuring CLI providers (Claude Code / Codex).

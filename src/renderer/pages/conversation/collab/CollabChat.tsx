@@ -329,7 +329,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
     }
 
     return <CodexSendBox conversation_id={activeConversationId} mentionOptions={mentionOptions} onMentionSelect={(key) => setActiveRole(key as CollabRole)} />;
-  }, [activeConversationId, mentionOptions, parentConversation.extra?.backend, parentConversation.type]);
+  }, [activeConversationId, mentionOptions, parentConversation.type, parentConversation.type === 'acp' ? parentConversation.extra?.backend : undefined]);
 
   if (!roleMap || !activeConversationId || !workspace) {
     return (
