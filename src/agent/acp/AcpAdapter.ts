@@ -71,9 +71,11 @@ export class AcpAdapter {
       }
 
       case 'agent_thought_chunk': {
-        // Thought content is handled via ThoughtDisplay component through the 'thought' event.
-        // Do NOT add to message list to avoid duplicate rendering.
-        this.convertThoughtChunk(update); // Still call to update internal thought state
+        // Create thought message and add to messages array so it can be sent to frontend
+        const thoughtMessage = this.convertThoughtChunk(update);
+        if (thoughtMessage) {
+          messages.push(thoughtMessage);
+        }
         // Reset message tracking for next agent_message_chunk
         this.resetMessageTracking();
         break;
