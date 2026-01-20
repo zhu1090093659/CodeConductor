@@ -763,6 +763,7 @@
       }
     },
     "thinking": {
+      "label": "thinking",
       "processing": "🤔 Codex is thinking...",
       "completed": "💭 Thinking process completed",
       "analyzing": "Analyzing the problem and formulating solutions...",

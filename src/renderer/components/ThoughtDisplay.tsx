@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Tag, Spin } from '@arco-design/web-react';
+import { Spin } from '@arco-design/web-react';
 import { Down, Up } from '@icon-park/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeContext } from '@/renderer/context/ThemeContext';
@@ -95,26 +95,30 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   }, [running, onStop]);
 
   // 根据主题和样式计算最终样式 Calculate final style based on theme and style prop
-  const containerStyle = useMemo(() => {
-    const background = theme === 'dark' ? GRADIENT_DARK : GRADIENT_LIGHT;
-
+  const wrapperStyle = useMemo(() => {
     if (style === 'compact') {
       return {
-        background,
         marginBottom: '8px',
-        border: '1px solid var(--bg-3)',
       };
     }
 
     return {
-      background,
       transform: 'translateY(36px)',
     };
-  }, [theme, style]);
+  }, [style]);
 
-  const subject = thought?.subject || 'Thinking';
+  const frameStyle = useMemo(() => {
+    const background = theme === 'dark' ? GRADIENT_DARK : GRADIENT_LIGHT;
+
+    return {
+      background,
+      border: '1px solid var(--bg-3)',
+    };
+  }, [theme]);
+
   const description = thought?.description || '';
-  const headerText = description || t('conversation.chat.processing');
+  const contentText = description || t('codex.thinking.analyzing', { defaultValue: 'Thinking…' });
+  const labelText = t('codex.thinking.label', { defaultValue: 'Thinking' });
 
   const show = running || Boolean(thought?.subject) || Boolean(description);
   if (!show) {
@@ -122,35 +126,58 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   }
 
   return (
-    <div className='rd-12px overflow-hidden' style={containerStyle}>
-      <div className='px-10px py-8px text-14px lh-20px text-t-primary flex items-center justify-between gap-8px'>
-        <div className='flex items-center gap-8px min-w-0'>
-          {running && <Spin size={14} />}
-          <Tag color='arcoblue' size='small'>
-            {subject}
-          </Tag>
-          {!isExpanded && <span className='text-t-secondary truncate'>{headerText}</span>}
-        </div>
-        <div className='flex items-center gap-8px shrink-0'>
-          {running && (
-            <span className='text-t-tertiary text-12px whitespace-nowrap'>
-              ({t('common.escToCancel')}, {formatElapsedTime(elapsedTime)})
-            </span>
+    <div className='relative' style={wrapperStyle}>
+      <span
+        className='absolute flex items-center'
+        style={{
+          top: '-10px',
+          left: '12px',
+          zIndex: 1,
+          padding: '2px 8px',
+          borderRadius: '999px',
+          border: '1px solid var(--bg-3)',
+          background: 'var(--bg-base)',
+          fontSize: '10px',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        {labelText}
+      </span>
+      <div
+        className='absolute flex items-center gap-6px'
+        style={{
+          top: '-12px',
+          right: '10px',
+          zIndex: 1,
+          padding: '2px 6px',
+          borderRadius: '999px',
+          border: '1px solid var(--bg-3)',
+          background: 'var(--bg-base)',
+        }}
+      >
+        {running && <Spin size={12} />}
+        {running && (
+          <span className='text-t-tertiary text-12px whitespace-nowrap'>
+            {t('common.escToCancel')}, {formatElapsedTime(elapsedTime)}
+          </span>
+        )}
+        <button type='button' aria-label={isExpanded ? t('common.collapse') : t('common.expandMore')} title={isExpanded ? t('common.collapse') : t('common.expandMore')} className='flex items-center text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer' onClick={() => setIsExpanded((v) => !v)}>
+          {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
+        </button>
+      </div>
+      <div className='rd-12px overflow-hidden' style={frameStyle}>
+        <div className='px-10px pt-12px pb-10px'>
+          {isExpanded ? (
+            <div className='bg-1/40 rounded-8px p-10px max-h-260px overflow-y-auto'>
+              <div className='text-t-primary whitespace-pre-wrap break-words'>{contentText}</div>
+            </div>
+          ) : (
+            <div className='text-t-secondary text-13px truncate'>{contentText}</div>
           )}
-          <button type='button' className='flex items-center gap-4px text-xs text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer' onClick={() => setIsExpanded((v) => !v)}>
-            <span>{isExpanded ? t('common.collapse') : t('common.expandMore')}</span>
-            {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
-          </button>
         </div>
       </div>
-
-      {isExpanded && (
-        <div className='px-10px pb-10px'>
-          <div className='bg-1/40 rounded-8px p-10px max-h-260px overflow-y-auto'>
-            <div className='text-t-primary whitespace-pre-wrap break-words'>{description || t('codex.thinking.analyzing', { defaultValue: 'Thinking…' })}</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -20,6 +20,7 @@
       "unknown_error_title": "🔌 網路連線錯誤"
     },
     "thinking": {
+      "label": "thinking",
       "processing": "🤔 Codex 正在思考...",
       "completed": "💭 思考過程完成",
       "analyzing": "正在分析問題和制定解決方案...",

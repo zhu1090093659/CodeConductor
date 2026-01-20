@@ -11,7 +11,7 @@ import { Download } from '@icon-park/react';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 import { CLAUDE_PROVIDER_PRESETS } from '@/renderer/config/cliProviders/claudePresets';
 import { CODEX_PROVIDER_PRESETS, generateThirdPartyConfig } from '@/renderer/config/cliProviders/codexPresets';
-import { ConfigStorage, type CliProviderConfig, type CliProviderTarget, type CliProvidersStorage } from '@/common/storage';
+import { ConfigStorage, type CliProviderConfig, type CliProviderPresetConfig, type CliProviderTarget, type CliProvidersStorage } from '@/common/storage';
 import { ipcBridge } from '@/common';
 import useModeModeList from '@/renderer/hooks/useModeModeList';
 
@@ -30,6 +30,30 @@ type ProviderPreset = {
 const DEFAULT_CONFIG: CliProvidersStorage = {
   claude: {},
   codex: {},
+};
+
+const getProviderScopedConfig = (config: CliProviderConfig): CliProviderPresetConfig => {
+  return {
+    apiKey: config.apiKey,
+    baseUrl: config.baseUrl,
+    model: config.model,
+    enabledModels: config.enabledModels,
+    templateValues: config.templateValues,
+    reasoningEffort: config.reasoningEffort,
+  };
+};
+
+const getDefaultProviderConfig = (target: CliProviderTarget, preset?: ProviderPreset): CliProviderPresetConfig => {
+  const baseUrl = target === 'claude' ? preset?.settingsConfig?.env?.['ANTHROPIC_BASE_URL'] || preset?.endpointCandidates?.[0] || '' : preset?.endpointCandidates?.[0] || '';
+  const model = target === 'claude' ? (preset as { model?: string })?.model || preset?.settingsConfig?.env?.['ANTHROPIC_MODEL']?.toString() || '' : '';
+  return {
+    apiKey: '',
+    baseUrl: baseUrl ? String(baseUrl) : '',
+    model: model ? String(model) : '',
+    enabledModels: [],
+    templateValues: undefined,
+    reasoningEffort: undefined,
+  };
 };
 
 const buildClaudeEnv = (preset: ProviderPreset, config: CliProviderConfig) => {
@@ -137,6 +161,24 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
     [setConfigs]
   );
 
+  const updateConfigForTarget = useCallback(
+    (target: CliProviderTarget, patch: Partial<CliProviderConfig>) => {
+      const current = configs[target] || {};
+      const next: CliProviderConfig = { ...current, ...patch };
+      const presetName = next.presetName;
+      const providerConfigs = { ...(next.providerConfigs || {}) };
+      if (presetName) {
+        providerConfigs[presetName] = {
+          ...providerConfigs[presetName],
+          ...getProviderScopedConfig(next),
+        };
+      }
+      next.providerConfigs = providerConfigs;
+      void saveConfigs({ ...configs, [target]: next });
+    },
+    [configs, saveConfigs]
+  );
+
   const handleApply = useCallback(
     async (target: CliProviderTarget) => {
       const applyProvider = ipcBridge.provider.apply.invoke as (payload: unknown) => Promise<{ success: boolean; msg?: string }>;
@@ -216,24 +258,12 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
 
         useEffect(() => {
           if (!availableModels.length || enabledModels.length > 0) return;
-          void saveConfigs({
-            ...configs,
-            [target]: {
-              ...config,
-              enabledModels: availableModels.slice(0, 1),
-            },
-          });
-        }, [availableModels, config, configs, enabledModels.length, saveConfigs, target]);
+          updateConfigForTarget(target, { enabledModels: availableModels.slice(0, 1) });
+        }, [availableModels, enabledModels.length, target, updateConfigForTarget]);
 
         const toggleModel = (modelName: string, nextEnabled: boolean) => {
           const nextModels = nextEnabled ? [...effectiveEnabledModels, modelName] : effectiveEnabledModels.filter((name) => name !== modelName);
-          void saveConfigs({
-            ...configs,
-            [target]: {
-              ...config,
-              enabledModels: nextModels,
-            },
-          });
+          updateConfigForTarget(target, { enabledModels: nextModels });
         };
 
         useEffect(() => {
@@ -241,14 +271,8 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
           if (!availableModels.length) return;
           const validEnabled = enabledModels.filter((modelName) => availableModels.includes(modelName));
           if (validEnabled.length === enabledModels.length) return;
-          void saveConfigs({
-            ...configs,
-            [target]: {
-              ...config,
-              enabledModels: validEnabled,
-            },
-          });
-        }, [availableModels, config, configs, enabledModels, saveConfigs, target]);
+          updateConfigForTarget(target, { enabledModels: validEnabled });
+        }, [availableModels, enabledModels, target, updateConfigForTarget]);
 
         const handleFetchModels = async () => {
           await modelListState.mutate();
@@ -268,14 +292,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                     placeholder={value.placeholder}
                     value={configs[target]?.templateValues?.[key] || value.defaultValue || ''}
                     onChange={(next) => {
-                      const nextConfigs = {
-                        ...configs,
-                        [target]: {
-                          ...configs[target],
-                          templateValues: { ...(configs[target]?.templateValues || {}), [key]: next },
-                        },
-                      };
-                      void saveConfigs(nextConfigs);
+                      updateConfigForTarget(target, { templateValues: { ...(configs[target]?.templateValues || {}), [key]: next } });
                     }}
                   />
                 </Form.Item>
@@ -292,19 +309,30 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                   value={config.presetName}
                   placeholder='Select provider'
                   onChange={(value) => {
+                    const currentConfig = configs[target] || {};
+                    const providerConfigs = { ...(currentConfig.providerConfigs || {}) };
+                    if (currentConfig.presetName) {
+                      providerConfigs[currentConfig.presetName] = {
+                        ...providerConfigs[currentConfig.presetName],
+                        ...getProviderScopedConfig(currentConfig),
+                      };
+                    }
                     const nextPreset = presets.find((p) => p.name === value);
-                    const baseUrl = target === 'claude' ? nextPreset?.settingsConfig?.env?.['ANTHROPIC_BASE_URL'] || nextPreset?.endpointCandidates?.[0] || '' : nextPreset?.endpointCandidates?.[0] || '';
-                    const model = target === 'claude' ? (nextPreset as { model?: string })?.model || nextPreset?.settingsConfig?.env?.['ANTHROPIC_MODEL']?.toString() || '' : '';
-                    const nextConfigs = {
-                      ...configs,
-                      [target]: {
-                        ...configs[target],
-                        presetName: value,
-                        baseUrl: baseUrl ? String(baseUrl) : '',
-                        model: model ? String(model) : '',
-                      },
+                    const defaultConfig = getDefaultProviderConfig(target, nextPreset);
+                    const storedConfig = providerConfigs[value];
+                    const mergedConfig = { ...defaultConfig, ...storedConfig };
+                    const nextConfig: CliProviderConfig = {
+                      ...currentConfig,
+                      presetName: value,
+                      apiKey: mergedConfig.apiKey,
+                      baseUrl: mergedConfig.baseUrl,
+                      model: mergedConfig.model,
+                      enabledModels: mergedConfig.enabledModels,
+                      templateValues: mergedConfig.templateValues,
+                      reasoningEffort: mergedConfig.reasoningEffort,
+                      providerConfigs,
                     };
-                    void saveConfigs(nextConfigs);
+                    void saveConfigs({ ...configs, [target]: nextConfig });
                   }}
                 >
                   {presets.map((item) => (
@@ -356,7 +384,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                       })()
                     }
                     placeholder='Select reasoning effort'
-                    onChange={(value) => void saveConfigs({ ...configs, [target]: { ...configs[target], reasoningEffort: value as 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' } })}
+                    onChange={(value) => updateConfigForTarget(target, { reasoningEffort: value as 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' })}
                   >
                     <Select.Option value='minimal'>Minimal</Select.Option>
                     <Select.Option value='low'>Low</Select.Option>
@@ -371,7 +399,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
               {showClaudeThinking && (
                 <div className='space-y-12px'>
                   <Form.Item label='Thinking mode (default)'>
-                    <Switch checked={typeof config.alwaysThinkingEnabled === 'boolean' ? config.alwaysThinkingEnabled : true} onChange={(checked) => void saveConfigs({ ...configs, [target]: { ...configs[target], alwaysThinkingEnabled: checked } })} />
+                    <Switch checked={typeof config.alwaysThinkingEnabled === 'boolean' ? config.alwaysThinkingEnabled : true} onChange={(checked) => updateConfigForTarget(target, { alwaysThinkingEnabled: checked })} />
                     <div className='text-12px text-t-secondary mt-6px'>Saved as alwaysThinkingEnabled in ~/.claude/settings.json</div>
                   </Form.Item>
                   <Form.Item label='MAX_THINKING_TOKENS (optional)'>
@@ -382,7 +410,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                       onBlur={(e) => {
                         const value = e.target.value;
                         if (value !== (config.maxThinkingTokens || '')) {
-                          void saveConfigs({ ...configs, [target]: { ...configs[target], maxThinkingTokens: value } });
+                          updateConfigForTarget(target, { maxThinkingTokens: value });
                         }
                       }}
                     />
@@ -392,13 +420,13 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
               )}
 
               <Form.Item label='API Key'>
-                <Input.Password placeholder={isOfficial ? 'Optional (leave empty to use browser login)' : 'Enter API key'} value={config.apiKey || ''} onChange={(value) => void saveConfigs({ ...configs, [target]: { ...configs[target], apiKey: value } })} />
+                <Input.Password placeholder={isOfficial ? 'Optional (leave empty to use browser login)' : 'Enter API key'} value={config.apiKey || ''} onChange={(value) => updateConfigForTarget(target, { apiKey: value })} />
               </Form.Item>
 
               {!isOfficial &&
                 (endpointCandidates.length > 0 ? (
                   <Form.Item label='Base URL'>
-                    <Select allowCreate value={config.baseUrl} placeholder='Select or input base url' onChange={(value) => void saveConfigs({ ...configs, [target]: { ...configs[target], baseUrl: value } })}>
+                    <Select allowCreate value={config.baseUrl} placeholder='Select or input base url' onChange={(value) => updateConfigForTarget(target, { baseUrl: value })}>
                       {endpointCandidates.map((url) => (
                         <Select.Option key={url} value={url}>
                           {url}
@@ -408,7 +436,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
                   </Form.Item>
                 ) : (
                   <Form.Item label='Base URL'>
-                    <Input placeholder='Optional base url' value={config.baseUrl || ''} onChange={(value) => void saveConfigs({ ...configs, [target]: { ...configs[target], baseUrl: value } })} />
+                    <Input placeholder='Optional base url' value={config.baseUrl || ''} onChange={(value) => updateConfigForTarget(target, { baseUrl: value })} />
                   </Form.Item>
                 ))}
 
@@ -459,7 +487,7 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
           </div>
         );
       },
-    [configs, saveConfigs, handleApply, t]
+    [configs, saveConfigs, handleApply, t, updateConfigForTarget]
   );
 
   const tabs = useMemo(

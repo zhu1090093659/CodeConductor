@@ -80,19 +80,23 @@ export interface AgentBrowserConfig {
   env?: Record<string, string>;
 }
 
-export interface CliProviderConfig {
-  presetName?: string;
+export interface CliProviderPresetConfig {
   apiKey?: string;
   baseUrl?: string;
   model?: string;
   enabledModels?: string[];
   templateValues?: Record<string, string>;
+  /** Codex: model reasoning effort level */
+  reasoningEffort?: 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+}
+
+export interface CliProviderConfig extends CliProviderPresetConfig {
+  presetName?: string;
+  providerConfigs?: Record<string, CliProviderPresetConfig>;
   /** Claude Code: global default thinking mode saved in ~/.claude/settings.json */
   alwaysThinkingEnabled?: boolean;
   /** Claude Code: env MAX_THINKING_TOKENS (string to preserve user input) */
   maxThinkingTokens?: string;
-  /** Codex: model reasoning effort level */
-  reasoningEffort?: 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
 }
 
 export type CliProvidersStorage = Record<CliProviderTarget, CliProviderConfig | undefined>;
