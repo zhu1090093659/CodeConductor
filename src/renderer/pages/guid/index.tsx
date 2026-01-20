@@ -367,13 +367,13 @@ const Guid: React.FC = () => {
   const setCurrentModel = async (modelInfo: TProviderWithModel) => {
     // 记录最新的选中 key，避免列表刷新后被错误重置
     selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
+    _setCurrentModel(modelInfo);
     // Do not pollute global default model with CLI pseudo models.
     if (!modelInfo.id?.startsWith('cli:')) {
       await ConfigStorage.set('model.defaultModel', modelInfo.useModel).catch((error) => {
         console.error('Failed to save default model:', error);
       });
     }
-    _setCurrentModel(modelInfo);
   };
   const navigate = useNavigate();
   const _layout = useLayoutContext();
