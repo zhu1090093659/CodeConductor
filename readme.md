@@ -54,6 +54,24 @@
 
 ## Changelog
 
+### 1.7.8
+
+- Enhanced chat UI components with improved visual design and message styling.
+- Introduced Superpowers Workflow service with guided agent setup page for workflow management.
+- Added GitHub Actions workflow for automatic Jira description synchronization on pull requests.
+- Improved collaboration UI with refined message display and interaction patterns.
+
+### 1.7.7
+
+- Implemented Superpowers integration with comprehensive settings and command management.
+- Added dedicated settings page for configuring Superpowers modes and workflows.
+- Enhanced project workflow capabilities with Superpowers framework integration.
+
+### 1.7.6
+
+- Fixed auto-updater 404 error by properly generating and uploading latest.yml metadata file.
+- Improved update mechanism reliability for automatic application updates.
+
 ### 1.7.5
 
 - Integrated popup-mcp as a built-in tool for interactive prompts and confirmations.
