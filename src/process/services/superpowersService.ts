@@ -38,7 +38,7 @@ export class SuperpowersService {
   }
 
   static async isEnabledForAgent(backend: AcpBackend): Promise<boolean> {
-    const config = await ConfigStorage.get('superpowers.config').catch(() => undefined);
+    const config = await ConfigStorage.get('superpowers.config').catch((): undefined => undefined);
     return config?.enabledForAgents?.[backend]?.enabled ?? false;
   }
 }

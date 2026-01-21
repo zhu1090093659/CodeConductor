@@ -804,7 +804,7 @@ const Guid: React.FC = () => {
     const isPreset = isPresetAgent;
     const presetAgentType = resolvePresetAgentType(agentInfo);
     // 加载 rules（skills 已迁移到 SkillManager）/ Load rules (skills migrated to SkillManager)
-    const [{ rules: presetRules }, superpowersConfig] = await Promise.all([resolvePresetRulesAndSkills(agentInfo), ConfigStorage.get('superpowers.config').catch(() => undefined)]);
+    const [{ rules: presetRules }, superpowersConfig] = await Promise.all([resolvePresetRulesAndSkills(agentInfo), ConfigStorage.get('superpowers.config').catch((): undefined => undefined)]);
     // 获取启用的 skills 列表 / Get enabled skills list
     const enabledSkills = resolveEnabledSkills(agentInfo);
 
