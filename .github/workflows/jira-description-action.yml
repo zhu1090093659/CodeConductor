@@ -2,6 +2,13 @@ name: jira-description-action
 on:
   pull_request:
     types: [opened, edited]
+  issues:
+    types:
+      - 'opened'
+      - 'reopened'
+  issue_comment:
+    types:
+      - 'created'
 jobs:
   add-jira-description:
     runs-on: ubuntu-latest
