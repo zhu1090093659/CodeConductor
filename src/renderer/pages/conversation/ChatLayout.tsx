@@ -346,7 +346,7 @@ const ChatLayout: React.FC<{
           >
             {/* 会话 Tabs 栏 / Conversation tabs bar */}
             <ConversationTabs />
-            <ArcoLayout.Header className={classNames('h-36px flex items-center justify-between p-16px gap-16px !bg-1 chat-layout-header')}>
+            <ArcoLayout.Header className={classNames('h-40px flex items-center justify-between p-16px gap-16px !bg-1 chat-layout-header')}>
               <div>{props.headerLeft}</div>
               <FlexFullContainer className='h-full' containerClassName='flex items-center gap-16px'>
                 {!hasTabs && <span className='font-bold text-16px text-t-primary inline-block overflow-hidden text-ellipsis whitespace-nowrap shrink-0 max-w-[50%]'>{props.title}</span>}
@@ -355,7 +355,7 @@ const ChatLayout: React.FC<{
                 {/* headerExtra 会在右上角优先渲染，例如模型切换按钮 / headerExtra renders at top-right for items like model switchers */}
                 {props.headerExtra}
                 {(backend || agentLogo) && (
-                  <div className='ml-16px flex items-center gap-2 bg-2 w-fit rounded-full px-[8px] py-[2px]'>
+                  <div className='chat-agent-pill ml-16px flex items-center gap-2 bg-2 w-fit rounded-full px-[8px] py-[2px]'>
                     {agentLogo ? agentLogoIsEmoji ? <span className='text-sm'>{agentLogo}</span> : <img src={agentLogo} alt={`${agentName || 'agent'} logo`} width={16} height={16} style={{ objectFit: 'contain' }} /> : AGENT_LOGO_MAP[backend as AcpBackend] ? <img src={AGENT_LOGO_MAP[backend as AcpBackend]} alt={`${backend} logo`} width={16} height={16} style={{ objectFit: 'contain' }} /> : <Robot theme='outline' size={16} fill={iconColors.primary} />}
                     <span className='text-sm'>{displayName}</span>
                     {badgeStatus && statusText && (
@@ -368,7 +368,9 @@ const ChatLayout: React.FC<{
                 )}
               </div>
             </ArcoLayout.Header>
-            <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>{props.children}</ArcoLayout.Content>
+            <ArcoLayout.Content className='chat-layout-body flex flex-col flex-1 bg-1 overflow-hidden'>
+              <div className='chat-body flex flex-col flex-1 min-h-0'>{props.children}</div>
+            </ArcoLayout.Content>
           </ArcoLayout.Content>
         </div>
 

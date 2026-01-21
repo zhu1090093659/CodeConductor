@@ -333,7 +333,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
 
   if (!roleMap || !activeConversationId || !workspace) {
     return (
-      <div className='flex-1 flex flex-col px-20px'>
+      <div className='chat-thread flex-1 min-h-0 flex flex-col px-20px'>
         <div className='text-t-secondary text-sm'>{t('conversation.collab.notInitialized')}</div>
       </div>
     );
@@ -348,7 +348,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
         backend: parentConversation.type === 'acp' ? (parentConversation.extra?.backend as AcpBackend | undefined) : undefined,
       }}
     >
-      <div className='collab-shell flex-1 min-h-0 flex flex-col px-20px'>
+      <div className='collab-shell chat-thread flex-1 min-h-0 flex flex-col px-20px'>
         <div className='collab-topbar'>
           <div className='collab-topbar__left min-w-0'>
             <div className='collab-topbar__title truncate'>{t('conversation.collab.mergedViewTitle')}</div>

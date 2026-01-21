@@ -38,7 +38,7 @@ const MessageList: React.FC<{
   renderMessageHeader?: (message: TMessage) => React.ReactNode;
   /** Optional wrapper for the message body (below the header). Used for custom styling like bubbles. */
   renderMessageBodyWrapper?: (message: TMessage, children: React.ReactNode) => React.ReactNode;
-}> = ({ renderMessageHeader, renderMessageBodyWrapper }) => {
+}> = ({ className, renderMessageHeader, renderMessageBodyWrapper }) => {
   const list = useMessageList();
   const conversation = useConversationContextSafe();
   const conversationId = conversation?.conversationId;
@@ -56,7 +56,7 @@ const MessageList: React.FC<{
     if (!conversationId) return null;
     if (!shouldShowThought) return null;
     return (
-      <div key='thought-display' className='w-full message-item px-8px m-t-10px max-w-full md:max-w-780px mx-auto'>
+      <div key='thought-display' className='chat-message-row message-item px-8px m-t-12px'>
         <div className='w-full min-w-0'>
           <ThoughtDisplay
             thought={thought}
@@ -99,7 +99,7 @@ const MessageList: React.FC<{
   const renderMessageWrapper = (message: TMessage, body: React.ReactNode) => {
     return (
       <div
-        className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', message.type, {
+        className={classNames('chat-message-row flex items-start message-item [&>div]:max-w-full px-8px m-t-12px', message.type, {
           'justify-center': message.position === 'center',
           'justify-end': message.position === 'right',
           'justify-start': message.position === 'left',
@@ -181,7 +181,7 @@ const MessageList: React.FC<{
       };
 
       return (
-        <div key={`tool-batch-${batchKey}`} className={classNames('flex items-start message-item [&>div]:max-w-full px-8px m-t-10px max-w-full md:max-w-780px mx-auto', 'tool_batch')}>
+        <div key={`tool-batch-${batchKey}`} className={classNames('chat-message-row flex items-start message-item [&>div]:max-w-full px-8px m-t-12px', 'tool_batch')}>
           <div className='w-full min-w-0 border border-[var(--bg-3)] rounded-10px bg-1'>
             <div className='flex items-center justify-between px-10px py-8px border-b border-[var(--bg-3)]'>
               <div className='flex items-center gap-8px min-w-0'>
@@ -232,7 +232,7 @@ const MessageList: React.FC<{
       if (isTurnDiffMessage(message)) {
         if (i === firstTurnDiffIndex && turnDiffMessages.length > 0) {
           nodes.push(
-            <div key={`file-changes-${message.id}`} className='w-full message-item px-8px m-t-10px max-w-full md:max-w-780px mx-auto'>
+            <div key={`file-changes-${message.id}`} className='chat-message-row message-item px-8px m-t-12px'>
               <MessageFileChanges turnDiffChanges={turnDiffMessages} />
             </div>
           );
@@ -362,8 +362,8 @@ const MessageList: React.FC<{
   }, [isUserScrolling, thoughtRunning, thought.description]);
 
   return (
-    <div className='relative flex-1 h-full'>
-      <div className='flex-1 overflow-y-auto overflow-x-hidden h-full pb-10px box-border' ref={ref} onScroll={handleScroll}>
+    <div className={classNames('relative flex-1 h-full chat-message-list', className)}>
+      <div className='chat-message-scroll flex-1 overflow-y-auto overflow-x-hidden h-full pb-10px box-border' ref={ref} onScroll={handleScroll}>
         {/* 使用 PreviewGroup 包裹所有消息，实现跨消息预览图片 Use PreviewGroup to wrap all messages for cross-message image preview */}
         <Image.PreviewGroup actionsLayout={['zoomIn', 'zoomOut', 'originalSize', 'rotateLeft', 'rotateRight']}>
           <ImagePreviewContext.Provider value={{ inPreviewGroup: true }}>{renderListNodes}</ImagePreviewContext.Provider>
@@ -372,10 +372,10 @@ const MessageList: React.FC<{
       {showScrollButton && (
         <>
           {/* 渐变遮罩 Gradient mask */}
-          <div className='absolute bottom-0 left-0 right-0 h-100px pointer-events-none' />
+          <div className='chat-message-list__fade absolute bottom-0 left-0 right-0 h-100px pointer-events-none' />
           {/* 滚动按钮 Scroll button */}
-          <div className='absolute bottom-20px left-50% transform -translate-x-50% z-100'>
-            <div className='flex items-center justify-center w-40px h-40px rd-full bg-base shadow-lg cursor-pointer hover:bg-1 transition-all hover:scale-110 border-solid border-3' onClick={handleScrollButtonClick} title={t('messages.scrollToBottom')} style={{ lineHeight: 0 }}>
+          <div className='chat-scroll-button absolute bottom-20px left-50% transform -translate-x-50% z-100'>
+            <div className='chat-scroll-button__inner flex items-center justify-center w-40px h-40px rd-full bg-base shadow-lg cursor-pointer hover:bg-1 transition-all hover:scale-110 border-solid border-3' onClick={handleScrollButtonClick} title={t('messages.scrollToBottom')} style={{ lineHeight: 0 }}>
               <Down theme='filled' size='20' fill={iconColors.secondary} style={{ display: 'block' }} />
             </div>
           </div>

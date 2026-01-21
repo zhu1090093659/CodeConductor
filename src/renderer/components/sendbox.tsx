@@ -446,23 +446,28 @@ const SendBox: React.FC<{
     }
   };
 
+  const wrapClassName = className ? `sendbox-wrap ${className}` : 'sendbox-wrap';
+  const baseShadow = 'var(--shadow-sm)';
+  const focusShadow = activeShadow ? `${activeShadow}, ${baseShadow}` : baseShadow;
+
   return (
-    <div className={className}>
+    <div className={wrapClassName}>
       <div
         ref={containerRef}
-        className={`relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col overflow-hidden ${isFileDragging ? 'b-dashed' : ''}`}
+        className={`sendbox-shell relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col overflow-hidden ${isFileDragging ? 'b-dashed' : ''}`}
         style={{
-          transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
+          transition: 'box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease',
           ...(isFileDragging
             ? {
                 backgroundColor: 'var(--color-primary-light-1)',
                 borderColor: 'rgb(var(--primary-3))',
                 borderWidth: '1px',
+                boxShadow: 'var(--shadow-md)',
               }
             : {
                 borderWidth: '1px',
                 borderColor: isInputActive ? activeBorderColor : inactiveBorderColor,
-                boxShadow: isInputActive ? activeShadow : 'none',
+                boxShadow: isInputActive ? focusShadow : baseShadow,
               }),
         }}
         {...dragHandlers}
