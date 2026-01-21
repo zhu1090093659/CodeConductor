@@ -1,0 +1,17 @@
+name: jira-description-action
+on:
+  pull_request:
+    types: [opened, edited]
+jobs:
+  add-jira-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: jira-description
+        uses: cakeinpanic/jira-description-action@v.10.0.0
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          jira-token: ${{ secrets.JIRA_TOKEN }}
+          jira-base-url: https://atc666.atlassian.net
+          skip-branches: '^(production-release|main|master|release\/v\d+)$' #optional 
+          custom-issue-number-regexp: '^\d+' #optional
+          jira-project-key: 'PRJ' #optional    
