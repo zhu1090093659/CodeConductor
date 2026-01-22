@@ -569,7 +569,9 @@ body,
 .settings-sider__item--active {
   background-color: var(--sider-item-active) !important;
   border-color: var(--sider-item-active-border) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 [data-theme='dark'] .chat-history__item:hover,
@@ -579,7 +581,9 @@ body,
 
 [data-theme='dark'] .chat-history__item--active,
 [data-theme='dark'] .settings-sider__item--active {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Collab merged view */

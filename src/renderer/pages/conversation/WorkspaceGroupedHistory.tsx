@@ -364,9 +364,7 @@ const WorkspaceGroupedHistory: React.FC<{ onSessionClick?: () => void; collapsed
               <div
                 className={classNames('absolute right-0px top-0px h-full w-70px items-center justify-end hidden group-hover:flex !collapsed-hidden pr-12px')}
                 style={{
-                  backgroundImage: isSelected
-                    ? `linear-gradient(to right, transparent, var(--sider-item-active) 40%)`
-                    : `linear-gradient(to right, transparent, var(--sider-item-hover) 40%)`,
+                  backgroundImage: isSelected ? `linear-gradient(to right, transparent, var(--sider-item-active) 40%)` : `linear-gradient(to right, transparent, var(--sider-item-hover) 40%)`,
                 }}
                 onClick={(event) => {
                   event.stopPropagation();
