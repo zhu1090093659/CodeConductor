@@ -6,7 +6,6 @@
 
 import { ipcBridge } from '@/common';
 import type { ProjectInfo } from '@/common/storage';
-import { ConfigStorage } from '@/common/storage';
 import type { IDirOrFile } from '@/common/ipcBridge';
 import { STORAGE_KEYS } from '@/common/storageKeys';
 import { emitter } from '@/renderer/utils/emitter';
@@ -54,8 +53,6 @@ const ProjectModePanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
-  const [jiraStatus, setJiraStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
-  const [mcpStatus, setMcpStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
   const { projects, activeProjectId, activeProject } = useProjects();
   const [isProjectListCollapsed, setIsProjectListCollapsed] = useState(() => readStoredBoolean(STORAGE_KEYS.PROJECT_LIST_COLLAPSE, false));
   const [isWorkspaceTreeCollapsed, setIsWorkspaceTreeCollapsed] = useState(() => readStoredBoolean(STORAGE_KEYS.PROJECT_TREE_COLLAPSE, false));
@@ -89,31 +86,9 @@ const ProjectModePanel: React.FC = () => {
     }
   }, [conversationId, workspace]);
 
-  const refreshStatus = useCallback(async () => {
-    try {
-      const mcpConfig = (await ConfigStorage.get('mcp.config')) || [];
-      const jiraServer = mcpConfig.find((server) => server.name.toLowerCase().includes('jira'));
-      if (!jiraServer) {
-        setJiraStatus('error');
-        setMcpStatus('error');
-        return;
-      }
-      setMcpStatus('ok');
-      const test = await ipcBridge.mcpService.testMcpConnection.invoke(jiraServer);
-      setJiraStatus(test?.success ? 'ok' : 'error');
-    } catch {
-      setJiraStatus('error');
-      setMcpStatus('error');
-    }
-  }, []);
-
   useEffect(() => {
     void refreshTree();
   }, [refreshTree]);
-
-  useEffect(() => {
-    void refreshStatus();
-  }, [refreshStatus]);
 
   useEffect(() => {
     try {
@@ -161,12 +136,6 @@ const ProjectModePanel: React.FC = () => {
     },
     [workspace]
   );
-
-  const statusDot = useCallback((status: 'unknown' | 'ok' | 'error') => {
-    if (status === 'ok') return 'bg-green-500';
-    if (status === 'error') return 'bg-red-500';
-    return 'bg-gray-400';
-  }, []);
 
   const handleCreateProject = useCallback(async () => {
     const files = await ipcBridge.dialog.showOpen.invoke({ properties: ['openDirectory'] });
@@ -312,16 +281,6 @@ const ProjectModePanel: React.FC = () => {
               })}
             </div>
           )}
-          <div className='flex items-center gap-12px text-12px text-t-secondary'>
-            <span className='flex items-center gap-6px'>
-              <span className={`inline-block size-6px rounded-full ${statusDot(jiraStatus)}`} />
-              JIRA
-            </span>
-            <span className='flex items-center gap-6px'>
-              <span className={`inline-block size-6px rounded-full ${statusDot(mcpStatus)}`} />
-              MCP
-            </span>
-          </div>
         </>
       )}
       <div className='flex items-center justify-between gap-8px'>
