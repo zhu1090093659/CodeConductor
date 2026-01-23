@@ -37,6 +37,7 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
   const [running, setRunning] = useState(false);
   const thoughtRef = useRef<ThoughtData>({ subject: '', description: '' });
   const thoughtIdRef = useRef<string | null>(null);
+  const lastUserMessageIdRef = useRef<string | null>(null); // Track last user message ID for thought anchoring
   const [acpStatus, setAcpStatus] = useState<'connecting' | 'connected' | 'authenticated' | 'session_active' | 'disconnected' | 'error' | null>(null);
   const [aiProcessing, setAiProcessing] = useState(false); // New loading state for AI response
   const optimisticUserMessage = options?.optimisticUserMessage === true;
@@ -52,6 +53,11 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
 
   const clearOptimisticMessageId = useCallback((msgId: string) => {
     optimisticMsgIdsRef.current.delete(msgId);
+  }, []);
+
+  // Allow external code to set the last user message ID before sending
+  const setLastUserMessageId = useCallback((msgId: string | null) => {
+    lastUserMessageIdRef.current = msgId;
   }, []);
 
   const handleResponseMessage = useCallback(
@@ -81,10 +87,12 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
         case 'start':
           setRunning(true);
           thoughtIdRef.current = null;
+          // Use saved user message ID to anchor thought correctly
           emitter.emit('conversation.thought.update', {
             conversationId: conversation_id,
             thought: { subject: '', description: '' },
             running: true,
+            anchorId: lastUserMessageIdRef.current,
           });
           break;
         case 'finish':
@@ -120,6 +128,17 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
         }
         case 'user_content':
           addOrUpdateMessage(transformedMessage);
+          // Save user message ID for thought anchoring in start event
+          lastUserMessageIdRef.current = message.msg_id || null;
+          // Trigger thought loading after user message is added to list
+          // This ensures the anchor message exists when thought is rendered
+          setAiProcessing(true);
+          emitter.emit('conversation.thought.update', {
+            conversationId: conversation_id,
+            thought: { subject: '', description: '' },
+            running: true,
+            anchorId: message.msg_id,
+          });
           break;
         case 'acp_permission':
           addOrUpdateMessage(transformedMessage);
@@ -153,6 +172,7 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
     setRunning(false);
     thoughtRef.current = { subject: '', description: '' };
     thoughtIdRef.current = null;
+    lastUserMessageIdRef.current = null;
     setAcpStatus(null);
     setAiProcessing(false);
     emitter.emit('conversation.thought.update', {
@@ -162,7 +182,7 @@ const useAcpMessage = (conversation_id: string, options?: { optimisticUserMessag
     });
   }, [conversation_id]);
 
-  return { running, acpStatus, aiProcessing, setAiProcessing, registerOptimisticMessageId, clearOptimisticMessageId };
+  return { running, acpStatus, aiProcessing, setAiProcessing, registerOptimisticMessageId, clearOptimisticMessageId, setLastUserMessageId };
 };
 
 const EMPTY_AT_PATH: Array<string | FileOrFolderItem> = [];
@@ -208,7 +228,7 @@ const AcpSendBox: React.FC<{
   optimisticUserMessage?: boolean;
 }> = ({ conversation_id, backend, mentionOptions, onMentionSelect, optimisticUserMessage }) => {
   const [workspacePath, setWorkspacePath] = useState('');
-  const { running, acpStatus, setAiProcessing, registerOptimisticMessageId, clearOptimisticMessageId } = useAcpMessage(conversation_id, {
+  const { running, acpStatus, setAiProcessing, registerOptimisticMessageId, clearOptimisticMessageId, setLastUserMessageId } = useAcpMessage(conversation_id, {
     optimisticUserMessage,
   });
   const { t } = useTranslation();
@@ -284,10 +304,11 @@ const AcpSendBox: React.FC<{
         const displayMessage = buildDisplayMessage(input, files || [], workspacePath);
         const msg_id = uuid();
 
-        // Start AI processing loading state (user message will be added via backend response)
-        setAiProcessing(true);
+        // Set user message ID immediately so start event can use it for thought anchoring
+        setLastUserMessageId(msg_id);
 
         // Send the message
+        // Note: Thought loading will be triggered when backend echoes user_content message
         const result = await ipcBridge.acpConversation.sendMessage.invoke({
           input: displayMessage,
           msg_id,
@@ -333,7 +354,7 @@ const AcpSendBox: React.FC<{
     sendInitialMessage().catch((error) => {
       console.error('Failed to send initial message:', error);
     });
-  }, [conversation_id, backend, acpStatus]);
+  }, [conversation_id, backend, acpStatus, setLastUserMessageId]);
 
   const onSendHandler = async (message: string) => {
     let finalMessage = message;
@@ -353,6 +374,10 @@ const AcpSendBox: React.FC<{
       }
     }
     const msg_id = uuid();
+
+    // Set user message ID immediately so start event can use it for thought anchoring
+    // This ensures correct anchor even if start event arrives before user_content echo
+    setLastUserMessageId(msg_id);
 
     const displayMessage = buildDisplayMessage(finalMessage, uploadFile, workspacePath);
 
@@ -375,16 +400,17 @@ const AcpSendBox: React.FC<{
     setContent('');
     clearFiles();
 
-    // Start AI processing loading state
-    // Pass anchorId explicitly to avoid race condition with list state updates
-    // When optimisticUserMessage is true, anchor to the user message we just added
-    setAiProcessing(true);
-    emitter.emit('conversation.thought.update', {
-      conversationId: conversation_id,
-      thought: { subject: '', description: '' },
-      running: true,
-      anchorId: optimisticUserMessage ? msg_id : undefined,
-    });
+    // Trigger thought loading for optimistic messages (user message already in list)
+    // For non-optimistic messages, thought will be triggered when backend echoes user_content
+    if (optimisticUserMessage) {
+      setAiProcessing(true);
+      emitter.emit('conversation.thought.update', {
+        conversationId: conversation_id,
+        thought: { subject: '', description: '' },
+        running: true,
+        anchorId: msg_id,
+      });
+    }
 
     // Send message via ACP
     try {

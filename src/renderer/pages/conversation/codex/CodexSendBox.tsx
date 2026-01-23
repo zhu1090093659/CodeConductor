@@ -237,10 +237,12 @@ const CodexSendBox: React.FC<{
     };
     addOrUpdateMessage(userMessage, true); // 立即保存到存储，避免刷新丢失
     setAiProcessing(true);
+    // Pass anchorId explicitly to avoid race condition with list state updates
     emitter.emit('conversation.thought.update', {
       conversationId: conversation_id,
       thought: { subject: '', description: '' },
       running: true,
+      anchorId: msg_id,
     });
     try {
       // 提取实际的文件路径发送给后端
@@ -282,14 +284,6 @@ const CodexSendBox: React.FC<{
       sessionStorage.setItem(processedKey, 'true');
 
       try {
-        // Set waiting state when processing initial message
-        setAiProcessing(true);
-        emitter.emit('conversation.thought.update', {
-          conversationId: conversation_id,
-          thought: { subject: '', description: '' },
-          running: true,
-        });
-
         const { input, files = [] } = JSON.parse(stored) as { input: string; files?: string[] };
         // 使用固定的msg_id，基于conversation_id确保唯一性
         const msg_id = `initial_${conversation_id}_${Date.now()}`;
@@ -308,6 +302,16 @@ const CodexSendBox: React.FC<{
           createdAt: Date.now(),
         };
         addOrUpdateMessage(userMessage, true); // 立即保存到存储，避免刷新丢失
+
+        // Set waiting state when processing initial message
+        // Pass anchorId explicitly to avoid race condition with list state updates
+        setAiProcessing(true);
+        emitter.emit('conversation.thought.update', {
+          conversationId: conversation_id,
+          thought: { subject: '', description: '' },
+          running: true,
+          anchorId: msg_id,
+        });
 
         // 发送消息到后端处理
         await ipcBridge.codexConversation.sendMessage.invoke({ input: initialDisplayMessage, msg_id, conversation_id, files, loading_id });

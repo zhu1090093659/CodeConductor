@@ -191,8 +191,18 @@ const MessageList: React.FC<{
     const thoughtBucket = new Map<string | null, ThoughtEntry[]>();
 
     if (shouldShowThought) {
+      // Build a set of message IDs for quick lookup
+      const listIds = new Set(list.map((m) => m.id));
+      // Find the last user message ID as fallback anchor
+      const lastUserMsgId = list.filter((m) => m.position === 'right').pop()?.id ?? null;
+
       for (const entry of thoughtEntries) {
-        const key = entry.anchorId ?? null;
+        let key = entry.anchorId ?? null;
+        // If anchorId is not in the current message list, use the last user message as anchor
+        // This handles the case where start event arrives before user_content event
+        if (key && !listIds.has(key)) {
+          key = lastUserMsgId;
+        }
         const existing = thoughtBucket.get(key);
         if (existing) {
           existing.push(entry);
