@@ -54,7 +54,7 @@ export const joinPath = (basePath: string, relativePath: string): string => {
  * @description 跟对话相关的消息类型申明 及相关处理
  */
 
-type TMessageType = 'text' | 'tips' | 'tool_call' | 'tool_group' | 'agent_status' | 'acp_permission' | 'acp_tool_call' | 'codex_permission' | 'codex_tool_call';
+type TMessageType = 'text' | 'tips' | 'tool_call' | 'tool_group' | 'agent_status' | 'acp_permission' | 'acp_tool_call' | 'codex_permission' | 'codex_tool_call' | 'thought';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
   /**
@@ -93,6 +93,8 @@ interface IMessage<T extends TMessageType, Content extends Record<string, any>> 
 export type IMessageText = IMessage<'text', { content: string }>;
 
 export type IMessageTips = IMessage<'tips', { content: string; type: 'error' | 'success' | 'warning' }>;
+
+export type IMessageThought = IMessage<'thought', { subject: string; description: string }>;
 
 export type IMessageToolCall = IMessage<
   'tool_call',
@@ -254,7 +256,7 @@ export type CodexToolCallUpdate =
 export type IMessageCodexToolCall = IMessage<'codex_tool_call', CodexToolCallUpdate>;
 
 // eslint-disable-next-line max-len
-export type TMessage = IMessageText | IMessageTips | IMessageToolCall | IMessageToolGroup | IMessageAgentStatus | IMessageAcpPermission | IMessageAcpToolCall | IMessageCodexPermission | IMessageCodexToolCall;
+export type TMessage = IMessageText | IMessageTips | IMessageThought | IMessageToolCall | IMessageToolGroup | IMessageAgentStatus | IMessageAcpPermission | IMessageAcpToolCall | IMessageCodexPermission | IMessageCodexToolCall;
 
 /**
  * @description 将后端返回的消息转换为前端消息
@@ -356,9 +358,19 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         content: message.data as any,
       };
     }
+    case 'thought': {
+      return {
+        id: uuid(),
+        type: 'thought',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as { subject: string; description: string },
+        createdAt: Date.now(),
+      };
+    }
     case 'start':
     case 'finish':
-    case 'thought':
       break;
     default: {
       throw new Error(`Unsupported message type '${message.type}'. All non-standard message types should be pre-processed by respective AgentManagers.`);

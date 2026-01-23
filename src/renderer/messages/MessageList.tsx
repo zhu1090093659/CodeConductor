@@ -5,7 +5,7 @@
  */
 
 import { ipcBridge } from '@/common';
-import type { CodexToolCallUpdate, TMessage } from '@/common/chatLib';
+import type { CodexToolCallUpdate, IMessageThought, TMessage } from '@/common/chatLib';
 import { uuid } from '@/common/utils';
 import { iconColors } from '@/renderer/theme/colors';
 import { Image } from '@arco-design/web-react';
@@ -266,6 +266,12 @@ const MessageList: React.FC<{
         continue;
       }
 
+      // Skip thought messages - they are rendered separately via thoughtEntries
+      if (message.type === 'thought') {
+        i += 1;
+        continue;
+      }
+
       // Keep existing turn_diff summary behavior.
       if (isTurnDiffMessage(message)) {
         if (i === firstTurnDiffIndex && turnDiffMessages.length > 0) {
@@ -480,9 +486,39 @@ const MessageList: React.FC<{
     return () => clearTimeout(timer);
   }, [isUserScrolling, thoughtRunning, thoughtEntries]);
 
+  // Reset thought entries when conversation changes
   useEffect(() => {
     setThoughtEntries([]);
   }, [conversationId]);
+
+  // Restore thought entries from database on initial load
+  useEffect(() => {
+    if (!list || list.length === 0) return;
+
+    // Build a map of thought messages with their anchors
+    const restoredEntries: ThoughtEntry[] = [];
+    let prevMessageId: string | null = null;
+
+    for (const msg of list) {
+      if (msg.type === 'thought') {
+        const thoughtMsg = msg as IMessageThought;
+        restoredEntries.push({
+          id: msg.msg_id || msg.id,
+          thought: thoughtMsg.content,
+          running: false,
+          anchorId: prevMessageId,
+        });
+      } else {
+        // Update anchor for next thought message
+        prevMessageId = msg.id;
+      }
+    }
+
+    if (restoredEntries.length === 0) return;
+
+    // Only restore if thoughtEntries is currently empty (avoid overwriting running thoughts)
+    setThoughtEntries((prev) => (prev.length === 0 ? restoredEntries : prev));
+  }, [list]);
 
   useEffect(() => {
     listRef.current = list;

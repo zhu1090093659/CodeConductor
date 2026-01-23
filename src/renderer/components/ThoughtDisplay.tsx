@@ -126,55 +126,52 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
   }
 
   return (
-    <div className='relative w-full' style={wrapperStyle}>
-      <span
-        className='absolute flex items-center'
-        style={{
-          top: '-10px',
-          left: '12px',
-          zIndex: 1,
-          padding: '2px 8px',
-          borderRadius: '999px',
-          border: '1px solid var(--bg-3)',
-          background: 'var(--bg-base)',
-          fontSize: '10px',
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'var(--text-secondary)',
-        }}
-      >
-        {labelText}
-      </span>
-      <div
-        className='absolute flex items-center gap-6px'
-        style={{
-          top: '-12px',
-          right: '10px',
-          zIndex: 1,
-          padding: '2px 6px',
-          borderRadius: '999px',
-          border: '1px solid var(--bg-3)',
-          background: 'var(--bg-base)',
-        }}
-      >
-        {running && <AsciiSpinner size={12} />}
-        {running && (
-          <span className='text-t-tertiary text-12px whitespace-nowrap'>
-            {t('common.escToCancel')}, {formatElapsedTime(elapsedTime)}
-          </span>
-        )}
-        <button type='button' aria-label={isExpanded ? t('common.collapse') : t('common.expandMore')} title={isExpanded ? t('common.collapse') : t('common.expandMore')} className='flex items-center text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer' onClick={() => setIsExpanded((v) => !v)}>
-          {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
-        </button>
-      </div>
-      <div className='rd-12px overflow-hidden' style={frameStyle}>
-        <div className='px-10px pt-12px pb-10px'>
+    <div className='min-w-0 max-w-full' style={wrapperStyle}>
+      <div className='rd-12px overflow-hidden max-w-full' style={frameStyle}>
+        {/* Header with label and controls */}
+        <div className='flex items-center justify-between px-10px pt-8px gap-8px max-w-full'>
+          {/* Left: THINKING label + toggle button */}
+          <div
+            className='flex items-center gap-4px flex-shrink-0'
+            style={{
+              padding: '2px 4px 2px 8px',
+              borderRadius: '999px',
+              border: '1px solid var(--bg-3)',
+              background: 'var(--bg-base)',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '10px',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              {labelText}
+            </span>
+            <button type='button' aria-label={isExpanded ? t('common.collapse') : t('common.expandMore')} title={isExpanded ? t('common.collapse') : t('common.expandMore')} className='flex items-center text-t-secondary hover:text-t-primary transition-colors border-none bg-transparent cursor-pointer p-2px' onClick={() => setIsExpanded((v) => !v)}>
+              {isExpanded ? <Up theme='outline' size={14} fill='currentColor' /> : <Down theme='outline' size={14} fill='currentColor' />}
+            </button>
+          </div>
+          {/* Right: spinner and time (only when running) */}
+          {running && (
+            <div className='flex items-center gap-6px min-w-0'>
+              <AsciiSpinner size={12} />
+              <span className='text-t-tertiary text-12px truncate'>
+                {t('common.escToCancel')}, {formatElapsedTime(elapsedTime)}
+              </span>
+            </div>
+          )}
+        </div>
+        {/* Content */}
+        <div className='px-10px pt-6px pb-10px w-full'>
           {isExpanded ? (
-            <div className='bg-1/40 rounded-8px p-10px max-h-260px overflow-y-auto'>
+            <div className='bg-1/40 rounded-8px p-10px max-h-260px overflow-y-auto w-full'>
               <div className='text-t-primary whitespace-pre-wrap break-words'>{contentText}</div>
             </div>
           ) : (
-            <div className='text-t-secondary text-13px truncate'>{contentText}</div>
+            <div className='text-t-secondary text-13px truncate w-full'>{contentText}</div>
           )}
         </div>
       </div>

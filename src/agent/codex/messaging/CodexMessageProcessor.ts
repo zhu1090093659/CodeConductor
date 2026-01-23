@@ -72,7 +72,7 @@ export class CodexMessageProcessor {
           subject: 'Thinking',
         },
       },
-      false
+      true
     );
   }
 
