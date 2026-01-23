@@ -27,7 +27,6 @@ const ExecApprovalDisplay: React.FC<ExecApprovalDisplayProps> = React.memo(({ co
     const commandStr = Array.isArray(data.command) ? data.command.join(' ') : data.command;
     return {
       title: title ? t(title) : t('codex.permissions.titles.exec_approval_request'),
-      icon: '⚡',
       command: commandStr,
       cwd: data.cwd,
       reason: data.reason,
@@ -37,7 +36,7 @@ const ExecApprovalDisplay: React.FC<ExecApprovalDisplayProps> = React.memo(({ co
   const execInfo = getExecInfo();
 
   return (
-    <BasePermissionDisplay content={content} messageId={messageId} conversationId={conversationId} icon={execInfo.icon} title={execInfo.title}>
+    <BasePermissionDisplay content={content} messageId={messageId} conversationId={conversationId} title={execInfo.title}>
       {/* Command details */}
       <div>
         <Text className='text-xs text-t-secondary mb-1'>{t('codex.permissions.labels.command')}</Text>

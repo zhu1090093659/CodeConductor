@@ -92,7 +92,7 @@ export class CodexFileOperationHandler {
 
       ipcBridge.fileStream.contentUpdate.emit(eventData);
     } catch (error) {
-      console.error('[CodexFileOperationHandler] ❌ Failed to emit file stream update:', error);
+      console.error('[CodexFileOperationHandler] [-] Failed to emit file stream update:', error);
     }
 
     // 发送操作反馈消息
@@ -231,16 +231,16 @@ export class CodexFileOperationHandler {
       case 'file_write': {
         const content = operation.content || '';
         const previewContent = content.length > 500 ? content.substring(0, 500) + '\n... (truncated)' : content;
-        return `📝 **File written:** \`${operation.path}\`\n\n\`\`\`\n${previewContent}\n\`\`\``;
+        return `**File written:** \`${operation.path}\`\n\n\`\`\`\n${previewContent}\n\`\`\``;
       }
       case 'fs/read_text_file':
       case 'file_read':
-        return `📖 **File read:** \`${operation.path}\``;
+        return `**File read:** \`${operation.path}\``;
       case 'fs/delete_file':
       case 'file_delete':
-        return `🗑️ **File deleted:** \`${operation.path}\``;
+        return `**File deleted:** \`${operation.path}\``;
       default:
-        return `🔧 **File operation:** \`${operation.path}\` (${operation.method})`;
+        return `**File operation:** \`${operation.path}\` (${operation.method})`;
     }
   }
 

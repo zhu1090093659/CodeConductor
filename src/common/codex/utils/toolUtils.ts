@@ -48,7 +48,7 @@ export class ToolRegistry {
         type: RendererType.STANDARD,
         config: { showTimestamp: true },
       },
-      icon: '🔧',
+      icon: '[x]',
       descriptionKey: 'tools.shell.description',
     });
 
@@ -73,7 +73,7 @@ export class ToolRegistry {
         type: RendererType.STANDARD,
         config: { showTimestamp: true },
       },
-      icon: '🌐',
+      icon: '[*]',
       descriptionKey: 'tools.agentBrowser.description',
     });
 
@@ -99,7 +99,7 @@ export class ToolRegistry {
         type: RendererType.CODE,
         config: { language: 'diff' },
       },
-      icon: '📝',
+      icon: '[~]',
       descriptionKey: 'tools.fileOps.description',
     });
 
@@ -125,7 +125,7 @@ export class ToolRegistry {
         type: RendererType.MARKDOWN,
         config: { showSources: true },
       },
-      icon: '🔍',
+      icon: '[?]',
       descriptionKey: 'tools.webSearch.description',
     });
 
@@ -248,19 +248,19 @@ export class ToolRegistry {
   private getIconForCategory(category: ToolCategory): string {
     switch (category) {
       case ToolCategory.EXECUTION:
-        return '🔧';
+        return '[x]';
       case ToolCategory.FILE_OPS:
-        return '📝';
+        return '[~]';
       case ToolCategory.SEARCH:
-        return '🔍';
+        return '[?]';
       case ToolCategory.ANALYSIS:
-        return '📊';
+        return '[#]';
       case ToolCategory.COMMUNICATION:
-        return '🌐';
+        return '[*]';
       case ToolCategory.CUSTOM:
-        return '🔌';
+        return '[+]';
       default:
-        return '❓';
+        return '[.]';
     }
   }
 
@@ -355,7 +355,7 @@ export class ToolRegistry {
         type: RendererType.STANDARD,
         config: {},
       },
-      icon: '🔌',
+      icon: '[+]',
       descriptionKey: 'tools.mcp.generic.description',
     };
   }
@@ -393,7 +393,7 @@ export class ToolRegistry {
         type: RendererType.STANDARD,
         config: {},
       },
-      icon: '❓',
+      icon: '[.]',
       descriptionKey: 'tools.unknown.description',
     };
   }

@@ -77,7 +77,6 @@ const TurnDiffDisplay: React.FC<{ content: TurnDiffContent }> = ({ content }) =>
           </div>
         </div>
       }
-      icon='📝'
       additionalTags={additionalTags}
     >
       <div className='mt-3 max-w-full overflow-hidden'>

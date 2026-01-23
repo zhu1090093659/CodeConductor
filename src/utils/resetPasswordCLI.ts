@@ -26,10 +26,10 @@ const colors = {
 };
 
 const log = {
-  info: (msg: string) => console.log(`${colors.blue}ℹ${colors.reset} ${msg}`),
-  success: (msg: string) => console.log(`${colors.green}✓${colors.reset} ${msg}`),
-  error: (msg: string) => console.log(`${colors.red}✗${colors.reset} ${msg}`),
-  warning: (msg: string) => console.log(`${colors.yellow}⚠${colors.reset} ${msg}`),
+  info: (msg: string) => console.log(`${colors.blue}[i]${colors.reset} ${msg}`),
+  success: (msg: string) => console.log(`${colors.green}[+]${colors.reset} ${msg}`),
+  error: (msg: string) => console.log(`${colors.red}[-]${colors.reset} ${msg}`),
+  warning: (msg: string) => console.log(`${colors.yellow}[!]${colors.reset} ${msg}`),
   highlight: (msg: string) => console.log(`${colors.cyan}${colors.bright}${msg}${colors.reset}`),
 };
 
@@ -126,10 +126,10 @@ export async function resetPasswordCLI(username: string): Promise<void> {
     log.highlight(`  New Password: ${newPassword}`);
     log.highlight('═══════════════════════════════════════');
     console.log('');
-    log.warning('⚠ JWT secret has been rotated');
-    log.warning('⚠ All previous tokens are now invalid');
+    log.warning('[!] JWT secret has been rotated');
+    log.warning('[!] All previous tokens are now invalid');
     console.log('');
-    log.info('💡 Next steps:');
+    log.info('[*] Next steps:');
     log.info('   1. Refresh your browser (Cmd+R or Ctrl+R)');
     log.info('   2. You will be redirected to login page');
     log.info('   3. Login with the new password above');

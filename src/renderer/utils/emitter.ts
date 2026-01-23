@@ -12,7 +12,7 @@ import type { PreviewContentType } from '@/common/types/preview';
 import type { PreviewMetadata } from '@/renderer/pages/conversation/workspace/preview/context/PreviewContext';
 
 type ThoughtData = { subject: string; description: string };
-type ThoughtUpdatePayload = { conversationId: string; thought: ThoughtData; running: boolean; thoughtId?: string | null };
+type ThoughtUpdatePayload = { conversationId: string; thought: ThoughtData; running: boolean; thoughtId?: string | null; anchorId?: string | null };
 
 interface EventTypes {
   'acp.selected.file': [Array<string | FileOrFolderItem>];

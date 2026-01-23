@@ -1,6 +1,6 @@
 import { ipcBridge } from '@/common';
 import { useLayoutContext } from '@/renderer/context/LayoutContext';
-import { Spin } from '@arco-design/web-react';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -48,7 +48,13 @@ const ChatConversationIndex: React.FC = () => {
     }
   }, [data, openTab]);
 
-  if (isLoading) return <Spin loading></Spin>;
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center h-full'>
+        <AsciiSpinner size={24} style='petal' glow glowColor='var(--primary)' />
+      </div>
+    );
+  }
   return <ChatConversation conversation={data}></ChatConversation>;
 };
 

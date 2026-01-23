@@ -497,9 +497,8 @@ export class AcpAdapter {
     if (planData.entries && planData.entries.length > 0) {
       const planContent = planData.entries
         .map((entry) => {
-          const statusIcon = entry.status === 'completed' ? '✅' : entry.status === 'in_progress' ? '🔄' : '⏳';
           const priority = entry.priority ? ` [${entry.priority.toUpperCase()}]` : '';
-          return `${statusIcon} ${entry.content}${priority}`;
+          return `${entry.content}${priority}`;
         })
         .join('\n');
 
@@ -507,7 +506,7 @@ export class AcpAdapter {
         ...baseMessage,
         type: 'text',
         content: {
-          content: `📋 **Plan Update**\n\n${planContent}`,
+          content: `**Plan Update**\n\n${planContent}`,
         },
       } as IMessageText;
     }

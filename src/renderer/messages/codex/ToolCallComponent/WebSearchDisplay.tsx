@@ -29,7 +29,7 @@ const WebSearchDisplay: React.FC<{ content: WebSearchUpdate }> = ({ content }) =
   };
 
   return (
-    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description} icon='🔍'>
+    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description}>
       {/* Display query if available 显示搜索查询 */}
       {subtype === 'web_search_end' && 'query' in data && data.query && (
         <div className='text-sm mb-2'>

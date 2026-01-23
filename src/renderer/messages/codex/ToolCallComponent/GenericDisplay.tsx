@@ -32,21 +32,6 @@ const StatusTag: React.FC<{ status: string }> = ({ status }) => {
   return <Tag color={color}>{text}</Tag>;
 };
 
-const getKindIcon = (kind: string) => {
-  switch (kind) {
-    case 'execute':
-      return '🔧';
-    case 'patch':
-      return '📝';
-    case 'mcp':
-      return '🔌';
-    case 'web_search':
-      return '🔍';
-    default:
-      return '⚙️';
-  }
-};
-
 const GenericDisplay: React.FC<{ content: GenericUpdate }> = ({ content }) => {
   const { toolCallId, kind, title, status, description, content: contentArray, data } = content;
 
@@ -72,7 +57,6 @@ const GenericDisplay: React.FC<{ content: GenericUpdate }> = ({ content }) => {
       <div className='flex items-start gap-3'>
         <div className='flex-1 min-w-0'>
           <div className='flex items-center gap-2 mb-2'>
-            <span className='text-lg'>{getKindIcon(kind)}</span>
             <span className='font-medium text-t-primary'>{getDisplayTitle()}</span>
             <StatusTag status={status} />
           </div>

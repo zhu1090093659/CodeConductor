@@ -39,7 +39,7 @@ interface BaseToolCallDisplayProps {
   title: string;
   status: string;
   description?: string | ReactNode;
-  icon: string;
+  icon?: string; // Optional icon, only rendered if provided
   additionalTags?: ReactNode; // 额外的标签，如 exit code、duration 等
   children?: ReactNode; // 特定工具的详细信息内容
 }
@@ -58,7 +58,7 @@ const BaseToolCallDisplay: React.FC<BaseToolCallDisplayProps> = ({ toolCallId, t
         <div className='flex-1 min-w-0'>
           <div className='flex items-center justify-between gap-12px mb-2'>
             <div className='flex items-center gap-2 min-w-0'>
-              <span className='text-lg shrink-0'>{icon}</span>
+              {icon && <span className='text-lg shrink-0'>{icon}</span>}
               <span className='font-medium text-t-primary truncate'>{title}</span>
               <StatusTag status={status} />
               {additionalTags}

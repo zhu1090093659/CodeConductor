@@ -1,7 +1,8 @@
-import { Button, Input, Modal, Spin, Tooltip } from '@arco-design/web-react';
+import { Button, Input, Modal, Tooltip } from '@arco-design/web-react';
 import { CheckOne, CloseOne, Delete, Edit, Plus, DeleteFive, CheckSmall, Shield } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 
 /**
  * API Key 状态
@@ -146,7 +147,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
   const getStatusIcon = (status: KeyStatus) => {
     switch (status) {
       case 'testing':
-        return <Spin size={14} />;
+        return <AsciiSpinner size={12} style='petal' glow={false} />;
       case 'valid':
         return <CheckOne theme='filled' size={16} className='text-green-500 flex' />;
       case 'invalid':

@@ -222,7 +222,6 @@ const MessageList: React.FC<{
                 <div className='flex items-center justify-between px-10px py-8px border-b border-[var(--bg-3)]'>
                   <div className='flex items-center gap-8px min-w-0'>
                     {headerNode ? <span className='shrink-0'>{headerNode}</span> : null}
-                    <span className='text-sm text-t-primary'>🔧</span>
                     <span className='text-sm text-t-primary truncate'>{`Tools × ${batch.length}`}</span>
                     {forceOpen && <span className='text-xs text-t-secondary'>action required</span>}
                   </div>
@@ -409,7 +408,8 @@ const MessageList: React.FC<{
       if (payload.conversationId !== conversationId) return;
       const thoughtId = payload.thoughtId ?? null;
       const hasContent = Boolean(payload.thought?.subject) || Boolean(payload.thought?.description);
-      const anchorId = listRef.current.length ? (listRef.current[listRef.current.length - 1]?.id ?? null) : null;
+      // Use explicit anchorId from payload if provided, otherwise calculate from current list
+      const anchorId = payload.anchorId ?? (listRef.current.length ? (listRef.current[listRef.current.length - 1]?.id ?? null) : null);
 
       setThoughtEntries((prev) => {
         const pendingIndex = prev.findIndex((item) => item.id === PENDING_THOUGHT_ID);

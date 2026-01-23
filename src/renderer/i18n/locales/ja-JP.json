@@ -36,7 +36,7 @@
         "connection_refused": ["• Codex CLI が正しくインストールされているか確認", "• サービス設定とAPIキーを確認", "• アプリケーションを再起動", "• ローカルポートが占有されていないか確認"],
         "unknown": ["• ネットワーク接続状態を確認", "• 現在の操作を再試行", "• ネットワーク環境を切替", "• 技術サポートに連絡"]
       },
-      "quick_switch_title": "💡 **すぐに切り替えるには：**",
+      "quick_switch_title": "**すぐに切り替えるには：**",
       "recovery_suggestions": "**推奨対処：**",
       "retry_attempt": "再試行中 {{current}} 回目...",
       "retry_count": "再試行回数",
@@ -528,7 +528,7 @@
     "modelPlatform": "プロバイダープラットフォーム",
     "modelProvider": "プロバイダー名",
     "multiApiKeyEditTip": "複数のAPIキーをサポート、1行に1つ、システムが自動ローテーションします",
-    "multiApiKeyTip": "💡 複数のAPIキーを自動ローテーションで追加するには、後でプラットフォーム編集画面で設定してください",
+    "multiApiKeyTip": "複数のAPIキーを自動ローテーションで追加するには、後でプラットフォーム編集画面で設定してください",
     "noAvailable": "利用可能な画像モデルがありません。先に設定してください。",
     "openai": "OpenAI",
     "personalAuth": "Google アカウント",

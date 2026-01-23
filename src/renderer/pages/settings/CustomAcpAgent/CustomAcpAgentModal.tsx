@@ -6,13 +6,14 @@
  */
 import type { AcpBackendConfig, AcpBackend } from '@/types/acpTypes';
 import { ACP_BACKENDS_ALL } from '@/types/acpTypes';
-import { Alert, Input, Spin, Collapse } from '@arco-design/web-react';
+import { Alert, Input, Collapse } from '@arco-design/web-react';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { useThemeContext } from '@/renderer/context/ThemeContext';
 import AionModal from '@/renderer/components/base/AionModal';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 import { uuid } from '@/common/utils';
 import { acpConversation } from '@/common/ipcBridge';
 import { CheckSmall } from '@icon-park/react';
@@ -257,7 +258,7 @@ const CustomAcpAgentModal: React.FC<CustomAcpAgentModalProps> = ({ visible, agen
             <div className='mb-8px text-sm font-medium text-t-primary'>{t('settings.selectCli') || 'Select CLI'}</div>
             {loadingAgents ? (
               <div className='flex items-center justify-center py-16px'>
-                <Spin />
+                <AsciiSpinner size={18} style='petal' glow glowColor='var(--primary)' />
               </div>
             ) : detectedAgents.length === 0 ? (
               <Alert type='warning' content={t('settings.noCliDetected') || 'No CLI tools detected. Please install an ACP-compatible CLI first.'} />

@@ -376,11 +376,14 @@ const AcpSendBox: React.FC<{
     clearFiles();
 
     // Start AI processing loading state
+    // Pass anchorId explicitly to avoid race condition with list state updates
+    // When optimisticUserMessage is true, anchor to the user message we just added
     setAiProcessing(true);
     emitter.emit('conversation.thought.update', {
       conversationId: conversation_id,
       thought: { subject: '', description: '' },
       running: true,
+      anchorId: optimisticUserMessage ? msg_id : undefined,
     });
 
     // Send message via ACP

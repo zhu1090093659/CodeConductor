@@ -142,8 +142,8 @@ async function initializeDefaultAdmin(): Promise<{ username: string; password: s
     UserRepository.createUser(username, hashedPassword);
     return { username, password };
   } catch (error) {
-    console.error('❌ Failed to initialize default admin account:', error);
-    console.error('❌ 初始化默认管理员账户失败:', error);
+    console.error('[-] Failed to initialize default admin account:', error);
+    console.error('[-] 初始化默认管理员账户失败:', error);
     return null;
   }
 }
@@ -154,19 +154,19 @@ async function initializeDefaultAdmin(): Promise<{ username: string; password: s
  */
 function displayInitialCredentials(credentials: { username: string; password: string }, localUrl: string, allowRemote: boolean, networkUrl?: string): void {
   console.log('\n' + '='.repeat(70));
-  console.log('🎉 CodeConductor Web Server Started Successfully! / CodeConductor Web 服务器启动成功！');
+  console.log('[+] CodeConductor Web Server Started Successfully! / CodeConductor Web 服务器启动成功！');
   console.log('='.repeat(70));
-  console.log(`\n📍 Local URL / 本地地址:    ${localUrl}`);
+  console.log(`\n[*] Local URL / 本地地址:    ${localUrl}`);
 
   if (allowRemote && networkUrl && networkUrl !== localUrl) {
-    console.log(`📍 Network URL / 网络地址:  ${networkUrl}`);
+    console.log(`[*] Network URL / 网络地址:  ${networkUrl}`);
   }
 
-  console.log('\n🔐 Initial Admin Credentials / 初始管理员凭证:');
+  console.log('\n[!] Initial Admin Credentials / 初始管理员凭证:');
   console.log(`   Username / 用户名: ${credentials.username}`);
   console.log(`   Password / 密码:   ${credentials.password}`);
-  console.log('\n⚠️  Please change the password after first login!');
-  console.log('⚠️  请在首次登录后修改密码！');
+  console.log('\n[!] Please change the password after first login!');
+  console.log('[!] 请在首次登录后修改密码！');
   console.log('='.repeat(70) + '\n');
 }
 
@@ -225,10 +225,10 @@ export async function startWebServer(port: number, allowRemote = false): Promise
       } else {
         // Only show network access when --remote flag is enabled
         if (allowRemote && serverIP && serverIP !== 'localhost') {
-          console.log(`\n   🚀 Local access / 本地访问: ${localUrl}`);
-          console.log(`   🚀 Network access / 网络访问: ${displayUrl}\n`);
+          console.log(`\n   [*] Local access / 本地访问: ${localUrl}`);
+          console.log(`   [*] Network access / 网络访问: ${displayUrl}\n`);
         } else {
-          console.log(`\n   🚀 WebUI started / WebUI 已启动: ${localUrl}\n`);
+          console.log(`\n   [*] WebUI started / WebUI 已启动: ${localUrl}\n`);
         }
       }
 
@@ -250,9 +250,9 @@ export async function startWebServer(port: number, allowRemote = false): Promise
 
     server.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Port ${port} is already in use / 端口 ${port} 已被占用`);
+        console.error(`[-] Port ${port} is already in use / 端口 ${port} 已被占用`);
       } else {
-        console.error('❌ Server error / 服务器错误:', err);
+        console.error('[-] Server error / 服务器错误:', err);
       }
       reject(err);
     });

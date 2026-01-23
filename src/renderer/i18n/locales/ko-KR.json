@@ -428,7 +428,7 @@
     "pleaseEnterApiKey": "API 키를 입력하세요",
     "pleaseEnterBaseUrl": "기본 URL을 입력하세요",
     "pleaseSelectProvider": "공급자를 선택하세요",
-    "multiApiKeyTip": "💡 자동 로테이션을 위해 여러 API 키를 추가하려면 나중에 플랫폼 편집에서 구성하세요",
+    "multiApiKeyTip": "자동 로테이션을 위해 여러 API 키를 추가하려면 나중에 플랫폼 편집에서 구성하세요",
     "multiApiKeyEditTip": "한 줄에 하나씩 여러 API 키 지원, 시스템이 자동 로테이션",
     "apiKeyPlaceholder": "API 키 입력, 여러 키는 한 줄에 하나씩",
     "editApiKey": "API 키 편집",
@@ -748,7 +748,7 @@
       "error_type": "오류 유형",
       "retry_count": "재시도 횟수",
       "error_details": "오류 세부사항",
-      "quick_switch_title": "💡 **빠른 전환 옵션:**",
+      "quick_switch_title": "**빠른 전환 옵션:**",
       "quick_switch_content": "현재 서비스에 네트워크 제한이 발생하면 다음을 수행할 수 있습니다:\n\n1. **즉시 AI 어시스턴트 전환**: 왼쪽 패널에서 다른 사용 가능한 어시스턴트 선택\n2. **서비스 상태 확인**: 지역에 따라 다른 AI 서비스 가용성이 다를 수 있음\n3. **네트워크 최적화**: 안정적인 네트워크 환경을 사용하여 연결 성공률 향상\n4. **나중에 재시도**: 네트워크 제한은 일반적으로 일시적임\n\n**팁**: 업무 연속성을 보장하기 위해 여러 AI 서비스를 대안으로 구성하는 것이 좋습니다.",
       "recovery_actions": {
         "cloudflare_blocked": ["• VPN 또는 프록시 서비스 사용", "• 네트워크 환경 전환 (모바일 핫스팟 등)", "• 10-30분 대기 후 재시도", "• 브라우저 캐시 및 쿠키 삭제", "• 다른 사용 가능한 서비스로 전환: ChatGPT, Claude, Qwen, Gemini"],

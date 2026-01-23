@@ -31,7 +31,6 @@ const ApplyPatchApprovalDisplay: React.FC<ApplyPatchApprovalDisplayProps> = Reac
 
     return {
       title: title ? t(title) : t('codex.permissions.titles.apply_patch_approval_request'),
-      icon: '📝',
       changes,
       fileCount,
       fileNames,
@@ -44,7 +43,7 @@ const ApplyPatchApprovalDisplay: React.FC<ApplyPatchApprovalDisplayProps> = Reac
   const patchInfo = getPatchInfo();
 
   return (
-    <BasePermissionDisplay content={content} messageId={messageId} conversationId={conversationId} icon={patchInfo.icon} title={patchInfo.title}>
+    <BasePermissionDisplay content={content} messageId={messageId} conversationId={conversationId} title={patchInfo.title}>
       {/* Files to be changed */}
       <div>
         <Text className='text-xs text-t-secondary mb-1'>
@@ -53,7 +52,7 @@ const ApplyPatchApprovalDisplay: React.FC<ApplyPatchApprovalDisplayProps> = Reac
         <div className='text-xs bg-1 p-2 rounded text-t-primary'>
           {patchInfo.fileNames.map((fileName, index) => (
             <div key={index} className='break-all'>
-              📄 {fileName}
+              {fileName}
             </div>
           ))}
           {patchInfo.hasMoreFiles && <div className='text-t-secondary'>... and {patchInfo.fileCount - 3} more files</div>}

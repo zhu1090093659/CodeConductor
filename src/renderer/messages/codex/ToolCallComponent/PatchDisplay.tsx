@@ -59,7 +59,7 @@ const PatchDisplay: React.FC<{ content: PatchUpdate }> = ({ content }) => {
   const changeSummary = getChangeSummary();
 
   return (
-    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description} icon='📝' additionalTags={getAdditionalTags()}>
+    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description} additionalTags={getAdditionalTags()}>
       {/* Display file changes if available */}
       {changeSummary && changeSummary.length > 0 && (
         <div className='text-sm mb-2'>

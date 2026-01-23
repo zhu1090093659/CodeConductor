@@ -491,7 +491,7 @@ export class AcpConnection {
         };
         ipcBridge.fileStream.contentUpdate.emit(eventData);
       } catch (emitError) {
-        console.error('[AcpConnection] ❌ Failed to emit file stream update:', emitError);
+        console.error('[AcpConnection] [-] Failed to emit file stream update:', emitError);
       }
 
       return null;

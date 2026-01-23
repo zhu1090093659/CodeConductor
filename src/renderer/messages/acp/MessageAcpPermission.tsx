@@ -29,27 +29,17 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
       return {
         title: t('messages.permissionRequest'),
         description: t('messages.agentRequestingPermission'),
-        icon: '🔐',
       };
     }
 
     // 直接使用 toolCall 中的实际数据
     const displayTitle = toolCall.title || toolCall.rawInput?.description || t('messages.permissionRequest');
 
-    // 简单的图标映射
-    const kindIcons: Record<string, string> = {
-      edit: '✏️',
-      read: '📖',
-      fetch: '🌐',
-      execute: '⚡',
-    };
-
     return {
       title: displayTitle,
-      icon: kindIcons[toolCall.kind || 'execute'] || '⚡',
     };
   };
-  const { title, icon } = getToolInfo();
+  const { title } = getToolInfo();
   const [selected, setSelected] = useState<string | null>(null);
   const [isResponding, setIsResponding] = useState(false);
   const [hasResponded, setHasResponded] = useState(false);
@@ -139,9 +129,8 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
   return (
     <Card className='mb-4 permission-card w-full' bordered={true} style={{ background: 'var(--bg-2)', borderColor: 'var(--color-border-2)' }}>
       <div className='space-y-4'>
-        {/* Header with icon and title */}
+        {/* Header with title */}
         <div className='flex items-center space-x-3 pb-3 border-b border-[var(--color-border-1)]'>
-          <span className='text-3xl'>{icon}</span>
           <div className='flex flex-col'>
             <Text className='block font-medium text-lg'>{title}</Text>
             <Text className='text-xs text-t-secondary'>{t('messages.permissionRequested')}</Text>

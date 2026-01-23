@@ -198,7 +198,7 @@ export class CodexEventHandler {
         data: {
           subtype: 'exec_approval_request',
           title: displayInfo.titleKey,
-          description: msg.reason || `${displayInfo.icon} Codex wants to execute command: ${Array.isArray(msg.command) ? msg.command.join(' ') : msg.command}`,
+          description: msg.reason || `Codex wants to execute command: ${Array.isArray(msg.command) ? msg.command.join(' ') : msg.command}`,
           agentType: 'codex',
           sessionId: '',
           options: options,
@@ -240,7 +240,7 @@ export class CodexEventHandler {
         data: {
           subtype: 'apply_patch_approval_request',
           title: displayInfo.titleKey,
-          description: msg.message || `${displayInfo.icon} Codex wants to apply proposed code changes`,
+          description: msg.message || `Codex wants to apply proposed code changes`,
           agentType: 'codex',
           sessionId: '',
           options: options,

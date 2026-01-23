@@ -7,10 +7,11 @@
 import { ipcBridge } from '@/common';
 import DiffHtmlViewer from '@/renderer/components/DiffHtmlViewer';
 import { addEventListener } from '@/renderer/utils/emitter';
-import { Button, Checkbox, Empty, Message, Spin, Tooltip } from '@arco-design/web-react';
+import { Button, Checkbox, Empty, Message, Tooltip } from '@arco-design/web-react';
 import { Check, Left, Right, Undo } from '@icon-park/react';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { parseFilePathFromDiff } from '@/renderer/utils/diffUtils';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 
 type FileDiffItem = {
   filePath: string;
@@ -228,7 +229,7 @@ const DiffTab: React.FC<{ workspace: string; active: boolean }> = ({ workspace, 
   if (loading) {
     return (
       <div className='flex items-center justify-center h-full'>
-        <Spin loading />
+        <AsciiSpinner size={20} style='petal' glow glowColor='var(--primary)' />
       </div>
     );
   }

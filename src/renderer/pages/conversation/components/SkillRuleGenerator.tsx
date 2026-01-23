@@ -8,6 +8,7 @@ import { uuid } from '@/common/utils';
 import type { TMessage } from '@/common/chatLib';
 import type { IDirOrFile } from '@/common/ipcBridge';
 import type { AcpBackendConfig } from '@/types/acpTypes';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 
 interface SkillRuleGeneratorProps {
   conversationId: string;
@@ -113,7 +114,7 @@ Please acknowledge receiving this rule/skill and confirm you will apply it.
                     <Typography.Text bold>{file.name}</Typography.Text>
                     <div className='text-[var(--color-text-3)] text-xs truncate'>{file.relativePath || file.name}</div>
                   </div>
-                  {loadingFile && <Spin size={16} />}
+                  {loadingFile && <AsciiSpinner size={14} style='petal' glow={false} />}
                 </div>
               </List.Item>
             )}

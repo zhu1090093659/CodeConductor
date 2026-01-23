@@ -18,7 +18,7 @@ interface BasePermissionDisplayProps {
   content: BaseCodexPermissionRequest & { data: { call_id: string } };
   messageId: string;
   conversationId: string;
-  icon: string;
+  icon?: string; // Optional icon, only rendered if provided
   title: string;
   children: ReactNode; // 特定类型的详细信息内容
 }
@@ -149,7 +149,7 @@ const BasePermissionDisplay: React.FC<BasePermissionDisplayProps> = React.memo((
       <Card className='mb-4 w-full' bordered={false} style={{ background: 'var(--bg-1)' }}>
         <div className='space-y-4 p-2'>
           <div className='flex items-center space-x-2'>
-            <span className='text-2xl'>{icon}</span>
+            {icon && <span className='text-2xl'>{icon}</span>}
             <Text className='block text-sm text-t-secondary'>{t('messages.auto_handling_permission', { defaultValue: '' })}</Text>
           </div>
         </div>
@@ -161,7 +161,7 @@ const BasePermissionDisplay: React.FC<BasePermissionDisplayProps> = React.memo((
     <Card className='mb-4 w-full' bordered={false} style={{ background: 'var(--bg-1)' }}>
       <div className='space-y-4'>
         <div className='flex items-center space-x-2'>
-          <span className='text-2xl'>{icon}</span>
+          {icon && <span className='text-2xl'>{icon}</span>}
           <Text className='block'>{title}</Text>
         </div>
 

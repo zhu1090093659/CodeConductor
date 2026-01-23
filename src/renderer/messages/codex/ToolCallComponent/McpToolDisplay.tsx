@@ -45,7 +45,7 @@ const McpToolDisplay: React.FC<{ content: McpToolUpdate }> = ({ content }) => {
   const toolDetails = getToolDetails();
 
   return (
-    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description} icon='🔌'>
+    <BaseToolCallDisplay toolCallId={toolCallId} title={getDisplayTitle()} status={status} description={description}>
       {/* Display tool details if available 显示工具详情 */}
       {toolDetails && (
         <div className='text-sm mb-2'>

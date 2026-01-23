@@ -13,11 +13,12 @@ import { getPreviewContentType, loadPreviewForFile } from '@/renderer/pages/conv
 import { useConversationTabs } from '@/renderer/pages/conversation/context/ConversationTabsContext';
 import { useProjects } from '@/renderer/hooks/useProjects';
 import { deleteProject, ensureProjectForWorkspace, renameProject, setActiveProjectId, type DeleteProjectResult } from '@/renderer/utils/projectService';
-import { Empty, Input, Message, Modal, Popconfirm, Spin, Tree, Tooltip } from '@arco-design/web-react';
+import { Empty, Input, Message, Modal, Popconfirm, Tree, Tooltip } from '@arco-design/web-react';
 import { DeleteOne, Down, EditOne, FileText, FolderOpen, Plus } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/theme/colors';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 
 interface TreeNode {
   key: string;
@@ -293,7 +294,7 @@ const ProjectModePanel: React.FC = () => {
         <>
           {loading ? (
             <div className='flex items-center justify-center h-120px'>
-              <Spin loading />
+              <AsciiSpinner size={18} style='petal' glow glowColor='var(--primary)' />
             </div>
           ) : !workspace ? (
             <Empty description={t('project.empty', { defaultValue: '暂无项目' })} />

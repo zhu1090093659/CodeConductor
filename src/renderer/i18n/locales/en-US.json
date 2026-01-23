@@ -436,7 +436,7 @@
     "pleaseEnterApiKey": "Please enter API Key",
     "pleaseEnterBaseUrl": "Please enter Base URL",
     "pleaseSelectProvider": "Please select a provider",
-    "multiApiKeyTip": "💡 To add multiple API Keys for auto-rotation, configure in platform edit later",
+    "multiApiKeyTip": "To add multiple API Keys for auto-rotation, configure in platform edit later",
     "multiApiKeyEditTip": "Support multiple API Keys, one per line, system will auto-rotate",
     "apiKeyPlaceholder": "Enter API Key(s), one per line for multiple keys",
     "editApiKey": "Edit API Keys",
@@ -756,7 +756,7 @@
       "error_type": "Error Type",
       "retry_count": "Retry Count",
       "error_details": "Error Details",
-      "quick_switch_title": "💡 **Quick Switch Options:**",
+      "quick_switch_title": "**Quick Switch Options:**",
       "quick_switch_content": "When current service encounters network restrictions, you can:\n\n1. **Switch AI Assistant Immediately**: Select other available assistants from the left panel\n2. **Check Service Status**: Availability of different AI services may vary by region\n3. **Network Optimization**: Use stable network environment to improve connection success rate\n4. **Retry Later**: Network restrictions are usually temporary\n\n**Tip**: It's recommended to configure multiple AI services as alternatives to ensure work continuity.",
       "recovery_actions": {
         "cloudflare_blocked": ["• Use VPN or proxy service", "• Switch network environment (like mobile hotspot)", "• Wait 10-30 minutes and retry", "• Clear browser cache and cookies", "• Switch to other available services: ChatGPT, Claude, Qwen, Gemini"],
@@ -767,8 +767,8 @@
     },
     "thinking": {
       "label": "thinking",
-      "processing": "🤔 Codex is thinking...",
-      "completed": "💭 Thinking process completed",
+      "processing": "Codex is thinking...",
+      "completed": "Thinking process completed",
       "analyzing": "Analyzing the problem and formulating solutions...",
       "composing": "Composing response content..."
     },

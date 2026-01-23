@@ -1,12 +1,13 @@
 import type { IMcpServer, IMcpTool } from '@/common/storage';
 import { acpConversation, mcpService } from '@/common/ipcBridge';
-import { Button, Select, Spin } from '@arco-design/web-react';
+import { Button, Select } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check } from '@icon-park/react';
 import { iconColors } from '@/renderer/theme/colors';
 import AionSteps from '@/renderer/components/base/AionSteps';
 import AionModal from '@/renderer/components/base/AionModal';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 
 interface OneClickImportModalProps {
   visible: boolean;
@@ -161,7 +162,7 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
       {loadingImport ? (
         <div className='py-8'>
           <div className='flex items-center gap-3 bg-fill-1 rounded-lg p-4'>
-            <Spin size={20} />
+            <AsciiSpinner size={16} style='petal' glow glowColor='var(--primary)' />
             <div className='text-t-secondary text-sm'>{t('settings.mcpLoadingTools')}</div>
           </div>
         </div>

@@ -99,7 +99,7 @@ const DirectorySelectionModal: React.FC<DirectorySelectionModalProps> = ({ visib
   return (
     <Modal
       visible={visible}
-      title={isFileMode ? '📄 ' + t('fileSelection.selectFile') : '📁 ' + t('fileSelection.selectDirectory')}
+      title={isFileMode ? t('fileSelection.selectFile') : t('fileSelection.selectDirectory')}
       onCancel={onCancel}
       onOk={handleConfirm}
       okButtonProps={{ disabled: !selectedPath }}

@@ -536,12 +536,12 @@ export class AcpAgent {
     switch (operation.method) {
       case 'fs/write_text_file': {
         const content = operation.content || '';
-        return `📝 File written: \`${operation.path}\`\n\n\`\`\`\n${content}\n\`\`\``;
+        return `File written: \`${operation.path}\`\n\n\`\`\`\n${content}\n\`\`\``;
       }
       case 'fs/read_text_file':
-        return `📖 File read: \`${operation.path}\``;
+        return `File read: \`${operation.path}\``;
       default:
-        return `🔧 File operation: \`${operation.path}\``;
+        return `File operation: \`${operation.path}\``;
     }
   }
 

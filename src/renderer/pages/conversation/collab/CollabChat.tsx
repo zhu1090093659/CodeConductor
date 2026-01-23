@@ -18,6 +18,7 @@ import type { AcpBackend } from '@/types/acpTypes';
 import CodexSendBox from '../codex/CodexSendBox';
 import { ConversationProvider } from '@/renderer/context/ConversationContext';
 import FlexFullContainer from '@/renderer/components/FlexFullContainer';
+import AsciiSpinner from '@/renderer/components/AsciiSpinner';
 import { useAddEventListener } from '@/renderer/utils/emitter';
 import { useTranslation } from 'react-i18next';
 
@@ -373,7 +374,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
                   <button key={role} {...roleButtonProps}>
                     <span className='collab-role-switch__dot' aria-hidden='true' />
                     <span className='collab-role-switch__label'>{ROLE_LABEL[role]}</span>
-                    {thinking && <span className='collab-role-switch__thinking' aria-hidden='true' />}
+                    {thinking && <AsciiSpinner size={10} style='petal' glow={false} className='ml-4px' />}
                   </button>
                 );
               })}
@@ -395,11 +396,7 @@ const CollabChatInner: React.FC<{ parentConversation: TChatConversation }> = ({ 
                     <span className='collab-role-pill__dot' aria-hidden='true' />
                     <span className='collab-role-pill__label'>{ROLE_LABEL[role]}</span>
                   </span>
-                  <span className='collab-thinking-indicator__dots' aria-hidden='true'>
-                    <span className='collab-thinking-indicator__dot' />
-                    <span className='collab-thinking-indicator__dot' />
-                    <span className='collab-thinking-indicator__dot' />
-                  </span>
+                  <AsciiSpinner size={12} style='petal' glow glowColor='var(--primary)' />
                 </div>
               ))}
             </div>

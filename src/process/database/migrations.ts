@@ -209,9 +209,9 @@ export function runMigrations(db: Database.Database, fromVersion: number, toVers
         console.log(`[Migrations] Running migration v${migration.version}: ${migration.name}`);
         migration.up(db);
 
-        console.log(`[Migrations] ✓ Migration v${migration.version} completed`);
+        console.log(`[Migrations] [+] Migration v${migration.version} completed`);
       } catch (error) {
-        console.error(`[Migrations] ✗ Migration v${migration.version} failed:`, error);
+        console.error(`[Migrations] [-] Migration v${migration.version} failed:`, error);
         throw error; // Transaction will rollback
       }
     }
@@ -252,9 +252,9 @@ export function rollbackMigrations(db: Database.Database, fromVersion: number, t
         console.log(`[Migrations] Rolling back migration v${migration.version}: ${migration.name}`);
         migration.down(db);
 
-        console.log(`[Migrations] ✓ Rollback v${migration.version} completed`);
+        console.log(`[Migrations] [+] Rollback v${migration.version} completed`);
       } catch (error) {
-        console.error(`[Migrations] ✗ Rollback v${migration.version} failed:`, error);
+        console.error(`[Migrations] [-] Rollback v${migration.version} failed:`, error);
         throw error; // Transaction will rollback
       }
     }

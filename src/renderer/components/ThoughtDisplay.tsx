@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Spin } from '@arco-design/web-react';
 import { Down, Up } from '@icon-park/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useThemeContext } from '@/renderer/context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import AsciiSpinner from './AsciiSpinner';
 
 export interface ThoughtData {
   subject: string;
@@ -157,7 +157,7 @@ const ThoughtDisplay: React.FC<ThoughtDisplayProps> = ({ thought, style = 'defau
           background: 'var(--bg-base)',
         }}
       >
-        {running && <Spin size={12} />}
+        {running && <AsciiSpinner size={12} />}
         {running && (
           <span className='text-t-tertiary text-12px whitespace-nowrap'>
             {t('common.escToCancel')}, {formatElapsedTime(elapsedTime)}

@@ -641,7 +641,6 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({ conversation_id, workspace, e
 
             {/* Hint */}
             <div className='flex items-center gap-8px mb-20px text-14px' style={{ color: 'var(--color-text-3)' }}>
-              <span>💡</span>
               <span>{t('conversation.workspace.migration.hint')}</span>
             </div>
 
