@@ -30,6 +30,7 @@ import { allSupportedExts, type FileMetadata, getCleanFileNames } from '@/render
 import { iconColors } from '@/renderer/theme/colors';
 import { emitter } from '@/renderer/utils/emitter';
 import { hasSpecificModelCapability } from '@/renderer/utils/modelCapabilities';
+import { applyCliModelOnSelect } from '@/renderer/utils/cliModelService';
 import { INTERACTIVE_MODE_CONFIG_KEY } from '@/common/interactivePrompt';
 import type { AcpBackend, AcpBackendConfig } from '@/types/acpTypes';
 import { Button, ConfigProvider, Dropdown, Input, Menu, Tooltip } from '@arco-design/web-react';
@@ -396,7 +397,7 @@ const Guid: React.FC = () => {
     });
   };
 
-  const setCurrentModel = async (modelInfo: TProviderWithModel) => {
+  const setCurrentModel = async (modelInfo: TProviderWithModel, isManualSelection = false) => {
     // 记录最新的选中 key，避免列表刷新后被错误重置
     selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
     _setCurrentModel(modelInfo);
@@ -404,6 +405,13 @@ const Guid: React.FC = () => {
     if (!modelInfo.id?.startsWith('cli:')) {
       await ConfigStorage.set('model.defaultModel', modelInfo.useModel).catch((error) => {
         console.error('Failed to save default model:', error);
+      });
+    }
+
+    // Only write to external CLI config when user manually selects a CLI model
+    if (isManualSelection && modelInfo.id?.startsWith('cli:')) {
+      await applyCliModelOnSelect(modelInfo).catch((error) => {
+        console.error('Failed to apply CLI model config:', error);
       });
     }
   };
@@ -1471,7 +1479,7 @@ const Guid: React.FC = () => {
                                       key={provider.id + modelName}
                                       className={currentModel?.id + currentModel?.useModel === provider.id + modelName ? '!bg-2' : ''}
                                       onClick={() => {
-                                        setCurrentModel({ ...provider, useModel: modelName }).catch((error) => {
+                                        setCurrentModel({ ...provider, useModel: modelName }, true).catch((error) => {
                                           console.error('Failed to set current model:', error);
                                         });
                                       }}

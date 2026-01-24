@@ -9,11 +9,10 @@ import { Button, Form, Input, Message, Select, Tabs, Switch } from '@arco-design
 import { useTranslation } from 'react-i18next';
 import { Download } from '@icon-park/react';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
-import { CLAUDE_PROVIDER_PRESETS } from '@/renderer/config/cliProviders/claudePresets';
-import { CODEX_PROVIDER_PRESETS, generateThirdPartyConfig } from '@/renderer/config/cliProviders/codexPresets';
 import { ConfigStorage, type CliProviderConfig, type CliProviderPresetConfig, type CliProviderTarget, type CliProvidersStorage } from '@/common/storage';
 import { ipcBridge } from '@/common';
 import useModeModeList from '@/renderer/hooks/useModeModeList';
+import { buildClaudeEnv, patchCodexConfig, isOfficialCliPreset, CLAUDE_PROVIDER_PRESETS, CODEX_PROVIDER_PRESETS, CLAUDE_THIRD_PARTY_ENV_KEYS } from '@/renderer/utils/cliProviderUtils';
 
 type ProviderPreset = {
   name: string;
@@ -54,86 +53,6 @@ const getDefaultProviderConfig = (target: CliProviderTarget, preset?: ProviderPr
     templateValues: undefined,
     reasoningEffort: undefined,
   };
-};
-
-const buildClaudeEnv = (preset: ProviderPreset, config: CliProviderConfig) => {
-  const env = { ...(preset.settingsConfig?.env || {}) } as Record<string, string | number>;
-  const templateValues = config.templateValues || {};
-  const applyTemplate = (value: string) => {
-    return value.replace(/\$\{([^}]+)\}/g, (_, key: string) => {
-      const replacement = templateValues[key] || '';
-      return replacement;
-    });
-  };
-  Object.keys(env).forEach((key) => {
-    const raw = env[key];
-    if (typeof raw === 'string') {
-      env[key] = applyTemplate(raw);
-    }
-  });
-  const apiKeyField = (preset as { apiKeyField?: string }).apiKeyField || 'ANTHROPIC_AUTH_TOKEN';
-  const hasApiKey = Boolean(config.apiKey);
-  if (hasApiKey) {
-    env[apiKeyField] = config.apiKey;
-  }
-  if (config.baseUrl) {
-    env['ANTHROPIC_BASE_URL'] = config.baseUrl;
-  }
-  if (config.model) {
-    env['ANTHROPIC_MODEL'] = config.model;
-  }
-  if (!env['ANTHROPIC_MODEL']) {
-    env['ANTHROPIC_MODEL'] = 'default';
-  }
-  if (hasApiKey && config.model) {
-    env['ANTHROPIC_SMALL_FAST_MODEL'] = config.model;
-    env['ANTHROPIC_DEFAULT_SONNET_MODEL'] = config.model;
-    env['ANTHROPIC_DEFAULT_OPUS_MODEL'] = config.model;
-    env['ANTHROPIC_DEFAULT_HAIKU_MODEL'] = config.model;
-  }
-  if (config.maxThinkingTokens) {
-    const parsed = Number.parseInt(config.maxThinkingTokens, 10);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      env['MAX_THINKING_TOKENS'] = parsed;
-    }
-  } else if (config.alwaysThinkingEnabled !== false) {
-    // When thinking is enabled (default true) but no custom tokens set, use a sensible default
-    // Claude Code ACP requires MAX_THINKING_TOKENS env to enable thinking mode
-    env['MAX_THINKING_TOKENS'] = 16000;
-  }
-  return env;
-};
-
-const patchCodexConfig = (baseConfig: string, baseUrl?: string, model?: string, reasoningEffort?: string) => {
-  let next = baseConfig || '';
-  if (!next) {
-    const resolvedModel = model || '';
-    if (!resolvedModel) return next;
-    // For Official mode, allow writing only the model by generating a minimal OpenAI provider block.
-    const resolvedBaseUrl = baseUrl || 'https://api.openai.com/v1';
-    next = generateThirdPartyConfig('openai', resolvedBaseUrl, resolvedModel, reasoningEffort);
-    return next;
-  }
-  if (baseUrl) {
-    next = next.replace(/base_url\s*=\s*".*?"/g, `base_url = "${baseUrl}"`);
-  }
-  if (model) {
-    next = next.replace(/model\s*=\s*".*?"/g, `model = "${model}"`);
-  }
-  if (reasoningEffort) {
-    // Check if model_reasoning_effort already exists
-    if (/model_reasoning_effort\s*=\s*".*?"/g.test(next)) {
-      next = next.replace(/model_reasoning_effort\s*=\s*".*?"/g, `model_reasoning_effort = "${reasoningEffort}"`);
-    } else {
-      // Add after model line
-      next = next.replace(/model\s*=\s*".*?"/g, (match) => `${match}\nmodel_reasoning_effort = "${reasoningEffort}"`);
-    }
-  }
-  return next;
-};
-
-const isOfficialCliPreset = (preset?: ProviderPreset) => {
-  return preset?.category === 'official';
 };
 
 const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
@@ -189,11 +108,10 @@ const CliProviderSettings: React.FC<{ embedded?: boolean }> = ({ embedded = fals
         const shouldUseOfficial = isOfficialCliPreset(preset) && !config.apiKey;
         const selectedModel = config.model || config.enabledModels?.[0];
         const env = buildClaudeEnv(preset, { ...config, model: selectedModel });
-        const thirdPartyEnvKeys = ['ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_API_KEY', 'ANTHROPIC_BASE_URL', 'ANTHROPIC_SMALL_FAST_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL', 'ANTHROPIC_DEFAULT_OPUS_MODEL', 'ANTHROPIC_DEFAULT_HAIKU_MODEL'];
         const clearEnvKeys: string[] = [];
         if (shouldUseOfficial) {
-          clearEnvKeys.push(...thirdPartyEnvKeys);
-          for (const key of thirdPartyEnvKeys) {
+          clearEnvKeys.push(...CLAUDE_THIRD_PARTY_ENV_KEYS);
+          for (const key of CLAUDE_THIRD_PARTY_ENV_KEYS) {
             delete env[key];
           }
         }

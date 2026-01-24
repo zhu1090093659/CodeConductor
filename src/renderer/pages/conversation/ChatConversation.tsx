@@ -28,6 +28,7 @@ import CoworkLogo from '@/renderer/assets/cowork.svg';
 import CollabChat from '@/renderer/pages/conversation/collab/CollabChat';
 import { INTERACTIVE_MODE_CONFIG_KEY } from '@/common/interactivePrompt';
 import useConfigModelListWithImage from '@/renderer/hooks/useConfigModelListWithImage';
+import { applyCliModelOnSelect } from '@/renderer/utils/cliModelService';
 // import SkillRuleGenerator from './components/SkillRuleGenerator'; // Temporarily hidden
 
 type CollabRole = 'pm' | 'analyst' | 'engineer';
@@ -155,6 +156,13 @@ const ChatConversation: React.FC<{
     if (!model.id?.startsWith('cli:')) {
       await ConfigStorage.set('model.defaultModel', model.useModel).catch((error) => {
         console.error('Failed to save default model:', error);
+      });
+    }
+
+    // Write to external CLI config when user manually selects a CLI model
+    if (model.id?.startsWith('cli:')) {
+      await applyCliModelOnSelect(model).catch((error) => {
+        console.error('Failed to apply CLI model config:', error);
       });
     }
   }, []);
