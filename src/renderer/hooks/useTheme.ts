@@ -15,7 +15,7 @@ const getSystemTheme = (): Theme => {
 
 // Initialize theme immediately when module loads
 const initTheme = async () => {
-  const systemTheme = getSystemTheme();
+  const systemTheme = DEFAULT_THEME;
   document.documentElement.setAttribute('data-theme', systemTheme);
   document.body.setAttribute('arco-theme', systemTheme);
   try {
