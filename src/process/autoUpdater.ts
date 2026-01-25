@@ -143,7 +143,8 @@ export function quitAndInstall(): void {
   // setImmediate ensures that the app quits after the current event loop
   setImmediate(() => {
     app.removeAllListeners('window-all-closed');
-    autoUpdater.quitAndInstall(false, true);
+    // isSilent=true ensures seamless update without installer UI that could fail
+    autoUpdater.quitAndInstall(true, true);
   });
 }
 

@@ -89,14 +89,14 @@ win:
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 
 nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
+  oneClick: true                            # Use one-click installer for reliable auto-updates
+  allowToChangeInstallationDirectory: false # Fixed path prevents update path mismatch
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
-  differentialPackage: true  # Enable differential updates for NSIS
+  differentialPackage: false                # Disabled for update stability
 
 mac:
   target:
