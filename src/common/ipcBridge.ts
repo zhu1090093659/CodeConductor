@@ -30,8 +30,8 @@ export const conversation = {
   reset: bridge.buildProvider<void, IResetConversationParams>('reset-conversation'), // 重置对话
   abortWorkspaceRead: bridge.buildProvider<IBridgeResponse, void>('conversation.abort-workspace-read'), // Abort workspace tree read
   cleanupWorkspace: bridge.buildProvider<IBridgeResponse<{ count: number }>, { workspace: string }>('conversation.cleanup-workspace'), // Cleanup running tasks by workspace
-  stop: bridge.buildProvider<IBridgeResponse<{}>, { conversation_id: string }>('chat.stop.stream'), // 停止会话
-  sendMessage: bridge.buildProvider<IBridgeResponse<{}>, ISendMessageParams>('chat.send.message'), // 发送消息（统一接口）
+  stop: bridge.buildProvider<IBridgeResponse<Record<string, never>>, { conversation_id: string }>('chat.stop.stream'), // 停止会话
+  sendMessage: bridge.buildProvider<IBridgeResponse<Record<string, never>>, ISendMessageParams>('chat.send.message'), // 发送消息（统一接口）
   confirmMessage: bridge.buildProvider<IBridgeResponse, IConfirmMessageParams>('conversation.confirm.message'), // 通用确认消息
   responseStream: bridge.buildEmitter<IResponseMessage>('chat.response.stream'), // 接收消息（统一接口）
   getWorkspace: bridge.buildProvider<IDirOrFile[], { conversation_id: string; workspace: string; path: string; search?: string }>('conversation.get-workspace'),
@@ -82,6 +82,12 @@ export const fs = {
   deleteAssistantSkill: bridge.buildProvider<boolean, { assistantId: string }>('delete-assistant-skill'), // 删除助手技能文件
   // 获取可用 skills 列表 / List available skills from skills directory
   listAvailableSkills: bridge.buildProvider<Array<{ name: string; description: string; location: string }>, void>('list-available-skills'),
+  // 自定义助手操作（Agent 创建的助手）/ Custom assistant operations (agent-created assistants)
+  getCustomAssistantsDir: bridge.buildProvider<string, void>('get-custom-assistants-dir'), // 获取自定义助手目录路径
+  listCustomAssistants: bridge.buildProvider<Array<{ id: string; name: string; description: string; filePath: string }>, void>('list-custom-assistants'), // 列出所有自定义助手
+  readCustomAssistant: bridge.buildProvider<string, { assistantId: string }>('read-custom-assistant'), // 读取自定义助手规则
+  writeCustomAssistant: bridge.buildProvider<boolean, { assistantId: string; content: string }>('write-custom-assistant'), // 写入自定义助手规则
+  deleteCustomAssistant: bridge.buildProvider<boolean, { assistantId: string }>('delete-custom-assistant'), // 删除自定义助手
 };
 
 // 文件流式更新（Agent 写入文件时实时推送内容）/ File streaming updates (real-time content push when agent writes)
@@ -152,7 +158,7 @@ export const mcpService = {
   callTool: bridge.buildProvider<IBridgeResponse<{ result: unknown }>, { server: IMcpServer; toolName: string; toolArgs: Record<string, unknown> }>('mcp.call-tool'),
   // OAuth 相关接口
   checkOAuthStatus: bridge.buildProvider<IBridgeResponse<{ isAuthenticated: boolean; needsLogin: boolean; error?: string }>, IMcpServer>('mcp.check-oauth-status'),
-  loginMcpOAuth: bridge.buildProvider<IBridgeResponse<{ success: boolean; error?: string }>, { server: IMcpServer; config?: any }>('mcp.login-oauth'),
+  loginMcpOAuth: bridge.buildProvider<IBridgeResponse<{ success: boolean; error?: string }>, { server: IMcpServer; config?: Record<string, unknown> }>('mcp.login-oauth'),
   logoutMcpOAuth: bridge.buildProvider<IBridgeResponse, string>('mcp.logout-oauth'),
   getAuthenticatedServers: bridge.buildProvider<IBridgeResponse<string[]>, void>('mcp.get-authenticated-servers'),
 };
@@ -351,7 +357,7 @@ export interface CopySkillsToProjectResult {
   errors: Array<{ agent: string; skill: string; error: string }>;
 }
 
-interface IBridgeResponse<D = {}> {
+interface IBridgeResponse<D = Record<string, never>> {
   success: boolean;
   data?: D;
   msg?: string;

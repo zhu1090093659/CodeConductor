@@ -11,7 +11,7 @@ import https from 'node:https';
 import http from 'node:http';
 import { app } from 'electron';
 import { ipcBridge } from '../../common';
-import { getSystemDir, getAssistantsDir, getSkillsDir } from '../initStorage';
+import { getSystemDir, getAssistantsDir, getSkillsDir, getCustomAssistantsDir } from '../initStorage';
 import { ASSISTANT_PRESETS } from '@/common/presets/assistantPresets';
 import { listAvailableSkills } from '../services/skillFileService';
 import { readDirectoryRecursive } from '../utils';
@@ -708,6 +708,121 @@ export function initFsBridge(): void {
     } catch (error) {
       console.error('[fsBridge] Failed to list available skills:', error);
       return [];
+    }
+  });
+
+  // ============================================================================
+  // Custom Assistants (Agent-created assistants)
+  // 自定义助手操作（Agent 创建的助手）
+  // ============================================================================
+
+  // 获取自定义助手目录路径 / Get custom assistants directory path
+  ipcBridge.fs.getCustomAssistantsDir.provider(() => {
+    return Promise.resolve(getCustomAssistantsDir());
+  });
+
+  // 列出所有自定义助手 / List all custom assistants
+  ipcBridge.fs.listCustomAssistants.provider(async () => {
+    try {
+      const customDir = getCustomAssistantsDir();
+      const results: Array<{ id: string; name: string; description: string; filePath: string }> = [];
+
+      // Scan for subdirectories containing .md files
+      let entries: Array<import('fs').Dirent>;
+      try {
+        entries = await fs.readdir(customDir, { withFileTypes: true });
+      } catch {
+        return [];
+      }
+
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+
+        const assistantId = entry.name;
+        const assistantDir = path.join(customDir, assistantId);
+        const mdFilePath = path.join(assistantDir, `${assistantId}.md`);
+
+        try {
+          const content = await fs.readFile(mdFilePath, 'utf-8');
+
+          // Parse frontmatter-style metadata or extract from content
+          let name = assistantId;
+          let description = '';
+
+          // Try to extract name from first H1 heading
+          const h1Match = content.match(/^#\s+(.+)$/m);
+          if (h1Match) {
+            name = h1Match[1].trim();
+          }
+
+          // Try to extract description from first paragraph after heading
+          const descMatch = content.match(/^#\s+.+\n+(.+?)(?:\n\n|\n#|$)/s);
+          if (descMatch) {
+            description = descMatch[1].trim().slice(0, 200);
+          }
+
+          results.push({
+            id: assistantId,
+            name,
+            description,
+            filePath: mdFilePath,
+          });
+        } catch {
+          // Skip if file doesn't exist or can't be read
+        }
+      }
+
+      console.log(`[fsBridge] Listed ${results.length} custom assistants from ${customDir}`);
+      return results;
+    } catch (error) {
+      console.error('[fsBridge] Failed to list custom assistants:', error);
+      return [];
+    }
+  });
+
+  // 读取自定义助手规则 / Read custom assistant rule
+  ipcBridge.fs.readCustomAssistant.provider(async ({ assistantId }) => {
+    try {
+      const customDir = getCustomAssistantsDir();
+      const mdFilePath = path.join(customDir, assistantId, `${assistantId}.md`);
+      return await fs.readFile(mdFilePath, 'utf-8');
+    } catch (error) {
+      console.error(`[fsBridge] Failed to read custom assistant ${assistantId}:`, error);
+      return '';
+    }
+  });
+
+  // 写入自定义助手规则 / Write custom assistant rule
+  ipcBridge.fs.writeCustomAssistant.provider(async ({ assistantId, content }) => {
+    try {
+      const customDir = getCustomAssistantsDir();
+      const assistantDir = path.join(customDir, assistantId);
+
+      // Ensure directory exists
+      await fs.mkdir(assistantDir, { recursive: true });
+
+      const mdFilePath = path.join(assistantDir, `${assistantId}.md`);
+      await fs.writeFile(mdFilePath, content, 'utf-8');
+      console.log(`[fsBridge] Wrote custom assistant: ${assistantId}`);
+      return true;
+    } catch (error) {
+      console.error(`[fsBridge] Failed to write custom assistant ${assistantId}:`, error);
+      return false;
+    }
+  });
+
+  // 删除自定义助手 / Delete custom assistant
+  ipcBridge.fs.deleteCustomAssistant.provider(async ({ assistantId }) => {
+    try {
+      const customDir = getCustomAssistantsDir();
+      const assistantDir = path.join(customDir, assistantId);
+
+      await fs.rm(assistantDir, { recursive: true, force: true });
+      console.log(`[fsBridge] Deleted custom assistant: ${assistantId}`);
+      return true;
+    } catch (error) {
+      console.error(`[fsBridge] Failed to delete custom assistant ${assistantId}:`, error);
+      return false;
     }
   });
 }

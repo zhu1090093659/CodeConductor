@@ -1,7 +1,7 @@
 # CodeConductor
 
 <p align="center">
-  <img src="./resources/CodeConductor-banner-1 copy.png" alt="CodeConductor banner" width="100%">
+  <img src="./resources/main_pic.png" alt="CodeConductor banner" width="100%">
 </p>
 
 <p align="center">

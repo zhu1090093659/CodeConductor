@@ -33,6 +33,7 @@ const STORAGE_PATH = {
   chat: 'CodeConductor-chat.txt',
   env: '.CodeConductor-env',
   assistants: 'assistants',
+  customAssistants: 'custom-assistants', // Agent 创建的自定义助手目录
   skills: 'skills',
 };
 
@@ -329,6 +330,14 @@ const getSkillsDir = () => {
 };
 
 /**
+ * 获取 Agent 创建的自定义助手目录路径
+ * Get custom assistants directory path (for agent-created assistants)
+ */
+const getCustomAssistantsDir = () => {
+  return path.join(cacheDir, STORAGE_PATH.customAssistants);
+};
+
+/**
  * 初始化内置助手的规则和技能文件到用户目录
  * Initialize builtin assistant rule and skill files to user directory
  */
@@ -376,6 +385,13 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
   if (!existsSync(assistantsDir)) {
     mkdirSync(assistantsDir);
     console.log(`[CodeConductor] Created assistants directory: ${assistantsDir}`);
+  }
+
+  // 确保自定义助手目录存在 / Ensure custom assistants directory exists
+  const customAssistantsDir = getCustomAssistantsDir();
+  if (!existsSync(customAssistantsDir)) {
+    mkdirSync(customAssistantsDir);
+    console.log(`[CodeConductor] Created custom assistants directory: ${customAssistantsDir}`);
   }
 
   for (const preset of ASSISTANT_PRESETS) {
@@ -691,6 +707,26 @@ const initStorage = async () => {
     console.error('[CodeConductor] Failed to initialize builtin assistants:', error);
   }
 
+  // 5.5 Initialize default enabled skills for agents
+  // 初始化默认启用的 skills（create-assistant 等）
+  try {
+    const DEFAULT_ENABLED_SKILLS = ['create-assistant'];
+    const existingEnabledByAgent = await configFile.get('skills.enabledByAgent').catch((): undefined => undefined);
+
+    // Only initialize if no config exists (new users)
+    // 仅当配置不存在时初始化（新用户）
+    if (!existingEnabledByAgent) {
+      const defaultEnabledByAgent: Record<string, string[]> = {
+        claude: DEFAULT_ENABLED_SKILLS,
+        codex: DEFAULT_ENABLED_SKILLS,
+      };
+      await configFile.set('skills.enabledByAgent', defaultEnabledByAgent);
+      console.log('[CodeConductor] Default enabled skills initialized');
+    }
+  } catch (error) {
+    console.warn('[CodeConductor] Failed to initialize default enabled skills:', error);
+  }
+
   // 6. 初始化数据库（better-sqlite3）
   try {
     getDatabase();
@@ -731,7 +767,7 @@ export const getHomeDir = () => {
  * 获取助手规则目录路径（供其他模块使用）
  * Get assistant rules directory path (for use by other modules)
  */
-export { getAssistantsDir, getSkillsDir };
+export { getAssistantsDir, getSkillsDir, getCustomAssistantsDir };
 
 /**
  * 加载指定 skills 的内容
