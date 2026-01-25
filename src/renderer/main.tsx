@@ -10,9 +10,11 @@ import Router from './router';
 import Sider from './sider';
 import { useAuth } from './context/AuthContext';
 import UpdateNotification from './components/UpdateNotification';
+import { useCliInstallModal } from './components/CliInstallModal/useCliInstallModal';
 
 const Main = () => {
   const { ready } = useAuth();
+  const { modal: cliInstallModal } = useCliInstallModal({ autoCheck: true });
 
   if (!ready) {
     return null;
@@ -22,6 +24,7 @@ const Main = () => {
     <>
       <Router layout={<Layout sider={<Sider />} />} />
       <UpdateNotification />
+      {cliInstallModal}
     </>
   );
 };

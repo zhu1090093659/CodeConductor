@@ -212,6 +212,55 @@ export const git = {
   restoreFile: bridge.buildProvider<IBridgeResponse, { cwd: string; filePath: string }>('git.restore-file'),
 };
 
+// CLI Installer - Auto-detect and install CLI tools (Claude Code, Codex)
+// CLI 安装器 - 自动检测和安装 CLI 工具（Claude Code、Codex）
+export const cliInstaller = {
+  // Get list of missing CLI tools with platform-specific install methods
+  // 获取缺失的 CLI 工具列表，包含平台特定的安装方式
+  getMissingClis: bridge.buildProvider<
+    IBridgeResponse<{
+      missing: Array<{
+        id: 'claude' | 'codex';
+        name: string;
+        description: string;
+        installMethods: Array<{
+          method: 'script' | 'winget' | 'brew' | 'npm';
+          command: string;
+          label: string;
+          recommended: boolean;
+        }>;
+      }>;
+      platform: string;
+    }>,
+    void
+  >('cli-installer.get-missing'),
+
+  // Check if user should be prompted for installation (respects user preferences)
+  // 检查是否应该提示用户安装（尊重用户偏好设置）
+  shouldPromptInstall: bridge.buildProvider<IBridgeResponse<{ shouldPrompt: boolean; missing: string[] }>, void>('cli-installer.should-prompt'),
+
+  // Execute CLI installation
+  // 执行 CLI 安装
+  install: bridge.buildProvider<IBridgeResponse<{ success: boolean; error?: string; needsRestart?: boolean }>, { cliId: 'claude' | 'codex'; method: string }>('cli-installer.install'),
+
+  // Installation progress stream
+  // 安装进度流
+  installProgress: bridge.buildEmitter<{
+    cliId: string;
+    status: 'installing' | 'success' | 'failed';
+    message?: string;
+    output?: string;
+  }>('cli-installer.progress'),
+
+  // Skip installation (save user preference)
+  // 跳过安装（保存用户偏好）
+  skip: bridge.buildProvider<IBridgeResponse, { cliIds: string[]; permanent: boolean }>('cli-installer.skip'),
+
+  // Re-detect CLIs after installation
+  // 安装后重新检测 CLI
+  redetect: bridge.buildProvider<IBridgeResponse<{ detected: string[] }>, void>('cli-installer.redetect'),
+};
+
 // 预览面板相关接口 / Preview panel API
 export const preview = {
   // Agent 触发打开预览（如 chrome-devtools 导航到 URL）/ Agent triggers open preview (e.g., chrome-devtools navigates to URL)

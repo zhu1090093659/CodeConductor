@@ -71,6 +71,13 @@ export interface IConfigStorageRefer {
   'migration.assistantEnabledFixed'?: boolean;
   // Migration flag: enable role assistants by default (pm/analyst/engineer)
   'migration.roleAssistantsEnabledByDefault'?: boolean;
+
+  // CLI installation preferences - user choices for skipping CLI install prompts
+  // CLI 安装偏好 - 用户跳过 CLI 安装提示的选择
+  'cli.installPreferences'?: {
+    skippedClis?: string[]; // CLI IDs that user chose to skip / 用户选择跳过的 CLI ID 列表
+    neverAskAgain?: boolean; // Never show install prompt again / 永不再显示安装提示
+  };
 }
 
 export interface CustomCommandConfig {

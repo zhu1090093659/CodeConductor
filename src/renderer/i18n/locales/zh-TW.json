@@ -854,5 +854,18 @@
       "error": "連線錯誤",
       "unknown": "未知狀態"
     }
+  },
+  "cliInstall": {
+    "title": "偵測到缺少 CLI 工具",
+    "description": "CodeConductor 需要以下 CLI 工具才能正常運作。您可以立即安裝，或稍後手動安裝。",
+    "recommended": "建議",
+    "installing": "安裝中...",
+    "installSelected": "安裝所選項目",
+    "remindLater": "稍後提醒",
+    "neverAsk": "不再提醒",
+    "installSuccess": "安裝成功！",
+    "installFailed": "{{cli}} 安裝失敗",
+    "allInstalled": "所有 CLI 工具已安裝完成",
+    "needsRestart": "安裝完成後可能需要重新啟動應用程式以使變更生效"
   }
 }

@@ -886,5 +886,18 @@
       "error": "接続エラー",
       "unknown": "不明な状態"
     }
+  },
+  "cliInstall": {
+    "title": "CLIツールが見つかりません",
+    "description": "CodeConductorを正常に動作させるには、以下のCLIツールが必要です。今すぐインストールするか、後で手動でインストールできます。",
+    "recommended": "推奨",
+    "installing": "インストール中...",
+    "installSelected": "選択したものをインストール",
+    "remindLater": "後で通知",
+    "neverAsk": "今後表示しない",
+    "installSuccess": "インストールが完了しました！",
+    "installFailed": "{{cli}} のインストールに失敗しました",
+    "allInstalled": "すべてのCLIツールがインストールされています",
+    "needsRestart": "変更を有効にするにはアプリを再起動する必要がある場合があります"
   }
 }

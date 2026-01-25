@@ -967,5 +967,18 @@
       "autoGemini25Desc": "Let Gemini CLI decide the best model for the task: gemini-2.5-pro, gemini-2.5-flash",
       "manualDesc": "Manually select a model"
     }
+  },
+  "cliInstall": {
+    "title": "Missing CLI Tools Detected",
+    "description": "CodeConductor requires the following CLI tools to work properly. You can install them now or manually install them later.",
+    "recommended": "Recommended",
+    "installing": "Installing...",
+    "installSelected": "Install Selected",
+    "remindLater": "Remind Later",
+    "neverAsk": "Don't Ask Again",
+    "installSuccess": "Installation successful!",
+    "installFailed": "Failed to install {{cli}}",
+    "allInstalled": "All CLI tools are installed",
+    "needsRestart": "You may need to restart the app for changes to take effect"
   }
 }

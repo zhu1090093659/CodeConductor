@@ -22,6 +22,28 @@ interface DetectedAgent {
 }
 
 /**
+ * Installation method for a CLI tool
+ * CLI 工具的安装方式
+ */
+export interface CliInstallMethod {
+  method: 'script' | 'winget' | 'brew' | 'npm';
+  command: string;
+  label: string; // Display name, e.g. "Official Installer"
+  recommended: boolean; // Whether this is the recommended method
+}
+
+/**
+ * Information about a missing CLI tool
+ * 缺失的 CLI 工具信息
+ */
+export interface MissingCliInfo {
+  id: 'claude' | 'codex';
+  name: string;
+  description: string;
+  installMethods: CliInstallMethod[];
+}
+
+/**
  * 全局ACP检测器 - 启动时检测一次，全局共享结果
  */
 class AcpDetector {
@@ -136,6 +158,18 @@ class AcpDetector {
   }
 
   /**
+   * Reset detection state and re-run detection
+   * Used after CLI installation to refresh the list
+   * 重置检测状态并重新运行检测
+   * 在 CLI 安装后用于刷新列表
+   */
+  async reinitialize(): Promise<void> {
+    this.isDetected = false;
+    this.detectedAgents = [];
+    await this.initialize();
+  }
+
+  /**
    * Refresh custom agents detection only (called when config changes)
    */
   async refreshCustomAgents(): Promise<void> {
@@ -144,6 +178,97 @@ class AcpDetector {
 
     // Re-add custom agents with current config
     await this.addCustomAgentsToList(this.detectedAgents);
+  }
+
+  /**
+   * Get list of missing core CLI tools (claude and codex)
+   * Returns platform-specific installation methods
+   * 获取缺失的核心 CLI 工具列表（claude 和 codex）
+   * 返回平台特定的安装方式
+   */
+  getMissingClis(): MissingCliInfo[] {
+    const missing: MissingCliInfo[] = [];
+    const platform = process.platform;
+
+    // Check if claude is installed
+    const hasClaudeCode = this.detectedAgents.some((agent) => agent.backend === 'claude');
+    if (!hasClaudeCode) {
+      const claudeInstallMethods: CliInstallMethod[] = [];
+
+      if (platform === 'win32') {
+        // Windows: PowerShell script (recommended) and WinGet
+        claudeInstallMethods.push({
+          method: 'script',
+          command: 'irm https://claude.ai/install.ps1 | iex',
+          label: 'Official Installer',
+          recommended: true,
+        });
+        claudeInstallMethods.push({
+          method: 'winget',
+          command: 'winget install Anthropic.ClaudeCode',
+          label: 'WinGet',
+          recommended: false,
+        });
+      } else if (platform === 'darwin') {
+        // macOS: curl script (recommended) and Homebrew
+        claudeInstallMethods.push({
+          method: 'script',
+          command: 'curl -fsSL https://claude.ai/install.sh | bash',
+          label: 'Official Installer',
+          recommended: true,
+        });
+        claudeInstallMethods.push({
+          method: 'brew',
+          command: 'brew install --cask claude-code',
+          label: 'Homebrew',
+          recommended: false,
+        });
+      } else {
+        // Linux: curl script only
+        claudeInstallMethods.push({
+          method: 'script',
+          command: 'curl -fsSL https://claude.ai/install.sh | bash',
+          label: 'Official Installer',
+          recommended: true,
+        });
+      }
+
+      missing.push({
+        id: 'claude',
+        name: 'Claude Code',
+        description: 'AI coding assistant powered by Claude',
+        installMethods: claudeInstallMethods,
+      });
+    }
+
+    // Check if codex is installed
+    const hasCodex = this.detectedAgents.some((agent) => agent.backend === 'codex');
+    if (!hasCodex) {
+      // Codex only supports npm installation on all platforms
+      missing.push({
+        id: 'codex',
+        name: 'Codex',
+        description: 'AI coding assistant powered by OpenAI',
+        installMethods: [
+          {
+            method: 'npm',
+            command: 'npm i -g @openai/codex@latest',
+            label: 'npm',
+            recommended: true,
+          },
+        ],
+      });
+    }
+
+    return missing;
+  }
+
+  /**
+   * Check if a specific CLI is installed
+   * 检查特定 CLI 是否已安装
+   */
+  isCliInstalled(cliId: 'claude' | 'codex'): boolean {
+    return this.detectedAgents.some((agent) => agent.backend === cliId);
   }
 }
 
