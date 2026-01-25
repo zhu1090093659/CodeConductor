@@ -521,48 +521,13 @@ jobs:
           
           # 检查远程tag是否已存在
           if git ls-remote --tags origin | grep -q "refs/tags/$TAG_NAME$"; then
-            if [ "$IS_DEV" = "false" ]; then
-              # Main 分支：需要递增版本并修改 package.json
-              echo "⚠️ Tag $TAG_NAME already exists, auto-incrementing version..."
-          
-              if [[ $VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-                MAJOR=${BASH_REMATCH[1]}
-                MINOR=${BASH_REMATCH[2]}
-                PATCH=${BASH_REMATCH[3]}
-                NEW_PATCH=$((PATCH + 1))
-                NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-          
-                echo "📝 Updating package.json version to $NEW_VERSION"
-          
-                # 更新 package.json 版本号
-                npm version $NEW_VERSION --no-git-tag-version
-          
-                # 配置git用户信息
-                git config user.name "github-actions[bot]"
-                git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-                # 提交版本更新
-                git add package.json package-lock.json
-                git commit -m "chore: bump version to $NEW_VERSION"
-                git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-                git push origin $BRANCH_NAME
-          
-                # 获取新的 commit ID
-                COMMIT_SHORT=$(git rev-parse --short HEAD)
-                TAG_NAME="v${NEW_VERSION}-${COMMIT_SHORT}"
-          
-                echo "🚀 New tag with updated version: $TAG_NAME"
-                echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-              else
-                TAG_NAME="v${VERSION}-${COMMIT_SHORT}"
-                echo "⚠️ Fallback: creating tag with commit ID: $TAG_NAME"
-                echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-              fi
+            if [ "$IS_DEV" = "true" ]; then
+              echo "⚠️ Dev tag $TAG_NAME already exists"
             else
-              # Dev 分支 tag 已存在则失败（不应该发生）
-              echo "⚠️ Dev tag $TAG_NAME already exists, this shouldn't happen"
-              exit 1
+              echo "⚠️ Tag $TAG_NAME already exists"
             fi
+            echo "请在本地更新 package.json 版本号后再发布"
+            exit 1
           fi
           
           # 配置git用户信息（如果前面没配置）
