@@ -7,6 +7,7 @@
 import { ipcBridge } from '../../common';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { mcpOAuthService } from '@process/services/mcpServices/McpOAuthService';
+import { handleBuiltinMcpTool, isBuiltinTransportUrl } from '@process/services/mcpServices/builtinMcpServers';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -15,6 +16,11 @@ import { JSONRPC_VERSION } from '@/types/acpTypes';
 
 const callMcpTool = async (server: import('@/common/storage').IMcpServer, toolName: string, toolArgs: Record<string, unknown>) => {
   const transport = server.transport;
+
+  // Handle built-in servers (e.g., builtin://image-generation)
+  if (transport.type === 'http' && isBuiltinTransportUrl(transport.url)) {
+    return await handleBuiltinMcpTool(server.id, toolName, toolArgs);
+  }
 
   if (transport.type === 'http') {
     const response = await fetch(transport.url, {

@@ -15,6 +15,7 @@ import { initDocumentBridge } from './documentBridge';
 import { initDatabaseBridge } from './databaseBridge';
 import { initDialogBridge } from './dialogBridge';
 import { initFsBridge } from './fsBridge';
+import { initImageGenerationBridge } from './imageGenerationBridge';
 import { initMcpBridge } from './mcpBridge';
 import { initModelBridge } from './modelBridge';
 import { initPreviewHistoryBridge } from './previewHistoryBridge';
@@ -42,6 +43,7 @@ export function initAllBridges(): void {
   initSkillsBridge();
   initSuperpowersBridge();
   initMcpBridge();
+  initImageGenerationBridge();
   initDatabaseBridge();
   initPreviewHistoryBridge();
   initDocumentBridge();
@@ -67,6 +69,6 @@ export async function initializeAcpDetector(): Promise<void> {
 }
 
 // 导出初始化函数供单独使用
-export { initAcpConversationBridge, initApplicationBridge, initAutoUpdaterBridge, initCodexConversationBridge, initConversationBridge, initDatabaseBridge, initDialogBridge, initDocumentBridge, initFsBridge, initGitBridge, initMcpBridge, initModelBridge, initPreviewHistoryBridge, initProviderBridge, initSkillsBridge, initShellBridge, initSuperpowersBridge, initTerminalBridge, initWindowControlsBridge };
+export { initAcpConversationBridge, initApplicationBridge, initAutoUpdaterBridge, initCodexConversationBridge, initConversationBridge, initDatabaseBridge, initDialogBridge, initDocumentBridge, initFsBridge, initGitBridge, initImageGenerationBridge, initMcpBridge, initModelBridge, initPreviewHistoryBridge, initProviderBridge, initSkillsBridge, initShellBridge, initSuperpowersBridge, initTerminalBridge, initWindowControlsBridge };
 // 导出窗口控制相关工具函数
 export { registerWindowMaximizeListeners } from './windowControlsBridge';

@@ -49,8 +49,15 @@ export interface IConfigStorageRefer {
   'css.themes': ICssTheme[]; // 自定义 CSS 主题列表 / Custom CSS themes list
   'css.activeThemeId': string; // 当前激活的主题 ID / Currently active theme ID
   'model.defaultModel': string;
-  'tools.imageGenerationModel': TProviderWithModel & {
-    switch: boolean;
+  /**
+   * Image generation tool configuration
+   * Supports OpenAI-compatible API endpoints
+   */
+  'tools.imageGeneration': {
+    enabled: boolean; // Enable/disable the feature
+    baseUrl: string; // API base URL (e.g., "https://api.openai.com/v1")
+    apiKey: string; // API key for authentication
+    model: string; // Model name (e.g., "dall-e-3")
   };
   'tools.interactiveMode'?: boolean;
   'tools.agentBrowser'?: AgentBrowserConfig;

@@ -163,6 +163,17 @@ export const mcpService = {
   getAuthenticatedServers: bridge.buildProvider<IBridgeResponse<string[]>, void>('mcp.get-authenticated-servers'),
 };
 
+// Image generation tool API
+export const imageGeneration = {
+  generate: bridge.buildProvider<
+    IBridgeResponse<{
+      images: Array<{ url?: string; b64_json?: string; revised_prompt?: string }>;
+    }>,
+    { prompt: string; size?: string; quality?: string; n?: number }
+  >('image-generation.generate'),
+  getStatus: bridge.buildProvider<IBridgeResponse<{ enabled: boolean; configured: boolean }>, void>('image-generation.get-status'),
+};
+
 export const provider = {
   apply: bridge.buildProvider<IBridgeResponse, CliProviderApplyPayload>('provider.apply'),
 };
