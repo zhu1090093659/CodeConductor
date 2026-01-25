@@ -164,6 +164,7 @@ export const provider = {
 export const skills = {
   syncRepos: bridge.buildProvider<IBridgeResponse<{ repos: SkillRepoConfig[]; errors?: Array<{ id: string; error: string }> }>, { repos: SkillRepoConfig[] }>('skills.sync-repos'),
   copyToProject: bridge.buildProvider<IBridgeResponse<CopySkillsToProjectResult>, CopySkillsToProjectParams>('skills.copy-to-project'),
+  deleteSkill: bridge.buildProvider<IBridgeResponse, { location: string }>('skills.delete-skill'),
 };
 
 export const superpowers = {
